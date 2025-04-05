@@ -1,18 +1,43 @@
+_schema: _schema
+paths:
+  uploads: public/uploads
+  static: public
 collections_config:
   src_content_episodes:
     path: src/content/episodes
-    name: Src Content Episodes
+    name: Episodes
     icon: content_paste
+    disable_url: false
+    description: This is where episodes are managed.
+    _enabled_editors:
+    disable_add: false
+    disable_add_folder: false
+    disable_file_actions: false
   pages:
     path: ''
     name: Pages
     icon: wysiwyg
     disable_url: true
-paths:
-  static: public
-  uploads: public/uploads
+    disable_add: false
+    disable_add_folder: false
+    disable_file_actions: false
 timezone: America/Chicago
 markdown:
   engine: commonmark
   options:
+    xhtml: false
+    breaks: false
+    linkify: false
+    typographer: false
+    spaced_lists: false
+    sentence_per_line: false
     gfm: true
+    code_block_fences: '```'
+    escape_snippets_in_code_blocks: false
+    treat_indentation_as_code: false
+    table: false
+    strikethrough: false
+    subscript: false
+    superscript: false
+    heading_ids: false
+    attributes: false
