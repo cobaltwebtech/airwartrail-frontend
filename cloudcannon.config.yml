@@ -1,0 +1,18 @@
+collections_config:
+  src_content_episodes:
+    path: src/content/episodes
+    name: Src Content Episodes
+    icon: content_paste
+  pages:
+    path: ''
+    name: Pages
+    icon: wysiwyg
+    disable_url: true
+paths:
+  static: public
+  uploads: public/uploads
+timezone: America/Chicago
+markdown:
+  engine: commonmark
+  options:
+    gfm: true
