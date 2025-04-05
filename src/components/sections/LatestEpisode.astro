@@ -1,0 +1,42 @@
+---
+import { Button } from "@/components/ui/button";
+---
+
+<!-- Hero -->
+<div class="mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Grid -->
+  <div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-20">
+    <div>
+      <h1
+        class="block text-3xl font-bold text-gray-800 sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white"
+      >
+        Latest Episode <span class="text-blue-600">Title Here</span>
+      </h1>
+      <p class="mt-3 text-lg text-gray-800 dark:text-neutral-400">
+        Dynamic text to be rendered later here. Description goes here.
+      </p>
+
+      <!-- Buttons -->
+      <div class="mt-7 grid w-full gap-3 sm:inline-flex">
+        <Button type="button"> Subscribe Now </Button>
+      </div>
+      <!-- End Buttons -->
+    </div>
+    <!-- End Col -->
+
+    <div class="relative ms-4">
+      <img
+        class="w-full rounded-md"
+        src="https://images.unsplash.com/photo-1473163928189-364b2c4e1135?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Hero Image"
+      />
+      <div
+        class="absolute inset-0 -z-1 -ms-4 me-4 mt-4 -mb-4 size-full rounded-md bg-linear-to-tr from-gray-200 via-white/0 to-white/0 lg:-ms-6 lg:me-6 lg:mt-6 lg:-mb-6 dark:from-neutral-800 dark:via-neutral-900/0 dark:to-neutral-900/0"
+      >
+      </div>
+    </div>
+    <!-- End Col -->
+  </div>
+  <!-- End Grid -->
+</div>
+<!-- End Hero -->

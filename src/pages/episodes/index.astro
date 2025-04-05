@@ -1,0 +1,22 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getEpisodes } from "@/lib/episode";
+import EpisodesList from "@/components/episode/EpisodesList";
+
+// Get all episodes directly
+const episodes = await getEpisodes();
+---
+
+<BaseLayout title="Episodes">
+  <div class="container mx-auto px-4 py-12">
+    <h1 class="mb-8 text-center text-4xl font-bold">All Episodes</h1>
+
+    {
+      episodes.length === 0 ? (
+        <p class="text-center text-gray-600">No episodes found.</p>
+      ) : (
+        <EpisodesList client:load episodes={episodes} />
+      )
+    }
+  </div>
+</BaseLayout>

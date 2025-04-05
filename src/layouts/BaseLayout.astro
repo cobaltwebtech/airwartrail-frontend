@@ -1,0 +1,96 @@
+---
+import "@/styles/global.css";
+import { ClientRouter, fade } from "astro:transitions";
+import { siteMeta } from "@/lib/siteData";
+import Navbar from "@/components/partials/Navbar";
+import Footer from "@/components/partials/Footer";
+import BreakpointIndicator from "@/components/partials/BreakpointIndicator.astro";
+import { Toaster } from "@/components/ui/sonner";
+// REMOVE THE COMMENTS WHEN READY FOR PROD ON BETTER AUTH
+// import { auth } from "@/lib/auth-server";
+
+// const session = await auth.api
+//   .getSession({
+//     headers: Astro.request.headers,
+//   })
+//   .catch(() => null);
+
+interface Props {
+  title?: string;
+  meta?: string;
+  structuredData?: object;
+  lang?: string;
+  externalScript?: boolean;
+  scriptUrl?: string;
+}
+
+const { meta, structuredData, externalScript, scriptUrl } = Astro.props;
+const umamiId = import.meta.env.UMAMI_WEBSITE_ID;
+---
+
+<!doctype html>
+<html lang="en" class="scrollbar-hide lenis lenis-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{siteMeta.title}</title>
+    <meta name="description" content={siteMeta.description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Script to handle dark mode sets localstorage to save preference and checks the devices preference -->
+    <script is:inline>
+      const getThemePreference = () => {
+        if (
+          typeof localStorage !== "undefined" &&
+          localStorage.getItem("theme")
+        ) {
+          return localStorage.getItem("theme");
+        }
+        return window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      };
+
+      const theme = getThemePreference();
+      const isDark =
+        theme === "dark" ||
+        (theme === "system" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+      document.documentElement.classList.toggle("dark", isDark);
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("theme", theme);
+      }
+    </script>
+    <!--Import Lenis smooth scroll script -->
+    <script>
+      import Lenis from "lenis";
+      const lenis = new Lenis();
+      function raf(time: number): void {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    </script>
+    <!-- Enable View Transitions -->
+    <ClientRouter fallback="swap" />
+  </head>
+
+  <body class="bg-background">
+    <Navbar client:load />
+    <div class="mx-auto min-h-dvh max-w-screen-xl px-4 sm:px-6 lg:px-8">
+      <main>
+        <slot />
+      </main>
+    </div>
+    <Footer client:visible />
+    <BreakpointIndicator />
+    <Toaster position="top-right" client:visible />
+    <!-- Import Preline UI with View Transition support -->
+    <script>
+      document.addEventListener("astro:page-load", async () => {
+        const preline = await import("preline/dist/preline.js");
+        preline.HSStaticMethods.autoInit();
+      });
+    </script>
+  </body>
+</html>
