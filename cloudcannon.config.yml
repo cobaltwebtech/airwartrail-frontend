@@ -1,7 +1,7 @@
 _schema: _schema
 paths:
   uploads: src/assets/uploads
-  static: public
+  static:
 collections_config:
   src_content_episodes:
     path: src/content/episodes
