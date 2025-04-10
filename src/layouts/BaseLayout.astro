@@ -7,7 +7,7 @@ import Footer from "@/components/partials/Footer";
 import BreakpointIndicator from "@/components/partials/BreakpointIndicator.astro";
 import { Toaster } from "@/components/ui/sonner";
 // REMOVE THE COMMENTS WHEN READY FOR PROD ON BETTER AUTH
-// import { auth } from "@/lib/auth-server";
+// import { auth } from "@/lib/auth";
 
 // const session = await auth.api
 //   .getSession({
@@ -25,7 +25,7 @@ interface Props {
 }
 
 const { meta, structuredData, externalScript, scriptUrl } = Astro.props;
-const umamiId = import.meta.env.UMAMI_WEBSITE_ID;
+const umamiId = import.meta.env.UMAMI_ID;
 ---
 
 <!doctype html>
@@ -77,14 +77,14 @@ const umamiId = import.meta.env.UMAMI_WEBSITE_ID;
 
   <body class="bg-background">
     <Navbar client:load />
-    <div class="mx-auto min-h-dvh max-w-screen-xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto min-h-svh max-w-screen-xl px-4 sm:px-6 lg:px-8">
       <main>
         <slot />
       </main>
     </div>
     <Footer client:visible />
     <BreakpointIndicator />
-    <Toaster position="top-right" client:visible />
+    <Toaster position="top-right" client:load />
     <!-- Import Preline UI with View Transition support -->
     <script>
       document.addEventListener("astro:page-load", async () => {

@@ -5,6 +5,7 @@ import mdx from "@astrojs/mdx";
 import { remarkReadingTime } from "./src/lib/readTime";
 
 export default defineConfig({
+  output: "server",
   site: "https://www.airwartrail.com",
   integrations: [mdx(), react()],
   vite: {
@@ -13,10 +14,5 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkReadingTime],
     drafts: true,
-  },
-  experimental: {
-    svg: {
-      mode: "sprite",
-    },
   },
 });

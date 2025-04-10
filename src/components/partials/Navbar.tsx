@@ -1,6 +1,14 @@
-import { SquareMenu, CircleX } from "lucide-react";
+import { SquareMenu, CircleX, CircleUserRound, LogOut, SquareUserRound } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { useSession, signOut } from "@/lib/auth-client";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavItem {
   title: string;
@@ -17,6 +25,19 @@ const navItems: Array<NavItem> = [
 ];
 
 const Navbar = () => {
+  const { data: session } = useSession();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("You have been successfully logged out");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Sign out failed:", error);
+      toast.error("Failed to sign out. Please try again.");
+    }
+  };
+
   return (
     <header className="bg-secondary sticky inset-x-0 top-0 z-50 flex w-full flex-wrap py-6 lg:flex-nowrap lg:justify-start">
       <nav className="relative mx-auto flex w-full max-w-screen-xl basis-full flex-wrap items-center px-4 md:px-6 lg:grid lg:grid-cols-12 lg:px-8">
@@ -48,10 +69,35 @@ const Navbar = () => {
 
         {/* Button Group */}
         <div className="ms-auto flex items-center gap-x-1 py-1 lg:order-3 lg:col-span-3 lg:gap-x-2 lg:ps-6">
-          <Button type="button">Login</Button>
-          <Button type="button" variant="outline">
-            Subscribe
-          </Button>
+          {session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" className="gap-2">
+                  <SquareUserRound className="size-6" />
+                  <span className="sr-only">Account</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="p-4">
+                <DropdownMenuItem asChild className="text-lg">
+                  <a href="/account"><CircleUserRound className="size-6" />My Account</a>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="text-lg">
+                  <LogOut className="size-6" /> Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <a href="/login">
+                <Button type="button">Login</Button>
+              </a>
+              <a href="/signup">
+                <Button type="button" variant="outline">
+                  Sign Up
+                </Button>
+              </a>
+            </>
+          )}
 
           <ThemeToggle />
 
