@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,11 +45,14 @@ export function SignupForm({
     setSuccess(false);
 
     try {
-      console.log("Attempting to send magic link to:", data.email);
+      console.log("Attempting to sign up user:", data.email);
       const result = await signIn.magicLink({
         email: data.email,
         callbackURL: "/",
         fetchOptions: {
+          body: {
+            name: data.fullName,
+          },
           onError: (context: { error: { message: string } }) => {
             console.error("Magic link error:", context.error);
             setError(context.error.message);

@@ -1,13 +1,15 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { UserInfo } from "@/components/user/UserInfo";
+import { BillingInfo } from "@/components/user/BillingInfo";
 ---
 
 <BaseLayout title="My Account">
   <div class="container mx-auto py-8">
     <h1 class="mb-4 text-3xl font-bold">Account Settings</h1>
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <UserInfo client:load />
+      <BillingInfo client:load />
     </div>
   </div>
 </BaseLayout>

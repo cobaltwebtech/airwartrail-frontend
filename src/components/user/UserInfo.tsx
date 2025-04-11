@@ -28,8 +28,8 @@ export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
+    name: "",
+    email: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,6 +97,7 @@ export function UserInfo() {
                     <Input
                       id="name"
                       value={formData.name}
+                      placeholder={session?.user?.name || "Enter your name"}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
@@ -111,6 +112,7 @@ export function UserInfo() {
                       id="email"
                       type="email"
                       value={formData.email}
+                      placeholder={session?.user?.email || "Enter your email"}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
@@ -119,7 +121,10 @@ export function UserInfo() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || (!formData.name && !formData.email)}
+                  >
                     {isLoading ? "Saving..." : "Save changes"}
                   </Button>
                 </DialogFooter>
@@ -137,6 +142,13 @@ export function UserInfo() {
           <div>
             <p className="text-muted-foreground text-sm font-medium">Email</p>
             <p className="text-lg">{session?.user?.email}</p>
+            <p
+              className={`mt-1 text-sm ${session?.user?.emailVerified ? "text-green-600" : "text-yellow-600"}`}
+            >
+              {session?.user?.emailVerified
+                ? "✓ Email verified"
+                : "⚠ Email not verified"}
+            </p>
           </div>
         </div>
       </CardContent>

@@ -66,7 +66,10 @@ export function ThemeToggle() {
         <DropdownMenuItem onClick={() => setTheme("dark")} className="text-lg">
           <Moon className="size-6" /> Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")} className="text-lg">
+        <DropdownMenuItem
+          onClick={() => setTheme("system")}
+          className="text-lg"
+        >
           <Monitor className="size-6" /> System
         </DropdownMenuItem>
       </DropdownMenuContent>

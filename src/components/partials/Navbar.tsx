@@ -1,4 +1,10 @@
-import { SquareMenu, CircleX, CircleUserRound, LogOut, SquareUserRound } from "lucide-react";
+import {
+  SquareMenu,
+  CircleX,
+  CircleUserRound,
+  LogOut,
+  SquareUserRound,
+} from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -79,7 +85,10 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="p-4">
                 <DropdownMenuItem asChild className="text-lg">
-                  <a href="/account"><CircleUserRound className="size-6" />My Account</a>
+                  <a href="/account">
+                    <CircleUserRound className="size-6" />
+                    My Account
+                  </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-lg">
                   <LogOut className="size-6" /> Sign Out

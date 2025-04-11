@@ -216,7 +216,10 @@ export function LoginForm({
                         ) : showPasswordLogin ? (
                           "Login"
                         ) : (
-                          "Send Magic Link"
+                          <>
+                            <Mail className="size-4" />{" "}
+                            <span>Send Magic Link</span>
+                          </>
                         )}
                       </Button>
 
@@ -231,7 +234,7 @@ export function LoginForm({
                                 alert(context.error.message);
                               },
                               onSuccess(context) {
-                                window.location.href = "/dashboard";
+                                window.location.href = "/";
                               },
                             },
                           });
