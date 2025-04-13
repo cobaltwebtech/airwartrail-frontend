@@ -48,7 +48,7 @@ export function SignupForm({
       console.log("Attempting to sign up user:", data.email);
       const result = await signIn.magicLink({
         email: data.email,
-        callbackURL: "/",
+        callbackURL: "/subscribe",
         fetchOptions: {
           body: {
             name: data.fullName,

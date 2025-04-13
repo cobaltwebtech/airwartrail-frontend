@@ -2,18 +2,18 @@
 import "@/styles/global.css";
 import { ClientRouter, fade } from "astro:transitions";
 import { siteMeta } from "@/lib/siteData";
-import Navbar from "@/components/partials/Navbar";
+import Navbar from "@/components/sections/Navbar.astro";
 import Footer from "@/components/partials/Footer";
-import BreakpointIndicator from "@/components/partials/BreakpointIndicator.astro";
+import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro";
 import { Toaster } from "@/components/ui/sonner";
-// REMOVE THE COMMENTS WHEN READY FOR PROD ON BETTER AUTH
-// import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
-// const session = await auth.api
-//   .getSession({
-//     headers: Astro.request.headers,
-//   })
-//   .catch(() => null);
+// Retrieve the auth session from the request headers
+const sessionData = await auth.api
+  .getSession({
+    headers: Astro.request.headers,
+  })
+  .catch(() => null);
 
 interface Props {
   title?: string;
@@ -73,11 +73,24 @@ const umamiId = import.meta.env.UMAMI_ID;
     </script>
     <!-- Enable View Transitions -->
     <ClientRouter fallback="swap" />
+    <script>
+      // Optimize Preline initialization
+      document.addEventListener("astro:page-load", async () => {
+        // Only initialize Preline if there are elements that need it
+        if (document.querySelector("[data-hs-collapse]")) {
+          const preline = await import("preline/dist/preline.js");
+          preline.HSStaticMethods.autoInit();
+        }
+      });
+    </script>
   </head>
 
   <body class="bg-background">
-    <Navbar client:load />
-    <div class="mx-auto min-h-svh max-w-screen-xl px-4 sm:px-6 lg:px-8">
+    <Navbar sessionData={sessionData} />
+    <div
+      class="mx-auto min-h-svh max-w-screen-xl px-4 sm:px-6 lg:px-8"
+      transition:animate="fade"
+    >
       <main>
         <slot />
       </main>
@@ -88,8 +101,11 @@ const umamiId = import.meta.env.UMAMI_ID;
     <!-- Import Preline UI with View Transition support -->
     <script>
       document.addEventListener("astro:page-load", async () => {
-        const preline = await import("preline/dist/preline.js");
-        preline.HSStaticMethods.autoInit();
+        // Only initialize Preline if there are elements that need it
+        if (document.querySelector("[data-hs-collapse]")) {
+          const preline = await import("preline/dist/preline.js");
+          preline.HSStaticMethods.autoInit();
+        }
       });
     </script>
   </body>

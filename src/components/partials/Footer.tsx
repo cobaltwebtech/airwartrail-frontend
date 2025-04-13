@@ -1,6 +1,20 @@
 import { useEffect } from "react";
 import { siteMeta } from "@/lib/siteData";
 
+interface FooterItem {
+  title: string;
+  url: string;
+}
+//Array for menu items with Astro Icons
+const footerItems: Array<FooterItem> = [
+  {
+    title: "Episodes",
+    url: "/episodes",
+  },
+  { title: "About", url: "/about" },
+  { title: "Contact", url: "/contact" },
+];
+
 const Footer = () => {
   useEffect(() => {
     const year = new Date().getFullYear();
@@ -23,28 +37,28 @@ const Footer = () => {
         {/* End Col */}
 
         <ul className="text-center">
-          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-neutral-600">
+          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-stone-600">
             <a
-              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-neutral-500 dark:hover:text-neutral-200 dark:focus:text-neutral-200"
-              href="#"
+              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-stone-500 dark:hover:text-stone-200 dark:focus:text-stone-200"
+              href="/about"
             >
               About
             </a>
           </li>
-          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-neutral-600">
+          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-stone-600">
             <a
-              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-neutral-500 dark:hover:text-neutral-200 dark:focus:text-neutral-200"
-              href="#"
+              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-stone-500 dark:hover:text-stone-200 dark:focus:text-stone-200"
+              href="/privacy-policy"
             >
-              Services
+              Privacy Policy
             </a>
           </li>
-          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-neutral-600">
+          <li className="relative inline-block pe-8 before:absolute before:end-3 before:top-1/2 before:-translate-y-1/2 before:text-gray-300 before:content-['|'] last:pe-0 last-of-type:before:hidden dark:before:text-stone-600">
             <a
-              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-neutral-500 dark:hover:text-neutral-200 dark:focus:text-neutral-200"
-              href="#"
+              className="inline-flex gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:text-gray-800 focus:outline-hidden dark:text-stone-500 dark:hover:text-stone-200 dark:focus:text-stone-200"
+              href="/terms-of-service"
             >
-              Blog
+              Terms of Service
             </a>
           </li>
         </ul>
@@ -53,7 +67,7 @@ const Footer = () => {
         {/* Social Brands */}
         <div className="space-x-2 md:text-end">
           <a
-            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-stone-400 dark:hover:bg-stone-700 dark:focus:bg-stone-700"
             href="#"
           >
             <svg
@@ -68,7 +82,7 @@ const Footer = () => {
             </svg>
           </a>
           <a
-            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-stone-400 dark:hover:bg-stone-700 dark:focus:bg-stone-700"
             href="#"
           >
             <svg
@@ -83,7 +97,7 @@ const Footer = () => {
             </svg>
           </a>
           <a
-            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-stone-400 dark:hover:bg-stone-700 dark:focus:bg-stone-700"
             href="#"
           >
             <svg
@@ -98,7 +112,7 @@ const Footer = () => {
             </svg>
           </a>
           <a
-            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+            className="inline-flex size-8 items-center justify-center gap-x-2 rounded-full border border-transparent text-sm font-semibold text-gray-500 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50 dark:text-stone-400 dark:hover:bg-stone-700 dark:focus:bg-stone-700"
             href="#"
           >
             <svg

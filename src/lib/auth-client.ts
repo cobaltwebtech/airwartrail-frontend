@@ -1,7 +1,10 @@
 import { createAuthClient } from "better-auth/react";
-import { passkeyClient, twoFactorClient } from "better-auth/client/plugins";
+import {
+  passkeyClient,
+  twoFactorClient,
+  magicLinkClient,
+} from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
-import { magicLinkClient } from "better-auth/client/plugins";
 
 export const client = createAuthClient({
   baseURL:
@@ -14,11 +17,7 @@ export const client = createAuthClient({
     stripeClient({
       subscription: true,
     }),
-    twoFactorClient({
-      onTwoFactorRedirect: () => {
-        window.location.href = "/two-factor";
-      },
-    }),
+    twoFactorClient(),
   ],
 });
 

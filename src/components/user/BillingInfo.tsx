@@ -26,18 +26,7 @@ type Subscription = {
     | "paused";
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  currentPeriodEnd?: Date;
-  paymentMethod?: {
-    card?: {
-      brand: string;
-      last4: string;
-    };
-  };
-  limits?: Record<string, number>;
-  trialStart?: Date;
-  trialEnd?: Date;
-  cancelAtPeriodEnd?: boolean;
-  seats?: number;
+  periodEnd?: Date;
 };
 
 export function BillingInfo() {
@@ -82,9 +71,15 @@ export function BillingInfo() {
   const subscriptionPlan = subscriptionData?.plan || "Free Tier";
   const isFreeTier = !hasActiveSubscription || subscriptionPlan === "Free Tier";
 
-  // Format renewal date if available
-  const renewalDate = subscriptionData?.currentPeriodEnd
-    ? new Date(subscriptionData.currentPeriodEnd).toLocaleDateString()
+  // Calculate renewal date (periodEnd + 1 day)
+  const renewalDate = subscriptionData?.periodEnd
+    ? new Date(
+        new Date(subscriptionData.periodEnd).getTime() + 24 * 60 * 60 * 1000,
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
     : null;
 
   const handleManageSubscription = async () => {
@@ -117,11 +112,22 @@ export function BillingInfo() {
     }
   };
 
+  // Render a static version as a fallback to avoid rendering issues during hydration
   if (loading) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center p-6">
-          <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Billing Information</CardTitle>
+              <CardDescription>
+                Manage your subscription and billing details
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin" />
         </CardContent>
       </Card>
     );
@@ -151,24 +157,12 @@ export function BillingInfo() {
             <p className="text-lg font-medium">
               {isFreeTier ? "Free Tier" : subscriptionPlan}
             </p>
-            {!isFreeTier && renewalDate && (
+            {!isFreeTier && subscriptionData?.periodEnd && (
               <p className="text-muted-foreground mt-1 text-sm">
                 Renews on {renewalDate}
               </p>
             )}
           </div>
-
-          {!isFreeTier && subscriptionData?.paymentMethod?.card && (
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">
-                Billing Method
-              </p>
-              <p className="text-lg">
-                {subscriptionData.paymentMethod.card.brand} ending in{" "}
-                {subscriptionData.paymentMethod.card.last4}
-              </p>
-            </div>
-          )}
         </div>
       </CardContent>
       <CardFooter>

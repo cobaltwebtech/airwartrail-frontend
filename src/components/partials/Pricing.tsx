@@ -65,8 +65,9 @@ export default function Pricing() {
             <CardContent className="flex-grow">
               <p className="mb-6 text-3xl font-bold">
                 $9
+                <sup className="superscript text-base">.99</sup>
                 <span className="text-base font-normal text-gray-500">
-                  /month
+                  &nbsp; /month
                 </span>
               </p>
               <ul className="space-y-3">

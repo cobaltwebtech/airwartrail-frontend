@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "@/lib/auth-client";
 import { updateUser, changeEmail } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -21,16 +21,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Pencil, Loader2 } from "lucide-react";
 
 export function UserInfo() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +68,27 @@ export function UserInfo() {
       setIsLoading(false);
     }
   };
+
+  // Render a static version as a fallback to avoid rendering issues during hydration
+  if (!mounted) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>
+                Update your personal information and email address
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
