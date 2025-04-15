@@ -41,6 +41,8 @@ markdown:
     superscript: false
     heading_ids: false
     attributes: false
+_snippets_imports:
+  mdx: true
 _snippets:
   premium_content:
     template: mdx_paired_component
