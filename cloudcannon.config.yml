@@ -41,3 +41,21 @@ markdown:
     superscript: false
     heading_ids: false
     attributes: false
+_snippets:
+  premium_content:
+    template: mdx_paired_component
+    inline: false
+    preview:
+      text: Premium Content
+    definitions:
+      component_name: PremiumContent
+      content_key: children
+      named_args:
+        - editor_key: fallback
+          type: string
+          optional: true
+    _inputs:
+      fallback:
+        type: text
+        label: Fallback Message
+        description: Optional message to show to non-premium users

@@ -35,25 +35,9 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
     }
   };
 
-  // Render a static version of the buttons as a fallback to avoid rendering issues during hydration
+  // Show nothing during server-side rendering
   if (!mounted) {
-    return (
-      <div className="space-x-4">
-        {session ? (
-          <Button type="button" className="gap-2">
-            <SquareUserRound className="size-6" />
-            <span className="sr-only">Account</span>
-          </Button>
-        ) : (
-          <>
-            <Button type="button">Login</Button>
-            <Button type="button" variant="outline">
-              Sign Up
-            </Button>
-          </>
-        )}
-      </div>
-    );
+    return null;
   }
 
   return (
