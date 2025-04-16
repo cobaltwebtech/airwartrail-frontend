@@ -44,14 +44,15 @@ markdown:
 _snippets_imports:
   mdx: true
 _snippets:
-  premium_video:
+  custom_snippet:
     template: mdx_component
     inline: false
     preview:
-      text: Premium Video
+      text: My Custom Component
     definitions:
-      component_name: PremiumVideo
+      component_name: CustomComponent
       named_args:
-        - source_key: videoUrl
-        - editor_key: videoUrl
+        - editor_key: arg1
+          type: string
+        - editor_key: arg2
           type: string
