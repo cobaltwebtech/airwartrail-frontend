@@ -56,5 +56,5 @@ _snippets:
           type: string
     _inputs:
       videoUrl:
-        type: input
+        type: url
         label: Video URL
