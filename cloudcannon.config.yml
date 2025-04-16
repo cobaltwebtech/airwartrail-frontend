@@ -52,5 +52,6 @@ _snippets:
     definitions:
       component_name: PremiumVideo
       named_args:
+        - source_key: videoUrl
         - editor_key: videoUrl
           type: string
