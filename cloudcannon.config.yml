@@ -50,14 +50,10 @@ _snippets:
     preview:
       text: Premium Video
     definitions:
-      component_name: Premium Video
+      component_name: PremiumVideo
       content_key: videoUrl
-      named_args:
-        - editor_key: fallback
-          type: string
-          optional: true
     _inputs:
-      fallback:
+      videuUrl:
         type: text
-        label: Fallback Message
-        description: Optional message to show to non-premium users
+        label: Video URL
+        description: Paste the URL of the video you want to embed for premium subscribers.

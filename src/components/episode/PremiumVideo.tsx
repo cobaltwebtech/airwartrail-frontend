@@ -4,10 +4,9 @@ import { Button } from "../ui/button";
 
 interface PremiumVideoProps {
   videoUrl: string;
-  fallback?: React.ReactNode;
 }
 
-export function PremiumVideo({ videoUrl, fallback }: PremiumVideoProps) {
+export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
   const { data: session } = useSession();
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -53,51 +52,47 @@ export function PremiumVideo({ videoUrl, fallback }: PremiumVideoProps) {
 
   if (!session?.user) {
     return (
-      fallback || (
-        <div className="bg-card rounded-lg p-4">
-          <p>This content is for premium subscribers only.</p>
-          <a href="/signup">
-            <Button>Sign Up to Subscribe</Button>
-          </a>
-          <p>Already have an account?</p>
-          <a href="/login">
-            <Button>Login</Button>
-          </a>
-        </div>
-      )
+      <div className="bg-card rounded-lg p-4">
+        <p>This content is for premium subscribers only.</p>
+        <a href="/signup">
+          <Button>Sign Up to Subscribe</Button>
+        </a>
+        <p>Already have an account?</p>
+        <a href="/login">
+          <Button>Login</Button>
+        </a>
+      </div>
     );
   }
 
   if (!isPremium) {
     return (
-      fallback || (
-        <div className="bg-card rounded-lg p-4">
-          <p>This content is for premium subscribers only.</p>
-          <Button
-            onClick={() =>
-              subscription.upgrade({
-                plan: "premium",
-                successUrl: "/subscribe/success",
-                cancelUrl: window.location.href,
-              })
-            }
-          >
-            Upgrade to Premium
-          </Button>
-        </div>
-      )
+      <div className="bg-card rounded-lg p-4">
+        <p>This content is for premium subscribers only.</p>
+        <Button
+          onClick={() =>
+            subscription.upgrade({
+              plan: "premium",
+              successUrl: "/subscribe/success",
+              cancelUrl: window.location.href,
+            })
+          }
+        >
+          Upgrade to Premium
+        </Button>
+      </div>
     );
   }
 
   return (
     <div className="relative pt-[56.25%]">
       <iframe
-        src={videoUrl}
+        src={`${videoUrl}?autoplay=false&loop=false&muted=true&preload=true&responsive=true`}
         loading="eager"
         className="absolute top-0 h-full w-full border-0"
         allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-        allowFullScreen={true}>
-      </iframe>
+        allowFullScreen={true}
+      ></iframe>
     </div>
   );
 }
