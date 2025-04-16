@@ -44,16 +44,13 @@ markdown:
 _snippets_imports:
   mdx: true
 _snippets:
-  premium_content:
-    template: mdx_paired_component
+  premium_video:
+    template: mdx_component
     inline: false
     preview:
       text: Premium Video
     definitions:
       component_name: PremiumVideo
-      content_key: videoUrl
-    _inputs:
-      videuUrl:
-        type: text
-        label: Video URL
-        description: Paste the URL of the video you want to embed for premium subscribers.
+      named_args:
+        - editor_key: videoUrl
+          type: string
