@@ -1,0 +1,6 @@
+---
+import { PremiumVideo } from "@/components/episode/PremiumVideo";
+const { videoUrl, ...props } = Astro.props;
+---
+
+<PremiumVideo client:load videoUrl={videoUrl} {...props}  />

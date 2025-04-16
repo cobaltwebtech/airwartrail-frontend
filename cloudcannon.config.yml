@@ -50,8 +50,8 @@ _snippets:
     preview:
       text: Premium Content
     definitions:
-      component_name: PremiumContent
-      content_key: children
+      component_name: Premium Video
+      content_key: videoUrl
       named_args:
         - editor_key: fallback
           type: string
@@ -61,7 +61,3 @@ _snippets:
         type: text
         label: Fallback Message
         description: Optional message to show to non-premium users
-_mdx:
-  imports:
-    - from: "@/components/episode/PremiumContent"
-      default: PremiumContent

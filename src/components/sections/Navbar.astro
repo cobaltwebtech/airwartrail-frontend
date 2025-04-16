@@ -61,9 +61,7 @@ const navItems: Array<NavItem> = [
       class="ms-auto flex items-center gap-x-1 py-1 lg:order-3 lg:col-span-3 lg:gap-x-2 lg:ps-6"
     >
       {/* Login and Sign Up buttons */}
-      <div class="min-h-[40px]">
-        <AuthButtons sessionData={sessionData} client:load />
-      </div>
+      <AuthButtons sessionData={sessionData} client:load />
 
       {/* Theme Toggle for dark/light mode */}
       <ThemeToggle client:load />

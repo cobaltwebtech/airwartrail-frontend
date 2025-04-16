@@ -1,8 +1,7 @@
 ---
-export const prerender = true;
-
 import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import PremiumContent from "@/components/episode/PremiumContent.astro";
 
 export async function getStaticPaths() {
   const episodes = await getCollection("episodes");
@@ -48,7 +47,7 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
     </header>
 
     <div class="prose prose-lg dark:prose-invert max-w-none">
-      <Content />
+      <Content components={{ PremiumVideo: PremiumContent }} />
     </div>
   </article>
 </BaseLayout>

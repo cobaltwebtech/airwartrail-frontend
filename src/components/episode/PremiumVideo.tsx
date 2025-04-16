@@ -2,12 +2,12 @@ import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
-interface PremiumContentProps {
-  children: React.ReactNode;
+interface PremiumVideoProps {
+  videoUrl: string;
   fallback?: React.ReactNode;
 }
 
-export function PremiumContent({ children, fallback }: PremiumContentProps) {
+export function PremiumVideo({ videoUrl, fallback }: PremiumVideoProps) {
   const { data: session } = useSession();
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,10 +43,8 @@ export function PremiumContent({ children, fallback }: PremiumContentProps) {
       checkPremiumStatus();
     }
   }, [session?.user, mounted]);
-
-  // Show nothing during server-side rendering
   if (!mounted) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   if (loading) {
@@ -54,23 +52,35 @@ export function PremiumContent({ children, fallback }: PremiumContentProps) {
   }
 
   if (!session?.user) {
-    return fallback || <div>Please sign in to view this content</div>;
+    return (
+      fallback || (
+        <div className="bg-card rounded-lg p-4">
+          <p>This content is for premium subscribers only.</p>
+          <a href="/signup">
+            <Button>Sign Up to Subscribe</Button>
+          </a>
+          <p>Already have an account?</p>
+          <a href="/login">
+            <Button>Login</Button>
+          </a>
+        </div>
+      )
+    );
   }
 
   if (!isPremium) {
     return (
       fallback || (
-        <div className="rounded-lg bg-gray-100 p-4">
+        <div className="bg-card rounded-lg p-4">
           <p>This content is for premium subscribers only.</p>
           <Button
             onClick={() =>
               subscription.upgrade({
                 plan: "premium",
-                successUrl: window.location.href,
+                successUrl: "/subscribe/success",
                 cancelUrl: window.location.href,
               })
             }
-            className="mt-2 inline-block rounded bg-blue-500 px-4 py-2 text-white"
           >
             Upgrade to Premium
           </Button>
@@ -79,5 +89,15 @@ export function PremiumContent({ children, fallback }: PremiumContentProps) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="relative pt-[56.25%]">
+      <iframe
+        src={videoUrl}
+        loading="eager"
+        className="absolute top-0 h-full w-full border-0"
+        allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+        allowFullScreen={true}>
+      </iframe>
+    </div>
+  );
 }

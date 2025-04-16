@@ -85,13 +85,13 @@ export function LoginForm({
       const response = await signIn.email({
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
         rememberMe: true,
       });
 
       if (response && !response.error) {
         toast.success("Login successful!");
-        window.location.href = "/dashboard";
+        window.location.href = "/";
         return;
       }
 
