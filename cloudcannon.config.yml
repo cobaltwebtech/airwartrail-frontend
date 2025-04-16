@@ -48,7 +48,7 @@ _snippets:
     template: mdx_paired_component
     inline: false
     preview:
-      text: Premium Content
+      text: Premium Video
     definitions:
       component_name: Premium Video
       content_key: videoUrl
