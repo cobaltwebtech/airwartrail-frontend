@@ -1,6 +1,7 @@
 import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Loader } from "lucide-react";
 
 interface PremiumVideoProps {
   videoUrl: string;
@@ -43,24 +44,36 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
     }
   }, [session?.user, mounted]);
   if (!mounted) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center">
+        <Loader className="size-12 animate-spin" />
+      </div>
+    );
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center">
+        <Loader className="size-12 animate-spin" />
+      </div>
+    );
   }
 
   if (!session?.user) {
     return (
-      <div className="bg-card rounded-lg p-4">
-        <p>This content is for premium subscribers only.</p>
-        <a href="/signup">
-          <Button>Sign Up to Subscribe</Button>
-        </a>
-        <p>Already have an account?</p>
-        <a href="/login">
-          <Button>Login</Button>
-        </a>
+      <div className="bg-chart-4 max-w-[450px] rounded-lg p-4">
+        <p>
+          This content is for premium subscribers only. <br />
+          Subscribe now or login to view premium content.
+        </p>
+        <div className="flex flex-row gap-x-4">
+          <a href="/signup">
+            <Button>Sign Up to Subscribe</Button>
+          </a>
+          <a href="/login">
+            <Button variant="secondary">Login</Button>
+          </a>
+        </div>
       </div>
     );
   }

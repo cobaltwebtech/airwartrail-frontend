@@ -36,6 +36,22 @@ export function BillingInfo() {
   );
   const [loading, setLoading] = useState(true);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      await subscription.upgrade({
+        plan: "premium",
+        successUrl: window.location.href,
+        cancelUrl: window.location.href,
+      });
+    } catch (error) {
+      console.error("Error upgrading subscription:", error);
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchSubscription() {
@@ -169,15 +185,17 @@ export function BillingInfo() {
         {isFreeTier ? (
           <Button
             className="w-full"
-            onClick={() =>
-              subscription.upgrade({
-                plan: "premium",
-                successUrl: window.location.href,
-                cancelUrl: window.location.href,
-              })
-            }
+            onClick={handleUpgrade}
+            disabled={isUpgrading}
           >
-            Upgrade to Premium
+            {isUpgrading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <span>Proceeding to payment...</span>
+              </div>
+            ) : (
+              "Upgrade to Premium Tier"
+            )}
           </Button>
         ) : (
           <Button
@@ -187,10 +205,10 @@ export function BillingInfo() {
             disabled={isManagingSubscription}
           >
             {isManagingSubscription ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading please wait...
-              </>
+              <div className="flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <span>Loading Please Wait...</span>
+              </div>
             ) : (
               "Manage Subscription"
             )}

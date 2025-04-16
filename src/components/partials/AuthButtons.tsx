@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CircleUserRound, LogOut, SquareUserRound } from "lucide-react";
+import { Loader, CircleUserRound, LogOut, SquareUserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "@/lib/auth-client";
 import type { ActiveSession } from "@/types";
@@ -37,7 +37,11 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
 
   // Show nothing during server-side rendering
   if (!mounted) {
-    return null;
+    return (
+      <div>
+        <Loader className="size-6 animate-spin" />
+      </div>
+    );
   }
 
   return (

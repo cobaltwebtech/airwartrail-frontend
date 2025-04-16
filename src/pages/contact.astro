@@ -1,7 +1,15 @@
 ---
+export const prerender = true;
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ContactForm from "@/components/partials/ContactForm";
 ---
 
 <BaseLayout title="Contact Us">
-  <h1>Contact Us</h1>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="mb-8 text-center text-3xl font-bold">Contact Us</h1>
+    <div class="mx-auto max-w-2xl">
+      <ContactForm client:load />
+    </div>
+  </div>
 </BaseLayout>

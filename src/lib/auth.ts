@@ -7,6 +7,7 @@ import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { Resend } from "resend";
+import { MagicLinkEmail } from "@/components/email/MagicLinkEmail";
 
 // Create a new Turso database connection
 const client = createClient({
@@ -42,16 +43,12 @@ export const auth = betterAuth({
       ) => {
         try {
           await resend.emails.send({
-            from: "Airwartrail <no-reply@contact.cobaltweb.tech>",
+            from: "Airwar Trail <no-reply@contact.cobaltweb.tech>",
             to: user.email, // Send to current email for verification
             subject: "Confirm Email Change",
-            html: `
-              <h1>Confirm Email Change</h1>
-              <p>You have requested to change your email address to ${newEmail}.</p>
-              <p>Click the link below to confirm this change:</p>
-              <a href="${url}">Confirm Email Change</a>
-              <p>If you did not request this change, please ignore this email.</p>
-            `,
+            react: await MagicLinkEmail({
+              url: url,
+            }),
           });
         } catch (error) {
           console.error("Error sending email change verification:", error);
@@ -67,15 +64,12 @@ export const auth = betterAuth({
         try {
           console.log("Attempting to send magic link email to:", email);
           await resend.emails.send({
-            from: "Airwartrail <no-reply@contact.cobaltweb.tech>",
+            from: "Airwar Trail <login@contact.cobaltweb.tech>",
             to: email,
-            subject: "Sign in to Airwar Trail",
-            html: `
-              <h1>Welcome to Airwartrail!</h1>
-              <p>Click the link below to sign in to your account:</p>
-              <a href="${url}">Sign in to Airwartrail</a>
-              <p>This link will expire in 5 minutes.</p>
-            `,
+            subject: "Login to Airwar Trail",
+            react: await MagicLinkEmail({
+              url: url,
+            }),
           });
           console.log("Magic link email sent successfully");
         } catch (error) {

@@ -53,7 +53,10 @@ export function LoginForm({
     setErrorMessage("");
 
     try {
-      await signIn.magicLink({ email });
+      await signIn.magicLink({
+        email,
+        callbackURL: "/",
+      });
       setMagicLinkSent(true);
       toast.success("Magic link sent! Check your email.");
     } catch (error) {

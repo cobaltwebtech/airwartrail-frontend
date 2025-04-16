@@ -6,6 +6,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isAuthed = await auth.api.getSession({
     headers: context.request.headers,
   });
+
   // Redirect routes based on authentication status
   const publicPaths = ["/signup", "/login"];
   const isPublicPath = publicPaths.includes(context.url.pathname);
@@ -18,5 +19,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (isPublicPath && isAuthed) {
     return context.redirect("/account");
   }
+
+  // Check for error query parameters in the URL
+  const url = new URL(context.request.url);
+  const error = url.searchParams.get("error");
+
+  if (error === "EXPIRED_TOKEN" || error === "INVALID_TOKEN") {
+    // Redirect to the login-error page with the error query parameter
+    return context.redirect(`/login/login-error?magicLinkError=${error}`);
+  }
+
+  // Proceed with the next middleware or request handler
   return next();
 });
