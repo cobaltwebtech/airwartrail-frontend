@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
 import { KeyRound, Loader2, Mail, CheckCircle2 } from "lucide-react";
 
@@ -119,7 +120,7 @@ export function LoginForm({
   };
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-[80svh] w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className={cn("flex flex-col gap-6", className)} {...props}>
           <Card>
@@ -179,15 +180,14 @@ export function LoginForm({
                         <div className="flex items-center">
                           <Label htmlFor="password">Password</Label>
                           <a
-                            href="/forgot-password"
+                            href="/login/forget-password"
                             className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                           >
                             Forgot your password?
                           </a>
                         </div>
-                        <Input
+                        <PasswordInput
                           id="password"
-                          type="password"
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}

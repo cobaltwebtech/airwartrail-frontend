@@ -1,0 +1,29 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Button } from "@/components/ui/button";
+import { Home } from "@lucide/astro";
+---
+
+<BaseLayout title="Page Not Found">
+  <div
+    class="flex min-h-[80svh] w-full items-center justify-center p-6 md:p-10"
+  >
+    <div class="w-full max-w-sm">
+      <div class="flex flex-col gap-6">
+        <h1 class="text-center text-4xl font-bold">404</h1>
+        <h2 class="text-center text-2xl font-semibold">
+          Oops! Page not found.
+        </h2>
+        <div class="mx-auto w-fit">
+          <a href="/">
+            <Button type="button" size="lg">
+              <Home class="size-8" />Go to Home
+            </Button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

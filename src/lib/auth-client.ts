@@ -1,9 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import {
-  passkeyClient,
-  twoFactorClient,
-  magicLinkClient,
-} from "better-auth/client/plugins";
+import { passkeyClient, magicLinkClient } from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
 
 export const client = createAuthClient({
@@ -17,7 +13,6 @@ export const client = createAuthClient({
     stripeClient({
       subscription: true,
     }),
-    twoFactorClient(),
   ],
 });
 
@@ -28,12 +23,11 @@ export const {
   signUp,
   passkey: passkeyActions,
   useListPasskeys,
-  twoFactor: twoFactorActions,
   $Infer,
   updateUser,
   changePassword,
-  revokeSession,
-  revokeSessions,
+  resetPassword,
+  forgetPassword,
   changeEmail,
   subscription,
 } = client;

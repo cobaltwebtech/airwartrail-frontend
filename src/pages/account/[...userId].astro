@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { UserInfo } from "@/components/user/UserInfo";
 import { BillingInfo } from "@/components/user/BillingInfo";
+import { UserCredentials } from "@/components/user/UserCredentials";
 ---
 
 <BaseLayout title="My Account">
@@ -10,6 +11,7 @@ import { BillingInfo } from "@/components/user/BillingInfo";
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <UserInfo client:load />
       <BillingInfo client:load />
+      <UserCredentials client:load />
     </div>
   </div>
 </BaseLayout>

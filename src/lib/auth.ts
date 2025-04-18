@@ -8,6 +8,8 @@ import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { MagicLinkEmail } from "@/components/email/MagicLinkEmail";
+import { VerifyEmail } from "@/components/email/VerifyEmail";
+import { PasswordReset } from "@/components/email/PasswordReset";
 
 // Create a new Turso database connection
 const client = createClient({
@@ -33,20 +35,37 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      try {
+        await resend.emails.send({
+          from: "Airwar Trail <login@contact.cobaltweb.tech>",
+          to: user.email,
+          subject: "Password Reset",
+          react: await PasswordReset({
+            url: url,
+          }),
+        });
+      } catch (error) {
+        console.error("Error sending password reset:", error);
+        throw error;
+      }
+    },
   },
   user: {
+    setPassword: {
+      enabled: true,
+    },
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async (
-        { user, newEmail, url, token },
-        request,
-      ) => {
+      sendChangeEmailVerification: async ({ user, newEmail, url }) => {
         try {
           await resend.emails.send({
-            from: "Airwar Trail <no-reply@contact.cobaltweb.tech>",
+            from: "Airwar Trail <login@contact.cobaltweb.tech>",
             to: user.email, // Send to current email for verification
             subject: "Confirm Email Change",
-            react: await MagicLinkEmail({
+            react: await VerifyEmail({
+              newEmail: newEmail,
               url: url,
             }),
           });
@@ -216,19 +235,6 @@ export const auth = betterAuth({
             );
           }
         }
-      },
-    }),
-    twoFactor({
-      otpOptions: {
-        async sendOTP({ user, otp }: { user: { email: string }; otp: string }) {
-          console.log(`Sending OTP to ${user.email}: ${otp}`);
-          // await resend.emails.send({
-          // 	from: "Acme <no-reply@demo.better-auth.com>",
-          // 	to: user.email,
-          // 	subject: "Your OTP",
-          // 	html: `Your OTP is ${otp}`,
-          // });
-        },
       },
     }),
   ],
