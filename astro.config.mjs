@@ -14,12 +14,13 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     resolve: {
-      // Use react-dom/server.edge instead of react-dom/server
-      // This avoids MessageChannel errors in Cloudflare
       alias: {
         "react-dom/server": "react-dom/server.edge",
       },
     },
+    ssr: {
+      noExternal: ['react-dom']
+    }
   },
 
   markdown: {
@@ -27,5 +28,14 @@ export default defineConfig({
     drafts: true,
   },
 
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    runtime: {
+      mode: 'local',
+      type: 'pages'
+    }
+  }),
+
+  ssr: {
+    noExternal: ["@radix-ui/*"]
+  }
 });
