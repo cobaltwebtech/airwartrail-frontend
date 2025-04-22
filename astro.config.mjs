@@ -23,6 +23,6 @@ export default defineConfig({
   adapter: cloudflare(),
 
   ssr: {
-    noExternal: ["react", "react-dom", "@radix-ui/*"],
+    noExternal: ["react", "react-dom", "react-dom/server", "@radix-ui/*"],
   },
 });
