@@ -1,7 +1,7 @@
 {
   "name": "airwartrail",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.10.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -16,6 +16,7 @@
     "clean": "rimraf dist .astro node_modules yarn.lock .yarn package-lock.json"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.5.0",
     "@astrojs/mdx": "4.2.4",
     "@astrojs/react": "4.2.4",
     "@better-auth/stripe": "^1.2.7",
@@ -52,6 +53,7 @@
     "resend": "^4.3.0",
     "sonner": "^2.0.3",
     "stripe": "^18.0.0",
+    "swiper": "^11.2.6",
     "tailwind-merge": "^3.2.0",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "^4.1.4",
