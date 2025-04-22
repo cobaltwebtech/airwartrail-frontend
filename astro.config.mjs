@@ -13,11 +13,13 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    build: {
-      rollupOptions: {
-        external: ["node:buffer", "node:path", "node:fs", "node:os"]
-      }
-    }
+    resolve: {
+      // Use react-dom/server.edge instead of react-dom/server.browser for React 19.
+      // Without this, MessageChannel from node:worker_threads needs to be polyfilled.
+      alias: import.meta.env.PROD && {
+        "react-dom/server": "react-dom/server.edge",
+      },
+    },
   },
 
   markdown: {
@@ -25,11 +27,5 @@ export default defineConfig({
     drafts: true,
   },
 
-  adapter: cloudflare({
-    mode: "directory"
-  }),
-
-  ssr: {
-    noExternal: ["react", "react-dom", "react-dom/server", "@radix-ui/*"],
-  },
+  adapter: cloudflare({}),
 });
