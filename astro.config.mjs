@@ -7,7 +7,7 @@ import vercel from "@astrojs/vercel";
 
 export default defineConfig({
   output: "server",
-  site: "https://www.airwartrail.com",
+  site: "https://airwartrail.vercel.app",
   integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],

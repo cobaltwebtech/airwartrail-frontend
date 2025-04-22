@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { UserPlus, TvMinimalPlay } from "@lucide/astro";
 import { Image } from "astro:assets";
+import HeroImage from "@/assets/static/IMG_8393adj-topaz-face-denoise-sharpen-color-text-upscale-5000w.jpg";
 ---
 
 <!-- Hero -->
@@ -50,9 +51,13 @@ import { Image } from "astro:assets";
     <!-- End Col -->
 
     <div class="relative ms-4">
-      <img
+      <Image
         class="w-full rounded-md"
-        src="/src/assets/static/clji3zalkq2rbtajw33b.avif"
+        src={HeroImage}
+        format="avif"
+        loading="lazy"
+        width={800}
+        height={600}
         alt="Hero Image"
       />
       <div
