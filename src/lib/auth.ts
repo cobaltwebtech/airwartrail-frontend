@@ -12,7 +12,8 @@ import { VerifyEmail } from "@/components/email/VerifyEmail";
 
 // Create a new Turso database connection
 const client = createClient({
-  url: import.meta.env.TURSO_DB_URL,
+  url: "libsql://airwartrail-betterauth-cobaltwebtech.aws-us-east-1.turso.io", // Hardcode the URL
+  //url: import.meta.env.TURSO_DB_URL,
   authToken: import.meta.env.TURSO_DB_TOKEN,
 });
 
