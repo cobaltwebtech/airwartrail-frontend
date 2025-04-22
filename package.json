@@ -46,6 +46,7 @@
     "kysely": "0.27.6",
     "lenis": "^1.2.3",
     "lucide-react": "^0.501.0",
+    "mdast-util-to-string": "^4.0.0",
     "preline": "^3.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
