@@ -17,10 +17,6 @@ export default defineConfig({
       rollupOptions: {
         external: ["node:buffer", "node:path", "node:fs", "node:os"]
       }
-    },
-    ssr: {
-      target: "webworker",
-      noExternal: true
     }
   },
 
@@ -29,7 +25,9 @@ export default defineConfig({
     drafts: true,
   },
 
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    mode: "directory"
+  }),
 
   ssr: {
     noExternal: ["react", "react-dom", "react-dom/server", "@radix-ui/*"],
