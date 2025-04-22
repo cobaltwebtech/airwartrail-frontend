@@ -13,6 +13,15 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: ["node:buffer", "node:path", "node:fs", "node:os"]
+      }
+    },
+    ssr: {
+      target: "webworker",
+      noExternal: true
+    }
   },
 
   markdown: {
