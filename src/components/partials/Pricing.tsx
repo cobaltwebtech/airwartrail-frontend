@@ -52,7 +52,9 @@ export default function Pricing() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Get Started</Button>
+              <a href="/signup" className="w-full">
+                <Button className="w-full">Get Started</Button>
+              </a>
             </CardFooter>
           </Card>
 
@@ -90,7 +92,9 @@ export default function Pricing() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Subscribe Now</Button>
+              <a href="/signup" className="w-full">
+                <Button className="w-full">Subscribe Now</Button>
+              </a>
             </CardFooter>
           </Card>
         </div>

@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { signIn, signUp } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,9 +82,9 @@ export function SignupForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
+              <CardTitle className="text-xl">Sign Up</CardTitle>
               <CardDescription className="text-xs md:text-sm">
-                Enter your email to create an account.
+                Enter your name and email to create an account.
               </CardDescription>
               <CardDescription className="text-xs md:text-sm">
                 A verification link will be sent to the email address you
@@ -99,7 +99,8 @@ export function SignupForm({
               )}
               {success && (
                 <div className="mb-4 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-600">
-                  Check your email for a magic link to sign in!
+                  Check your email inbox for a Magic Link to login to your new
+                  account!
                 </div>
               )}
               <Form {...form}>
@@ -114,7 +115,7 @@ export function SignupForm({
                       <FormItem>
                         <FormLabel>Full Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Full Name" {...field} />
+                          <Input {...field} required />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -128,14 +129,19 @@ export function SignupForm({
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="Email" type="email" {...field} />
+                          <Input type="email" {...field} required />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
                     {isLoading ? "Sending Magic Link..." : "Sign Up"}
                   </Button>
 
@@ -151,7 +157,10 @@ export function SignupForm({
                   </div>
                   <p className="text-center text-sm">
                     Already have an account?{" "}
-                    <a href="/login" className="text-blue-500">
+                    <a
+                      href="/login"
+                      className="text-accent-5 dark:text-accent-4 underline underline-offset-4"
+                    >
                       Login Here
                     </a>
                   </p>

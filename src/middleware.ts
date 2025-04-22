@@ -9,7 +9,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Check reset password route specifically
   if (path === "/login/reset-password") {
     if (!token) {
-      // If no token is present, redirect to home page
+      // If no token is present, redirect to error page
       return context.redirect("/login/login-error");
     }
     // Token exists, proceed with the request
@@ -24,8 +24,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Define public and private paths
   const publicPaths = ["/signup", "/login"];
   const isPublicPath = publicPaths.includes(path);
-  const privatePaths = ["/account"];
-  const isPrivatePath = privatePaths.includes(path);
+  const isPrivatePath = path.startsWith("/account");
 
   // Redirect users based on authentication status
   if (isPrivatePath && !isAuthed) {
@@ -35,11 +34,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect("/account");
   }
 
-  // Check for error query parameters in the URL
+  // Check for errors in the query string in the URL
   const error = url.searchParams.get("error");
 
   if (error === "EXPIRED_TOKEN" || error === "INVALID_TOKEN") {
+    // Redirect if there are token errors in the Magic Link
     return context.redirect(`/login/login-error?magicLinkError=${error}`);
+  }
+
+  if (error === "token_expired") {
+    // Redirect if the verification token is expired
+    return context.redirect(`/account/verification-error?response=${error}`);
   }
 
   return next();

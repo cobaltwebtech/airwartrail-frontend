@@ -7,6 +7,7 @@ const episodesCollection = defineCollection({
     _schema: z.literal("default"),
     date: z.date(),
     title: z.string(),
+    description: z.string(),
     tags: z.array(z.string()),
     author: z.string(),
     draft: z.boolean().default(false),

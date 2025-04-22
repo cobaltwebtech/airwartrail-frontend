@@ -15,11 +15,11 @@ import {
 } from "@react-email/components";
 import type * as React from "react";
 
-interface MagicLinkEmailProps {
+interface MagicLinkProps {
   url: string;
 }
 
-export const MagicLinkEmail: React.FC<MagicLinkEmailProps> = ({ url }) => {
+export const MagicLink: React.FC<MagicLinkProps> = ({ url }) => {
   return (
     <Html>
       <Head />

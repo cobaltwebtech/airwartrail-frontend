@@ -1,7 +1,7 @@
 import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Loader } from "lucide-react";
+import { Loader, BadgeAlert } from "lucide-react";
 
 interface PremiumVideoProps {
   videoUrl: string;
@@ -61,9 +61,16 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
 
   if (!session?.user) {
     return (
-      <div className="bg-chart-4 max-w-[450px] rounded-lg p-4">
-        <p>
-          This content is for premium subscribers only. <br />
+      <div className="bg-accent-4 max-w-[450px] rounded-lg p-4">
+        <BadgeAlert className="text-accent-5 mx-auto size-16" />
+        <p className="font-semibold">
+          Dang! Why aren't you subscribed already?
+        </p>
+        <p className="text-sm">
+          You're missing out on great premium content here which you can't see
+          unless you are subscribed.
+        </p>
+        <p className="text-sm">
           Subscribe now or login to view premium content.
         </p>
         <div className="flex flex-row gap-x-4">

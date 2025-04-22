@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { ActiveSession } from "@/types";
 import { AuthButtons } from "@/components/partials/AuthButtons";
 import { ThemeToggle } from "@/components/partials/ThemeToggle";
-import { House } from "@lucide/astro";
+import Logo from "@/assets/Airwar-Trail-Logo.svg";
 
 interface Props {
   sessionData: ActiveSession | null;
@@ -25,29 +25,30 @@ const navItems: Array<NavItem> = [
 ---
 
 <header
-  class="bg-secondary sticky inset-x-0 top-0 z-50 flex w-full flex-wrap py-6 lg:flex-nowrap lg:justify-start"
+  class="bg-primary sticky inset-x-0 top-0 z-50 flex w-full flex-wrap py-2 sm:py-4 lg:flex-nowrap lg:justify-start"
 >
   <nav
     class="relative mx-auto flex w-full max-w-screen-xl basis-full flex-wrap items-center px-4 md:px-6 lg:grid lg:grid-cols-12 lg:px-8"
   >
-    <div class="flex items-center lg:col-span-3">
+    <div class="lg:col-span-4">
       {/* Logo */}
       <a
-        class="bg-muted-foreground inline-block flex-none rounded-xl p-4 text-xl font-semibold focus:opacity-80 focus:outline-hidden"
+        class="flex items-center gap-5"
         href="/"
         aria-label="Airwar Trail Logo"
       >
-        <House class="size-8" />
+        <Logo class="size-[80px]" />
+        <span class="text-xl font-semibold sm:text-2xl lg:text-4xl"
+          >Airwar Trail</span
+        >
       </a>
-
-      <div class="ms-1 sm:ms-2"></div>
     </div>
 
     {
       /* Container for buttons on Login, Sign Up, Theme Toggle, and Mobile menu */
     }
     <div
-      class="ms-auto flex items-center gap-x-1 py-1 lg:order-3 lg:col-span-3 lg:gap-x-2 lg:ps-6"
+      class="ms-auto flex items-center gap-x-1 py-1 lg:order-3 lg:col-span-3 lg:gap-x-4 lg:ps-6"
     >
       {/* Login and Sign Up buttons */}
       <AuthButtons sessionData={sessionData} client:load />
@@ -75,7 +76,7 @@ const navItems: Array<NavItem> = [
     {/* Collapse */}
     <div
       id="hs-navbar-hcail"
-      class="hs-collapse hidden grow basis-full overflow-hidden transition-all duration-300 lg:order-2 lg:col-span-6 lg:block lg:w-auto lg:basis-auto"
+      class="hs-collapse hidden grow basis-full overflow-hidden transition-all duration-300 lg:order-2 lg:col-span-5 lg:block lg:w-auto lg:basis-auto"
       aria-labelledby="hs-navbar-hcail-collapse"
     >
       {/* Menu Items */}
@@ -86,10 +87,10 @@ const navItems: Array<NavItem> = [
           navItems.map(({ title, url }) => (
             <li>
               <a
-                class="text-md flex items-center justify-start py-4 font-semibold text-nowrap lg:justify-center"
+                class="flex items-center justify-start py-4 lg:justify-center"
                 href={url}
               >
-                <span class="text-white">{title}</span>
+                <span class="text-md font-semibold text-nowrap">{title}</span>
               </a>
             </li>
           ))

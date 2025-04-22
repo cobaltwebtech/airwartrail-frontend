@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { resetPassword } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { passwordSchema } from "@/lib/schemas";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,10 +47,16 @@ export function PasswordReset({
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage("Password must be at least 8 characters long");
-      toast.error("Password must be at least 8 characters long");
-      return;
+    // Validate password using the schema
+    try {
+      passwordSchema.parse({ password: newPassword });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.errors[0].message;
+        setErrorMessage(errorMessage);
+        toast.error(errorMessage);
+        return;
+      }
     }
 
     setIsLoading(true);

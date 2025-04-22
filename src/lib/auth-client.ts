@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import { passkeyClient, magicLinkClient } from "better-auth/client/plugins";
+import { magicLinkClient } from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
 
 export const client = createAuthClient({
@@ -8,7 +8,6 @@ export const client = createAuthClient({
       ? "https://www.airwartrail.com"
       : "http://localhost:4321",
   plugins: [
-    passkeyClient(),
     magicLinkClient(),
     stripeClient({
       subscription: true,
@@ -21,13 +20,12 @@ export const {
   signOut,
   useSession,
   signUp,
-  passkey: passkeyActions,
-  useListPasskeys,
   $Infer,
   updateUser,
   changePassword,
   resetPassword,
   forgetPassword,
+  sendVerificationEmail,
   changeEmail,
   subscription,
 } = client;

@@ -1,12 +1,11 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { SubscriptionCard } from "@/components/partials/SubscriptionCard";
+import { SubscriptionCard } from "@/components/partials/UpgradeSubscription";
 ---
 
-<BaseLayout title="Subscribe">
-  <div
-    class="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-8"
-  >
+<BaseLayout title="Upgrade to Premium Tier">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="mb-8 text-center text-3xl font-bold">Upgrade to Premium Tier</h1>
     <SubscriptionCard client:load />
   </div>
 </BaseLayout>

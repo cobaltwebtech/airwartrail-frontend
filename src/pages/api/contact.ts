@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import type { APIRoute } from "astro";
 import { contactFormSchema } from "@/lib/schemas";
-import { ContactEmail } from "@/components/email/ContactEmail";
+import { ContactForm } from "@/components/email/ContactForm";
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
       from: "Airwar Trail <noreply@contact.cobaltweb.tech>",
       to: "cgarza@cobaltweb.tech",
       subject: "New Contact Form Submission",
-      react: await ContactEmail({
+      react: await ContactForm({
         fullName: validatedData.fullName,
         email: validatedData.email,
         phone: validatedData.phone || "",

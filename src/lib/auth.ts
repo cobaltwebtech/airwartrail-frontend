@@ -1,15 +1,14 @@
 import { betterAuth } from "better-auth";
-import { passkey } from "better-auth/plugins/passkey";
-import { twoFactor } from "better-auth/plugins";
 import { magicLink } from "better-auth/plugins";
 import { createClient } from "@libsql/client";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { Resend } from "resend";
-import { MagicLinkEmail } from "@/components/email/MagicLinkEmail";
-import { VerifyEmail } from "@/components/email/VerifyEmail";
+import { MagicLink } from "@/components/email/MagicLink";
+import { ConfirmChange } from "@/components/email/ConfirmChange";
 import { PasswordReset } from "@/components/email/PasswordReset";
+import { VerifyEmail } from "@/components/email/VerifyEmail";
 
 // Create a new Turso database connection
 const client = createClient({
@@ -52,6 +51,25 @@ export const auth = betterAuth({
       }
     },
   },
+  emailVerification: {
+    expiresIn: 300, // Token expiration set to 5 minutes
+    sendVerificationEmail: async ({ user, url }) => {
+      try {
+        await resend.emails.send({
+          from: "Airwar Trail <login@contact.cobaltweb.tech>",
+          to: user.email,
+          subject: "Verify Your Email Address",
+          react: await VerifyEmail({
+            url: url,
+          }),
+        });
+        console.log("Verification email sent to:", user.email);
+      } catch (error) {
+        console.error("Error sending email verification:", error);
+        throw error;
+      }
+    },
+  },
   user: {
     setPassword: {
       enabled: true,
@@ -62,13 +80,14 @@ export const auth = betterAuth({
         try {
           await resend.emails.send({
             from: "Airwar Trail <login@contact.cobaltweb.tech>",
-            to: user.email, // Send to current email for verification
+            to: user.email,
             subject: "Confirm Email Change",
-            react: await VerifyEmail({
+            react: await ConfirmChange({
               newEmail: newEmail,
               url: url,
             }),
           });
+          console.log("Email change verification sent to:", user.email);
         } catch (error) {
           console.error("Error sending email change verification:", error);
           throw error;
@@ -77,7 +96,6 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    passkey(),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         try {
@@ -86,7 +104,7 @@ export const auth = betterAuth({
             from: "Airwar Trail <login@contact.cobaltweb.tech>",
             to: email,
             subject: "Login to Airwar Trail",
-            react: await MagicLinkEmail({
+            react: await MagicLink({
               url: url,
             }),
           });
@@ -111,130 +129,154 @@ export const auth = betterAuth({
         ],
       },
       onEvent: async (event) => {
-        console.log("Received Stripe webhook event:", event.type);
+        try {
+          console.log("Processing Stripe webhook event:", event.type);
 
-        // Handle critical subscription events
-        if (event.type === "checkout.session.completed") {
-          const session = event.data.object;
-          console.log("Checkout session completed:", {
-            customerId: session.customer,
-            subscriptionId: session.subscription,
-            status: session.status,
-          });
-        } else if (event.type === "customer.subscription.created") {
-          const subscription = event.data.object;
-          console.log("Subscription created:", {
-            id: subscription.id,
-            status: subscription.status,
-            customerId: subscription.customer,
-            planId: subscription.items.data[0].price.id,
-            currentPeriodEnd: new Date(
-              subscription.items.data[0].current_period_end * 1000,
-            ),
-          });
+          // Handle critical subscription events
+          if (event.type === "checkout.session.completed") {
+            const session = event.data.object;
+            console.log("Checkout session completed:", {
+              customerId: session.customer,
+              subscriptionId: session.subscription,
+              status: session.status,
+            });
+          } else if (event.type === "customer.subscription.created") {
+            const subscription = event.data.object as Stripe.Subscription;
+            console.log("Subscription created:", {
+              id: subscription.id,
+              status: subscription.status,
+              customerId: subscription.customer,
+              planId: subscription.items.data[0]?.price.id,
+              currentPeriodEnd: subscription.items.data[0]?.current_period_end
+                ? new Date(subscription.items.data[0].current_period_end * 1000)
+                : null,
+            });
 
-          // Update the subscription in the database
-          try {
-            // First, get the user ID from the Stripe customer
-            const customerResponse = await stripeClient.customers.retrieve(
-              subscription.customer as string,
-            );
-            const customer = customerResponse as Stripe.Customer;
-            const userId = customer.metadata?.userId;
-
-            if (!userId) {
-              console.error("No user ID found in Stripe customer metadata");
-              return;
-            }
-
-            await client.execute({
-              sql: `
-                INSERT INTO subscription (
-                  id,
-                  plan,
-                  status,
-                  stripeCustomerId,
-                  stripeSubscriptionId,
-                  periodEnd,
-                  referenceId
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (id) DO UPDATE SET
-                  status = excluded.status,
-                  periodEnd = excluded.periodEnd
-              `,
-              args: [
-                subscription.id,
-                "premium", // This should match the plan name in your configuration
-                subscription.status,
+            // Update the subscription in the database
+            try {
+              // First, get the user ID from the Stripe customer
+              const customerResponse = await stripeClient.customers.retrieve(
                 subscription.customer as string,
-                subscription.id,
-                new Date(
-                  subscription.items.data[0].current_period_end * 1000,
-                ).toISOString(),
-                userId,
-              ],
-            });
-            console.log("Subscription data updated in database");
-          } catch (error) {
-            console.error("Error updating subscription in database:", error);
-          }
-        } else if (event.type === "customer.subscription.updated") {
-          const subscription = event.data.object;
-          console.log("Subscription updated:", {
-            id: subscription.id,
-            status: subscription.status,
-            customerId: subscription.customer,
-          });
+              );
+              const customer = customerResponse as Stripe.Customer;
+              const userId = customer.metadata?.userId;
 
-          // Update the subscription status in the database
-          try {
-            await client.execute({
-              sql: `
-                UPDATE subscription
-                SET status = ?,
-                    periodEnd = ?
-                WHERE stripeSubscriptionId = ?
-              `,
-              args: [
-                subscription.status,
-                new Date(
-                  subscription.items.data[0].current_period_end * 1000,
-                ).toISOString(),
-                subscription.id,
-              ],
-            });
-            console.log("Subscription status updated in database");
-          } catch (error) {
-            console.error(
-              "Error updating subscription status in database:",
-              error,
-            );
-          }
-        } else if (event.type === "customer.subscription.deleted") {
-          const subscription = event.data.object;
-          console.log("Subscription deleted:", {
-            id: subscription.id,
-            customerId: subscription.customer,
-          });
+              if (!userId) {
+                console.error("No user ID found in Stripe customer metadata");
+                return;
+              }
 
-          // Update the subscription status to canceled in the database
-          try {
-            await client.execute({
-              sql: `
-                UPDATE subscription
-                SET status = 'canceled'
-                WHERE stripeSubscriptionId = ?
-              `,
-              args: [subscription.id],
+              await client.execute({
+                sql: `
+                  INSERT INTO subscription (
+                    id,
+                    plan,
+                    status,
+                    stripeCustomerId,
+                    stripeSubscriptionId,
+                    periodEnd,
+                    referenceId
+                  ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                  ON CONFLICT (id) DO UPDATE SET
+                    status = excluded.status,
+                    periodEnd = excluded.periodEnd
+                `,
+                args: [
+                  subscription.id,
+                  "premium", // This should match the plan name in your configuration
+                  subscription.status,
+                  subscription.customer as string,
+                  subscription.id,
+                  new Date(
+                    subscription.items.data[0].current_period_end * 1000,
+                  ).toISOString(),
+                  userId,
+                ],
+              });
+              console.log("Subscription data updated in database");
+            } catch (error) {
+              console.error("Error updating subscription in database:", error);
+            }
+          } else if (event.type === "customer.subscription.updated") {
+            const subscription = event.data.object as Stripe.Subscription;
+            console.log("Subscription updated:", {
+              id: subscription.id,
+              status: subscription.status,
+              customerId: subscription.customer,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
             });
-            console.log("Subscription marked as canceled in database");
-          } catch (error) {
-            console.error(
-              "Error updating subscription status in database:",
-              error,
-            );
+
+            try {
+              await client.execute({
+                sql: `
+                  UPDATE subscription
+                  SET status = ?,
+                      periodEnd = ?,
+                      cancelAtPeriodEnd = ?
+                  WHERE stripeSubscriptionId = ?
+                `,
+                args: [
+                  subscription.status,
+                  subscription.items.data[0].current_period_end
+                    ? new Date(
+                        subscription.items.data[0].current_period_end * 1000,
+                      ).toISOString()
+                    : null,
+                  subscription.cancel_at_period_end,
+                  subscription.id,
+                ],
+              });
+              console.log("Subscription status updated in database");
+            } catch (error) {
+              console.error(
+                "Error updating subscription status in database:",
+                error,
+              );
+            }
+          } else if (event.type === "customer.subscription.deleted") {
+            const subscription = event.data.object as Stripe.Subscription;
+            console.log("Subscription deleted:", {
+              id: subscription.id,
+              customerId: subscription.customer,
+            });
+
+            // Update the subscription status to canceled in the database
+            try {
+              await client.execute({
+                sql: `
+                  UPDATE subscription
+                  SET status = 'canceled',
+                  periodEnd = ?
+                  WHERE stripeSubscriptionId = ?
+                `,
+                args: [
+                  subscription.items.data[0]?.current_period_end
+                    ? new Date(
+                        subscription.items.data[0].current_period_end * 1000,
+                      ).toISOString()
+                    : null,
+                  subscription.id,
+                ],
+              });
+              console.log("Subscription marked as canceled in database");
+            } catch (error) {
+              console.error(
+                "Error updating subscription status in database:",
+                error,
+              );
+            }
           }
+        } catch (error) {
+          console.error(
+            "Error processing webhook within onEvent handler:",
+            error,
+          );
+          // Continue execution - don't throw the error
+          // This prevents Better Auth from seeing the error from *within* this handler
         }
+
+        // Return undefined to indicate to Better Auth that you've handled the event
+        return undefined;
       },
     }),
   ],

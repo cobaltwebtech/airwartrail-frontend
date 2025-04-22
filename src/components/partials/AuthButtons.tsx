@@ -49,7 +49,7 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
       {session ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button type="button" className="gap-2">
+            <Button variant="secondary" size="icon">
               <SquareUserRound className="size-6" />
               <span className="sr-only">Account</span>
             </Button>
@@ -69,12 +69,10 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
       ) : (
         <>
           <a href="/login">
-            <Button type="button">Login</Button>
+            <Button className="bg-accent-4 hover:bg-accent-4/80">Login</Button>
           </a>
           <a href="/signup">
-            <Button type="button" variant="outline">
-              Sign Up
-            </Button>
+            <Button variant="secondary">Sign Up</Button>
           </a>
         </>
       )}

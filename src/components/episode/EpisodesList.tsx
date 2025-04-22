@@ -15,8 +15,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, MoveRight } from "lucide-react";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../ui/card";
 
 interface EpisodesListProps {
   episodes: CollectionEntry<"episodes">[];
@@ -94,13 +111,27 @@ export default function EpisodesList({
 
   return (
     <div>
+      {/* Breadcrumb navigation */}
+      <Breadcrumb className="my-8">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>All Episodes</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Container for the sorting options */}
       <div className="mb-6 flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[150px] justify-between">
-              {sortField === "title" ? "Title" : "Date"}
-              <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
+            <div>
+              <Label className="mb-1 text-sm font-light">Sort by:</Label>
+              <Button variant="outline" className="w-[150px] justify-between">
+                {sortField === "title" ? "Title" : "Date"}
+              </Button>
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem onClick={() => setSortField("title")}>
@@ -112,51 +143,63 @@ export default function EpisodesList({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() =>
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-          }
-        >
-          <ArrowUpDown
-            className={`h-4 w-4 transition-transform ${
-              sortDirection === "asc" ? "rotate-180" : ""
-            }`}
-          />
-        </Button>
+        <div>
+          <Label className="mb-1 text-sm font-light">Sort direction:</Label>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() =>
+              setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+            }
+          >
+            <ArrowUpDown
+              className={`size-4 transition-transform ${
+                sortDirection === "asc" ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Container for the episode cards */}
+      <div className="grid auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {currentEpisodes.map((episode) => (
-          <a
-            key={episode.slug}
-            href={`/episodes/${episode.slug}`}
-            className="overflow-hidden rounded-lg bg-white shadow-md transition-transform hover:scale-105 dark:bg-gray-800"
-          >
-            <div className="p-6">
-              <h2 className="mb-2 text-xl font-semibold">
-                {episode.data.title}
-              </h2>
-              <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-                {new Date(episode.data.date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {episode.data.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </a>
+          <Card key={episode.slug} className="py-4">
+            <a
+              href={`/episodes/${episode.slug}`}
+              className="group flex h-full flex-col justify-between space-y-4 transition-transform duration-200 hover:scale-102"
+            >
+              <CardHeader>
+                <CardTitle className="mb-2 text-xl font-semibold">
+                  {episode.data.title}
+                </CardTitle>
+                <CardDescription>{episode.data.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-3 text-sm">
+                  {new Date(episode.data.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {episode.data.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded bg-stone-100 px-2 py-1 text-xs dark:bg-stone-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                View Episode{" "}
+                <MoveRight className="ml-2 size-4 transition-transform group-hover:-rotate-45" />
+              </CardFooter>
+            </a>
+          </Card>
         ))}
       </div>
 

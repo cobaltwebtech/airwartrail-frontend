@@ -15,15 +15,19 @@ import {
 } from "@react-email/components";
 import type * as React from "react";
 
-interface VerifyEmailProps {
+interface ConfirmChangeProps {
+  newEmail: string;
   url: string;
 }
 
-export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
+export const ConfirmChange: React.FC<ConfirmChangeProps> = ({
+  newEmail,
+  url,
+}) => {
   return (
     <Html>
       <Head />
-      <Preview>Verify Your Email</Preview>
+      <Preview>Confirm Email Change</Preview>
       <Tailwind>
         <Body className="mx-auto my-auto bg-white px-2 font-sans">
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-stone-300 bg-stone-100 p-[20px]">
@@ -70,7 +74,13 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
               <Row>
                 <Column className="text-center">
                   <Text className="text-center text-xl font-bold text-stone-900">
-                    Please Verify Your Email Address
+                    Please Confirm Your Email Change
+                  </Text>
+                  <Text className="text-sm text-stone-700">
+                    You requested to change your email address to:
+                  </Text>
+                  <Text className="text-base font-bold text-stone-700">
+                    {newEmail}
                   </Text>
                   <Text className="text-sm text-stone-700">
                     If you did not request this change, please ignore this
@@ -83,7 +93,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
                     className="box-border w-full max-w-[200px] rounded-[8px] bg-green-800 p-3 font-semibold text-white"
                     href={url}
                   >
-                    Verify Email Address
+                    Confirm Email Change
                   </Button>
                   <Text className="text-base text-stone-700">
                     Link will expire in five minutes.

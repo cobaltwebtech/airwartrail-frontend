@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
-import { KeyRound, Loader2, Mail, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, CheckCircle2 } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -125,10 +125,12 @@ export function LoginForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
           <Card>
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle className="text-xl">Login to Your Account</CardTitle>
               <CardDescription>
-                Choose your preferred login method
-              </CardDescription>
+                {showPasswordLogin
+                  ? "Enter your account email address and password to login. If you would like to login without a password, click the Login with Magic Link button below."
+                  : "Enter your account email address to receive a Magic Link and login without a password."}
+              </CardDescription>{" "}
             </CardHeader>
             <CardContent>
               {magicLinkSent ? (
@@ -166,7 +168,6 @@ export function LoginForm({
                       <Input
                         id="email"
                         type="email"
-                        placeholder="m@example.com"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -206,6 +207,7 @@ export function LoginForm({
                     <div className="flex flex-col gap-3">
                       <Button
                         type="submit"
+                        variant="secondary"
                         className="w-full"
                         disabled={isLoading}
                       >
@@ -214,7 +216,7 @@ export function LoginForm({
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             {showPasswordLogin
                               ? "Logging in..."
-                              : "Sending magic link..."}
+                              : "Sending Magic Link..."}
                           </>
                         ) : showPasswordLogin ? (
                           "Login"
@@ -225,37 +227,25 @@ export function LoginForm({
                           </>
                         )}
                       </Button>
+                      <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background text-muted-foreground px-2">
+                            Or continue with
+                          </span>
+                        </div>
+                      </div>
 
                       <Button
                         type="button"
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={async () => {
-                          await signIn.passkey({
-                            fetchOptions: {
-                              onError(context) {
-                                alert(context.error.message);
-                              },
-                              onSuccess(context) {
-                                window.location.href = "/";
-                              },
-                            },
-                          });
-                        }}
-                      >
-                        <KeyRound className="h-4 w-4" />
-                        Login with Passkey
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="ghost"
                         className="w-full"
                         onClick={() => setShowPasswordLogin(!showPasswordLogin)}
                       >
                         {showPasswordLogin
-                          ? "Use Magic Link instead"
-                          : "Use password instead"}
+                          ? "Login with Magic Link"
+                          : "Login with Password"}
                       </Button>
                     </div>
                   </div>
@@ -265,8 +255,11 @@ export function LoginForm({
             <CardFooter className="flex justify-center">
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline underline-offset-4">
-                  Sign up
+                <a
+                  href="/signup"
+                  className="text-accent-5 dark:text-accent-4 underline underline-offset-4"
+                >
+                  Sign Up
                 </a>
               </div>
             </CardFooter>

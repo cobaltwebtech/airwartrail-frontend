@@ -27,6 +27,7 @@ type Subscription = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   periodEnd?: Date;
+  cancelAtPeriodEnd?: boolean;
 };
 
 export function BillingInfo() {
@@ -35,7 +36,7 @@ export function BillingInfo() {
     null,
   );
   const [loading, setLoading] = useState(true);
-  const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [isManagingPayment, setIsManagingPayment] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   const handleUpgrade = async () => {
@@ -43,7 +44,7 @@ export function BillingInfo() {
     try {
       await subscription.upgrade({
         plan: "premium",
-        successUrl: window.location.href,
+        successUrl: "/subscribe/success",
         cancelUrl: window.location.href,
       });
     } catch (error) {
@@ -56,6 +57,9 @@ export function BillingInfo() {
   useEffect(() => {
     async function fetchSubscription() {
       try {
+        // Add a small delay to allow webhook to process
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         console.log("Fetching subscription data...");
         const { data: subscriptions } = await subscription.list();
         console.log("Raw subscription data:", subscriptions);
@@ -69,6 +73,8 @@ export function BillingInfo() {
         setSubscriptionData(activeSubscription || null);
       } catch (error) {
         console.error("Error fetching subscription:", error);
+        // Add retry logic
+        setTimeout(fetchSubscription, 2000);
       } finally {
         setLoading(false);
       }
@@ -87,31 +93,25 @@ export function BillingInfo() {
   const subscriptionPlan = subscriptionData?.plan || "Free Tier";
   const isFreeTier = !hasActiveSubscription || subscriptionPlan === "Free Tier";
 
-  // Calculate renewal date (periodEnd + 1 day)
-  const renewalDate = subscriptionData?.periodEnd
-    ? new Date(
-        new Date(subscriptionData.periodEnd).getTime() + 24 * 60 * 60 * 1000,
-      ).toLocaleDateString("en-US", {
+  // Format the subscription period end date
+  const subscriptionEndDate = subscriptionData?.periodEnd
+    ? new Date(subscriptionData.periodEnd).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
     : null;
 
-  const handleManageSubscription = async () => {
-    setIsManagingSubscription(true);
+  const handleManagePayment = async () => {
+    setIsManagingPayment(true);
     try {
-      if (!subscriptionData?.stripeCustomerId) {
-        throw new Error("No active subscription found");
-      }
-
       const response = await fetch("/api/stripe/portal", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          customerId: subscriptionData.stripeCustomerId,
+          customerId: session?.user.stripeCustomerId,
         }),
       });
 
@@ -124,7 +124,7 @@ export function BillingInfo() {
     } catch (error) {
       console.error("Error creating portal session:", error);
     } finally {
-      setIsManagingSubscription(false);
+      setIsManagingPayment(false);
     }
   };
 
@@ -154,13 +154,15 @@ export function BillingInfo() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Billing Information</CardTitle>
+            <CardTitle className="leading-relaxed">
+              Billing Information
+            </CardTitle>
             <CardDescription>
               Manage your subscription and billing details
             </CardDescription>
           </div>
-          <div className="bg-primary/10 rounded-full p-2">
-            <CreditCard className="text-primary h-5 w-5" />
+          <div className="bg-accent-1 rounded-full p-2">
+            <CreditCard className="text-secondary-foreground size-6" />
           </div>
         </div>
       </CardHeader>
@@ -171,20 +173,31 @@ export function BillingInfo() {
               Current Plan
             </p>
             <p className="text-lg font-medium">
-              {isFreeTier ? "Free Tier" : subscriptionPlan}
+              {isFreeTier ? "Free Tier" : "Premium Tier"}
             </p>
             {!isFreeTier && subscriptionData?.periodEnd && (
-              <p className="text-muted-foreground mt-1 text-sm">
-                Renews on {renewalDate}
-              </p>
+              <div className="text-muted-foreground mt-1 text-sm">
+                {subscriptionData.cancelAtPeriodEnd?.valueOf() ? (
+                  <p>
+                    Your subscription ends on {subscriptionEndDate}. If you
+                    would like to reactivate your subscription click the button
+                    below.
+                  </p>
+                ) : (
+                  <p>
+                    Your subscription is active and renews on{" "}
+                    {subscriptionEndDate}.
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
       </CardContent>
-      <CardFooter>
-        {isFreeTier ? (
+      <CardFooter className="flex flex-wrap justify-between gap-4">
+        {isFreeTier && (
           <Button
-            className="w-full"
+            className="w-fit"
             onClick={handleUpgrade}
             disabled={isUpgrading}
           >
@@ -197,23 +210,22 @@ export function BillingInfo() {
               "Upgrade to Premium Tier"
             )}
           </Button>
-        ) : (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleManageSubscription}
-            disabled={isManagingSubscription}
-          >
-            {isManagingSubscription ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="size-4 animate-spin" />
-                <span>Loading Please Wait...</span>
-              </div>
-            ) : (
-              "Manage Subscription"
-            )}
-          </Button>
         )}
+        <Button
+          variant="secondary"
+          className="w-fit"
+          onClick={handleManagePayment}
+          disabled={isManagingPayment}
+        >
+          {isManagingPayment ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin" />
+              <span>Loading Please Wait...</span>
+            </div>
+          ) : (
+            "Manage Subscription & Payment"
+          )}
+        </Button>
       </CardFooter>
     </Card>
   );

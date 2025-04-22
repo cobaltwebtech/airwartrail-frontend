@@ -11,14 +11,14 @@ import {
 } from "@react-email/components";
 import type * as React from "react";
 
-interface ContactEmailProps {
+interface ContactFormProps {
   fullName: string;
   email: string;
   phone?: string;
   message?: string;
 }
 
-export const ContactEmail: React.FC<ContactEmailProps> = ({
+export const ContactForm: React.FC<ContactFormProps> = ({
   fullName,
   email,
   phone = "",

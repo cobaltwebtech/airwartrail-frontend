@@ -7,6 +7,8 @@ import Footer from "@/components/sections/Footer";
 import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro";
 import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/lib/auth";
+import { AstroFont } from "astro-font";
+import { join } from "path";
 
 // Retrieve the auth session from the request headers
 const sessionData = await auth.api
@@ -36,6 +38,39 @@ const umamiId = import.meta.env.UMAMI_ID;
     <title>{siteMeta.title}</title>
     <meta name="description" content={siteMeta.description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Bunny fonts -->
+    <AstroFont
+      config={[
+        {
+          preload: true,
+          display: "swap",
+          name: "Reddit Sans",
+          fallback: "sans-serif",
+          src: [
+            {
+              style: "normal",
+              path: join(
+                process.cwd(),
+                "public",
+                "fonts",
+                "RedditSans-VariableFont_wght.woff2",
+              ),
+            },
+            {
+              style: "italic",
+              path: join(
+                process.cwd(),
+                "public",
+                "fonts",
+                "RedditSans-Italic-VariableFont_wght.woff2",
+              ),
+            },
+          ],
+        },
+      ]}
+    />
+
     <!-- Script to handle dark mode sets localstorage to save preference and checks the devices preference -->
     <script is:inline>
       const getThemePreference = () => {

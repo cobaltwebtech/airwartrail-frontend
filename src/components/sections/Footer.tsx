@@ -23,7 +23,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-secondary mx-auto mt-12 w-full px-4 py-10 sm:px-6 lg:px-8">
+    <footer className="bg-primary mx-auto mt-12 w-full px-4 py-10 sm:px-6 lg:px-8">
       {/* Grid */}
       <div className="mx-auto grid max-w-screen-lg grid-cols-1 items-center gap-5 md:grid-cols-3">
         <div>
