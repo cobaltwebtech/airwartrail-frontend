@@ -31,5 +31,9 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    routes: {
+      strategy: "include",
+      include: ["/*"]
+    },
   }),
 });
