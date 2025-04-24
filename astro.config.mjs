@@ -14,7 +14,7 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
-    alias: {
+    alias: import.meta.env.PROD && {
       "react-dom/server": "react-dom/server.edge",
     },
   },
