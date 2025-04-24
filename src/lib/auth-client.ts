@@ -5,7 +5,7 @@ import { stripeClient } from "@better-auth/stripe/client";
 export const client = createAuthClient({
   baseURL:
     process.env.NODE_ENV === "production"
-      ? "https://aiwartrail.cobaltdev.workers.dev"
+      ? "https://airwartrail.cobaltdev.workers.dev"
       : "http://localhost:4321",
   plugins: [
     magicLinkClient(),
