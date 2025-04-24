@@ -8,7 +8,12 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   output: "server",
   site: "https://airwartrail.vercel.app",
-  integrations: [mdx(), react()],
+  integrations: [
+    mdx(),
+    react({
+      mode: 'nodejs'
+    })
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
