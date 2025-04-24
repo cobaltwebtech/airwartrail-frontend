@@ -27,8 +27,14 @@ export default defineConfig({
     drafts: true,
   },
   adapter: cloudflare({
+    mode: "directory",
     platformProxy: {
       enabled: true,
     },
+    functionPerRoute: false,
+    routes: {
+      strategy: "include",
+      include: ["/*"]
+    }
   }),
 });
