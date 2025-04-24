@@ -1,0 +1,11 @@
+name = "aiwartrail"
+main = "./dist/_worker.js/index.js"
+compatibility_date = "2025-04-22"
+compatibility_flags = [ "nodejs_compat" ]
+
+[assets]
+binding = "ASSETS"
+directory = "./dist"
+
+[observability]
+enabled = true

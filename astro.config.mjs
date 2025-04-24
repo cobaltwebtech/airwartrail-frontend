@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import { remarkReadingTime } from "./src/lib/readTime";
-import vercel from "@astrojs/vercel"; 
+import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
@@ -16,7 +16,9 @@ export default defineConfig({
     remarkPlugins: [remarkReadingTime],
     drafts: true,
   },
-  adapter: vercel({
-    imageService: true,
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
   }),
 });
