@@ -7,7 +7,7 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
-  site: "https://aiwartrail.cobaltdev.workers.dev",
+  site: "https://airwartrail.cobaltdev.workers.dev",
   integrations: [
     mdx(),
     react()
