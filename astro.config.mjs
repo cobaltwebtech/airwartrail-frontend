@@ -10,12 +10,13 @@ export default defineConfig({
   site: "https://airwartrail.vercel.app",
   integrations: [
     mdx(),
-    react({
-      mode: 'nodejs'
-    })
+    react()
   ],
   vite: {
     plugins: [tailwindcss()],
+    alias: {
+      "react-dom/server": "react-dom/server.edge",
+    },
   },
   markdown: {
     remarkPlugins: [remarkReadingTime],
