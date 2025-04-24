@@ -5,7 +5,7 @@ export const siteMeta = {
   tagline: "Airwar Trail bringing stories of the past",
   description: "Airwar Trail bringing stories of the past",
   description_short: "Airwar Trail video interviews",
-  url: "https://www.airwartrail.com/",
+  url: "https://airwartrail.cobaltdev.workers.dev/",
   author: "Cobalt Web Technologies",
 };
 
