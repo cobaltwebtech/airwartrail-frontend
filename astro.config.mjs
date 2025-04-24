@@ -7,7 +7,7 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
-  site: "https://airwartrail.vercel.app",
+  site: "https://aiwartrail.cobaltdev.workers.dev",
   integrations: [
     mdx(),
     react()
