@@ -1,9 +1,31 @@
 ---
-import { getEntry } from "astro:content";
 import { SlideShow } from "@/components/partials/SlideShow";
 
-const sliderData = await getEntry("slideshows", "home-slider");
-const { slides } = sliderData?.data;
+import Img1 from "@/assets/static/IMG_8276-topaz-denoise-sharpen-lighting.jpg";
+import Img2 from "@/assets/static/IMG_8381-topaz-upscale-5000w.jpg";
+import Img3 from "@/assets/static/IMG_8397-topaz-face-upscale-5000w.jpg";
+
+// Define slides array here
+const slides = [
+  {
+    title: "Image Title 1",
+    description: "This is an image description",
+    image: Img1.src,
+    alt: "Image alt tag",
+  },
+  {
+    title: "Image Title 2",
+    description: "This is an image description",
+    image: Img2.src,
+    alt: "Image alt tag",
+  },
+  {
+    title: "Image Title 3",
+    description: "This is an image description",
+    image: Img3.src,
+    alt: "Image alt tag",
+  },
+];
 ---
 
 <!-- Hero -->

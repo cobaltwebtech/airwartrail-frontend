@@ -8,10 +8,7 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   output: "server",
   site: "https://airwartrail.cobaltdev.workers.dev",
-  integrations: [
-    mdx(),
-    react()
-  ],
+  integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],
     resolve: {
@@ -20,7 +17,7 @@ export default defineConfig({
       alias: import.meta.env.PROD && {
         "react-dom/server": "react-dom/server.edge",
       },
-    },  
+    },
   },
   markdown: {
     remarkPlugins: [remarkReadingTime],
