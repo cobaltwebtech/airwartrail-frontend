@@ -9,3 +9,7 @@ directory = "./dist"
 
 [observability]
 enabled = true
+
+[vars]
+UMAMI_ID = "00000000-0000-0000-0000-000000000000"
+TURNSTILE_PUBLIC_KEY = "3x00000000000000000000FF"
