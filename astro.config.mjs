@@ -7,7 +7,7 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
-  site: "https://airwartrail.cobaltdev.workers.dev",
+  site: "https://airwartrail.cobaltweb.dev",
   integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],
@@ -24,6 +24,7 @@ export default defineConfig({
     drafts: true,
   },
   adapter: cloudflare({
+    sessionKVBindingName: "BETTERAUTH_KV",
     imageService: "cloudflare",
     platformProxy: {
       enabled: true,

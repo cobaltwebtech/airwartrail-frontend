@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
-import { Loader2, Mail, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, CircleX } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -54,10 +54,20 @@ export function LoginForm({
     setErrorMessage("");
 
     try {
-      await signIn.magicLink({
+      const response = await signIn.magicLink({
         email,
         callbackURL: "/",
       });
+
+      if (response && response.error) {
+        const errorMagicLink =
+          response.error.message ||
+          "Email address does not exist. Please sign up first.";
+        setErrorMessage(errorMagicLink);
+        toast.error(errorMagicLink);
+        return;
+      }
+
       setMagicLinkSent(true);
       toast.success("Magic link sent! Check your email.");
     } catch (error) {
@@ -199,7 +209,8 @@ export function LoginForm({
                     )}
 
                     {errorMessage && (
-                      <div className="text-destructive text-sm">
+                      <div className="text-destructive inline-flex gap-1 text-sm font-bold">
+                        <CircleX className="size-4" />
                         {errorMessage}
                       </div>
                     )}

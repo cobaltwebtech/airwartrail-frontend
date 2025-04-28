@@ -13,7 +13,7 @@
     "update": "yarn up -R '*' && yarn up",
     "update:astro": "yarn dlx @astrojs/upgrade",
     "migrate:auth": "npx @better-auth/cli migrate --config src/lib/auth.ts",
-    "clean": "rimraf dist .astro node_modules yarn.lock .yarn package-lock.json"
+    "clean": "rimraf dist .astro node_modules yarn.lock .yarn package-lock.json .wrangler"
   },
   "packageManager": "yarn@4.9.1",
   "dependencies": {
@@ -34,7 +34,6 @@
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.4",
-    "@tanstack/react-query": "^5.74.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "astro": "5.7.5",
@@ -65,8 +64,6 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.2.7",
-    "@tanstack/eslint-plugin-query": "^5.73.3",
-    "@tanstack/react-query-devtools": "^5.74.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/parser": "^8.30.1",
@@ -79,6 +76,6 @@
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "wrangler": "^4.13.1"
+    "wrangler": "^4.13.2"
   }
 }

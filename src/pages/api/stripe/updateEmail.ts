@@ -3,7 +3,10 @@ import { stripeClient } from "@/lib/auth";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { customerId, email } = await request.json();
+    const { customerId, email } = (await request.json()) as {
+      customerId?: string;
+      email?: string;
+    };
 
     if (!customerId || !email) {
       return new Response("Customer ID and email are required", {

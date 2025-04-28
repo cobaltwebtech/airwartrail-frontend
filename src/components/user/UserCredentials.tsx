@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSession, client, forgetPassword } from "@/lib/auth-client";
 import { changePassword } from "@/lib/auth-client";
-import { passwordSchema, type PasswordFormValues } from "@/lib/schemas";
+import { passwordSchema } from "@/lib/schemas";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +56,6 @@ export function UserCredentials() {
               (account) => account.provider === "credential",
             ) ?? false;
           setHasPassword(hasCredentials);
-          console.log("User has credentials:", hasCredentials);
         } catch (error) {
           console.error("Failed to check credentials:", error);
           setHasPassword(false);

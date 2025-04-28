@@ -17,9 +17,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Check if the user is authenticated
-  const isAuthed = await auth.api.getSession({
-    headers: context.request.headers,
-  });
+  const isAuthed = await context.session?.get("session");
+
+  // This method makes an API GET request to retrieve the session data
+  // It is here for reference only since the Astro Sessions data is used now
+  // It will be removed when the auth setup is stable and no longer needed
+  // const isAuthed = await auth.api.getSession({
+  //   headers: context.request.headers,
+  // });
 
   // Define public and private paths
   const publicPaths = ["/signup", "/login"];
@@ -34,7 +39,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect("/account");
   }
 
-  // Check for errors in the query string in the URL
+  // Check for errors in the query string of the URL
   const error = url.searchParams.get("error");
 
   if (error === "EXPIRED_TOKEN" || error === "INVALID_TOKEN") {
@@ -42,9 +47,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect(`/login/login-error?magicLinkError=${error}`);
   }
 
-  if (error === "token_expired") {
-    // Redirect if the verification token is expired
-    return context.redirect(`/account/verification-error?response=${error}`);
+  if (error === "token_expired" || error === "invalid_token") {
+    // Redirect if the token is expired or invalid on verification emails
+    return context.redirect(`/login/verification-error?response=${error}`);
   }
 
   return next();

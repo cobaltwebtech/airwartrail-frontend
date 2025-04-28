@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "@/lib/schemas";
+import { PasswordInput } from "@/components/ui/password";
+import { CheckCircle2 } from "lucide-react";
 
 export function SignupForm({
   className,
@@ -31,41 +33,44 @@ export function SignupForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const form = useForm<SignupFormValues>({
+  const form = useForm<SignupFormValues & { confirmPassword: string }>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       fullName: "",
       email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (
+    data: SignupFormValues & { confirmPassword: string },
+  ) => {
     setIsLoading(true);
     setError(null);
     setSuccess(false);
 
+    if (data.password !== data.confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      console.log("Attempting to sign up user:", data.email);
-      const result = await signIn.magicLink({
+      const { error: signupError } = await signUp.email({
         email: data.email,
+        password: data.password,
+        name: data.fullName,
         callbackURL: "/subscribe",
-        fetchOptions: {
-          body: {
-            name: data.fullName,
-          },
-          onError: (context: { error: { message: string } }) => {
-            console.error("Magic link error:", context.error);
-            setError(context.error.message);
-          },
-          onSuccess: () => {
-            console.log("Magic link sent successfully");
-            setSuccess(true);
-          },
-        },
       });
-      console.log("Magic link result:", result);
+
+      if (signupError) {
+        setError(signupError.message ?? "Sign up failed. Please try again.");
+        return;
+      }
+
+      setSuccess(true);
     } catch (error) {
-      console.error("Sign up failed:", error);
       setError(
         error instanceof Error
           ? error.message
@@ -84,7 +89,7 @@ export function SignupForm({
             <CardHeader>
               <CardTitle className="text-xl">Sign Up</CardTitle>
               <CardDescription className="text-xs md:text-sm">
-                Enter your name and email to create an account.
+                Enter your information to create an account.
               </CardDescription>
               <CardDescription className="text-xs md:text-sm">
                 A verification link will be sent to the email address you
@@ -97,75 +102,127 @@ export function SignupForm({
                   {error}
                 </div>
               )}
-              {success && (
-                <div className="mb-4 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-600">
-                  Check your email inbox for a Magic Link to login to your new
-                  account!
-                </div>
-              )}
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" {...field} required />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Sending Magic Link..." : "Sign Up"}
-                  </Button>
-
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background text-muted-foreground px-2">
-                        Or continue with
-                      </span>
-                    </div>
+              {success ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <CheckCircle2 className="h-12 w-12 text-green-500" />
+                  <div className="text-center">
+                    <p className="font-medium">Verification Email Sent!</p>
+                    <p className="text-muted-foreground text-sm">
+                      Please check your email for a link to login to your
+                      account.
+                    </p>
                   </div>
-                  <p className="text-center text-sm">
-                    Already have an account?{" "}
-                    <a
-                      href="/login"
-                      className="text-accent-5 dark:text-accent-4 underline underline-offset-4"
+                </div>
+              ) : (
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} disabled={isLoading} required />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              {...field}
+                              disabled={isLoading}
+                              required
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <PasswordInput
+                              {...field}
+                              disabled={isLoading}
+                              id="password"
+                              required
+                              autoComplete="new-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <PasswordInput
+                              {...field}
+                              disabled={isLoading}
+                              id="confirmPassword"
+                              required
+                              autoComplete="new-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button
+                      type="submit"
+                      variant="secondary"
+                      className="w-full"
+                      disabled={isLoading}
                     >
-                      Login Here
-                    </a>
-                  </p>
-                </form>
-              </Form>
+                      {isLoading ? "Creating Account..." : "Sign Up"}
+                    </Button>
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background text-muted-foreground px-2">
+                          Or continue with
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-center text-sm">
+                      Already have an account?{" "}
+                      <a
+                        href="/login"
+                        className="text-accent-5 dark:text-accent-4 underline underline-offset-4"
+                      >
+                        Login Here
+                      </a>
+                    </p>
+                  </form>
+                </Form>
+              )}
             </CardContent>
           </Card>
         </div>

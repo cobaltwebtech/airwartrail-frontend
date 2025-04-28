@@ -60,11 +60,8 @@ export function BillingInfo() {
         // Add a small delay to allow webhook to process
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        console.log("Fetching subscription data...");
+        // Fetch the subscription data for the user
         const { data: subscriptions } = await subscription.list();
-        console.log("Raw subscription data:", subscriptions);
-
-        // Get the active subscription if it exists
         const activeSubscription = subscriptions?.find(
           (sub) => sub.status === "active" || sub.status === "trialing",
         );
@@ -73,7 +70,7 @@ export function BillingInfo() {
         setSubscriptionData(activeSubscription || null);
       } catch (error) {
         console.error("Error fetching subscription:", error);
-        // Add retry logic
+        // Add a delay to prevent race conditions with Stripe
         setTimeout(fetchSubscription, 2000);
       } finally {
         setLoading(false);
@@ -81,7 +78,6 @@ export function BillingInfo() {
     }
 
     if (session?.user) {
-      console.log("Session user:", session.user);
       fetchSubscription();
     }
   }, [session?.user]);
@@ -119,7 +115,7 @@ export function BillingInfo() {
         throw new Error("Failed to create portal session");
       }
 
-      const { url } = await response.json();
+      const { url } = (await response.json()) as { url: string };
       window.location.href = url;
     } catch (error) {
       console.error("Error creating portal session:", error);

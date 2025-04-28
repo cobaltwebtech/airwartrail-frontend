@@ -3,7 +3,7 @@ import { stripeClient } from "@/lib/auth";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { customerId } = await request.json();
+    const { customerId } = (await request.json()) as { customerId?: string };
 
     if (!customerId) {
       return new Response("Customer ID is required", { status: 400 });

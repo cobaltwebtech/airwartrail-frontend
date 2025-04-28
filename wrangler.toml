@@ -7,6 +7,11 @@ compatibility_flags = [ "nodejs_compat" ]
 binding = "ASSETS"
 directory = "./dist"
 
+[[kv_namespaces]]
+binding = "BETTERAUTH_KV"
+id = "838df67fbba14d33a8661dfcd40e6058"
+preview_id = "37e8db82617b474e960382a848ad6d2e"
+
 [observability]
 enabled = true
 

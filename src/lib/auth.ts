@@ -28,9 +28,14 @@ export const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
+  secret: import.meta.env.BETTER_AUTH_SECRET,
   database: {
     dialect,
     type: "sqlite",
+  },
+  session: {
+    expiresIn: 60 * 60 * 24, // Session expires in 1 day
+    updateAge: 60 * 60, // Every 1 hour the session expiration is updated
   },
   emailAndPassword: {
     enabled: true,
@@ -71,9 +76,6 @@ export const auth = betterAuth({
     },
   },
   user: {
-    setPassword: {
-      enabled: true,
-    },
     changeEmail: {
       enabled: true,
       sendChangeEmailVerification: async ({ user, newEmail, url }) => {
@@ -97,6 +99,7 @@ export const auth = betterAuth({
   },
   plugins: [
     magicLink({
+      disableSignUp: true,
       sendMagicLink: async ({ email, url }) => {
         try {
           console.log("Attempting to send magic link email to:", email);

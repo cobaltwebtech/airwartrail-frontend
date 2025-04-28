@@ -3,10 +3,7 @@ import { magicLinkClient } from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
 
 export const client = createAuthClient({
-  baseURL:
-    process.env.NODE_ENV === "production"
-      ? "https://airwartrail.cobaltdev.workers.dev"
-      : "http://localhost:4321",
+  baseURL: import.meta.env.BETTER_AUTH_URL,
   plugins: [
     magicLinkClient(),
     stripeClient({
@@ -18,6 +15,7 @@ export const client = createAuthClient({
 export const {
   signIn,
   signOut,
+  revokeSessions,
   useSession,
   signUp,
   $Infer,

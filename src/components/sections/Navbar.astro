@@ -1,14 +1,9 @@
 ---
 import { SquareMenu, CircleX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ActiveSession } from "@/types";
 import { AuthButtons } from "@/components/partials/AuthButtons";
 import { ThemeToggle } from "@/components/partials/ThemeToggle";
 import Logo from "@/assets/Airwar-Trail-Logo.svg";
-
-interface Props {
-  sessionData: ActiveSession | null;
-}
 
 const { sessionData } = Astro.props;
 

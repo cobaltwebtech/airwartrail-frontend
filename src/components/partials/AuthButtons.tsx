@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
-import { Loader, CircleUserRound, LogOut, SquareUserRound } from "lucide-react";
+import {
+  Loader2,
+  CircleUserRound,
+  LogOut,
+  SquareUserRound,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSession, signOut } from "@/lib/auth-client";
-import type { ActiveSession } from "@/types";
+import { useSession, signOut, revokeSessions } from "@/lib/auth-client";
+import type { Session } from "better-auth";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -12,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface AuthButtonsProps {
-  sessionData: ActiveSession | null;
+  sessionData: Session | null;
 }
 
 export function AuthButtons({ sessionData }: AuthButtonsProps) {
@@ -26,6 +31,7 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
 
   const handleSignOut = async () => {
     try {
+      await revokeSessions();
       await signOut();
       toast.success("You have been successfully logged out");
       window.location.href = "/";
@@ -35,11 +41,11 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
     }
   };
 
-  // Show nothing during server-side rendering
+  // Show a loading animation during server-side rendering
   if (!mounted) {
     return (
       <div>
-        <Loader className="size-6 animate-spin" />
+        <Loader2 className="size-6 animate-spin" />
       </div>
     );
   }
