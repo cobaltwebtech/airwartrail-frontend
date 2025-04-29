@@ -1,7 +1,36 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Image } from "astro:assets";
+import AboutImage from "@/assets/static/IMG_8393adj-topaz-face-denoise-sharpen-color-text-upscale-5000w.jpg";
+
+// Editable content
+const title = "About the Airwar Trail";
+const paragraphs = [
+  "The Airwar Trail brings the incredible stories of the past to you. The podcast, documentaries, interviews, and images will bring their voices alive in an up close and personal way.",
+  "For over twenty years, military historian Dr. Vernon L. Williams has followed the Air War Trail across England, the United States, and Germany in search of interviews and the voices of those who lived the history of World War II.",
+  "You can hear their stories and see the history that they lived as the war played out for the embattled British people in the skies over Europe.",
+  "Whether you are a history buff or just someone who loves learning about the past, the Airwar Trail is the perfect place for you to learn about the amazing stories of World War 2.",
+];
 ---
 
-<BaseLayout title="About Airwar Trail | Airwar Trail">
-  <h1>About Airwar Trail</h1>
+<BaseLayout title={`About Airwar Trail | Airwar Trail`}>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="mb-8 text-center text-3xl font-bold">{title}</h1>
+    <div class="mx-auto grid gap-8 text-justify sm:grid-cols-2">
+      <div class="space-y-4 text-lg">
+        {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <div>
+        <Image
+          class="w-full rounded-md"
+          src={AboutImage}
+          format="avif"
+          loading="lazy"
+          width={800}
+          height={600}
+          alt="Hero Image"
+        />
+      </div>
+    </div>
+  </div>
 </BaseLayout>

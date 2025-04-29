@@ -54,7 +54,7 @@ const Footer = () => {
         {/* Social Brands */}
         <div className="flex w-full justify-end">
           <a
-            href="http://www.youtube.com/@airwartrail"
+            href="https://www.youtube.com/@airwartrail"
             className="size-12"
             target="_blank"
             rel="noopener noreferrer"

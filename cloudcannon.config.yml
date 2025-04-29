@@ -14,7 +14,7 @@ collections_config:
     disable_add_folder: false
     disable_file_actions: false
   pages:
-    path: ""
+    path: src/pages
     name: Pages
     icon: wysiwyg
     disable_url: true

@@ -5,12 +5,6 @@ export const ALL: APIRoute = async (ctx) => {
   try {
     const response = await auth.handler(ctx.request);
 
-    // // Paths the API uses for entry to auth session
-    // const authPaths = ["/sign-in/email", "/sign-in/magic-link", "/sign-up"];
-    // const isAuthPaths = authPaths.some((path) =>
-    //   ctx.url.pathname.endsWith(path),
-    // );
-
     // If the auth is good then set the session data using Astro Sessions
     if (response && response.ok && ctx.session) {
       const authData = (await response.clone().json()) as {
