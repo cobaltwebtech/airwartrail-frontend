@@ -36,7 +36,7 @@
     "@tailwindcss/vite": "^4.1.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "astro": "5.7.5",
+    "astro": "5.7.7",
     "astro-font": "^1.1.0",
     "better-auth": "^1.2.7",
     "better-sqlite3": "^11.9.1",

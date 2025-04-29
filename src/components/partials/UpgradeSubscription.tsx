@@ -29,7 +29,7 @@ export function SubscriptionCard() {
       const result = await client.subscription.upgrade({
         plan: "premium",
         successUrl: `${window.location.origin}/subscribe/success`,
-        cancelUrl: `${window.location.origin}/subscribe`,
+        cancelUrl: `${window.location.origin}/subscribe/upgrade`,
       });
 
       if (result.error) {
@@ -62,11 +62,43 @@ export function SubscriptionCard() {
   };
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return (
+      <div className="inline-flex gap-4">
+        <Loader2 className="h-6 w-6 animate-spin" />
+
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (!session?.user) {
-    return <div>Please log in to subscribe</div>;
+    return (
+      <div className="mx-auto flex max-w-screen-md flex-col gap-8 sm:flex-row">
+        <Card className="basis-1/2 p-4">
+          <CardTitle className="text-xl">Create an Account</CardTitle>
+          <CardDescription>
+            If you do not have an account, please sign up first to subscribe to
+            the premium plan.
+          </CardDescription>
+          <a href="/signup">
+            <Button variant="secondary">Sign Up to Subscribe</Button>
+          </a>
+        </Card>
+        <div className="text-accent-foreground flex basis-1/5 items-center justify-center text-xl font-bold">
+          - OR -
+        </div>
+        <Card className="basis-1/2 p-4">
+          <CardTitle className="text-xl">Login to Account</CardTitle>
+          <CardDescription>
+            If you have an account, please login first to upgrade to the premium
+            plan.
+          </CardDescription>
+          <a href="/login">
+            <Button>Login to Upgrade</Button>
+          </a>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -75,7 +107,9 @@ export function SubscriptionCard() {
       <Card className="border-primary col-span-2 flex h-full w-full flex-col border-2">
         <CardHeader>
           <CardTitle className="text-2xl">Premium</CardTitle>
-          <CardDescription>Everything you need and more</CardDescription>
+          <CardDescription>
+            Access to all premium and exclusive content
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <p className="mb-6 text-3xl font-bold">
@@ -88,7 +122,7 @@ export function SubscriptionCard() {
           <ul className="space-y-3">
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              All free features plus...
+              All features from Free plan plus...
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
@@ -127,7 +161,7 @@ export function SubscriptionCard() {
       <Card className="flex h-full flex-col">
         <CardHeader>
           <CardTitle className="text-2xl">Free</CardTitle>
-          <CardDescription>Get started with basic features</CardDescription>
+          <CardDescription>Get started with our entry plan</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <p className="mb-6 text-3xl font-bold">
@@ -150,7 +184,7 @@ export function SubscriptionCard() {
           </ul>
         </CardContent>
         <CardFooter>
-          <a href="/account" className="w-full">
+          <a href="/episodes" className="w-full">
             <Button className="w-full">Stay on Free Tier</Button>
           </a>
         </CardFooter>

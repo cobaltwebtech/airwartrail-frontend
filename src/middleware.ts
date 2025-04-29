@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth";
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -19,13 +18,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Check if the user is authenticated
   const isAuthed = await context.session?.get("session");
 
-  // This method makes an API GET request to retrieve the session data
-  // It is here for reference only since the Astro Sessions data is used now
-  // It will be removed when the auth setup is stable and no longer needed
-  // const isAuthed = await auth.api.getSession({
-  //   headers: context.request.headers,
-  // });
-
   // Define public and private paths
   const publicPaths = ["/signup", "/login"];
   const isPublicPath = publicPaths.includes(path);
@@ -37,6 +29,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
   if (isPublicPath && isAuthed) {
     return context.redirect("/account");
+  }
+  if (path === "/subscribe/success" && !isAuthed) {
+    return context.redirect("/subscribe");
   }
 
   // Check for errors in the query string of the URL

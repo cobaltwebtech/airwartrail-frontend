@@ -37,7 +37,7 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
 });
 ---
 
-<BaseLayout title={episode.data.title}>
+<BaseLayout title=`${episode.data.title} | Airwar Trail`>
   <Breadcrumb className="my-8">
     <BreadcrumbList>
       <BreadcrumbItem>

@@ -5,10 +5,24 @@ import { Image } from "astro:assets";
 import HeroImage from "@/assets/static/IMG_8393adj-topaz-face-denoise-sharpen-color-text-upscale-5000w.jpg";
 ---
 
-<!-- Hero -->
 <div class="mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
-  <!-- Grid -->
-  <div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8 xl:gap-12">
+  <div class="grid gap-8 md:grid-cols-2 md:items-center md:gap-6 xl:gap-12">
+    <div class="relative">
+      <Image
+        class="w-full rounded-md"
+        src={HeroImage}
+        format="avif"
+        loading="lazy"
+        width={800}
+        height={600}
+        alt="Hero Image"
+      />
+      <div
+        class="from-primary via-card/0 to-card/0 absolute inset-0 -z-1 -ms-4 me-4 mt-4 -mb-4 size-full rounded-md bg-linear-to-tr lg:-ms-6 lg:me-6 lg:mt-6 lg:-mb-6"
+      >
+      </div>
+    </div>
+
     <div>
       <h1
         class="block text-3xl font-bold sm:text-4xl lg:text-6xl lg:leading-tight"
@@ -23,50 +37,28 @@ import HeroImage from "@/assets/static/IMG_8393adj-topaz-face-denoise-sharpen-co
       </p>
       <p class="mt-3 text-justify">
         You can hear their stories and see the history that they lived as the
-        war played out for the embattled Bristish people in the skies over
+        war played out for the embattled British people in the skies over
         Europe.
       </p>
 
-      <!-- Buttons -->
-      <div class="mt-7 grid w-full gap-3 sm:inline-flex">
-        <a href="/signup">
-          <Button
-            variant="secondary"
-            size="lg"
-            className="text-lg font-semibold"
-          >
+      <div class="my-8 flex w-full flex-col items-center gap-4 sm:flex-row">
+        <a href="/subscribe">
+          <Button size="lg" className="text-lg font-semibold">
             <UserPlus class="size-6" />
             Subscribe Now
           </Button>
         </a>
         <a href="/episodes">
-          <Button variant="default" size="lg" className="text-lg font-semibold">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="text-lg font-semibold"
+          >
             <TvMinimalPlay class="size-6" />
             View Latest Episode
           </Button>
         </a>
       </div>
-      <!-- End Buttons -->
     </div>
-    <!-- End Col -->
-
-    <div class="relative ms-4">
-      <Image
-        class="w-full rounded-md"
-        src={HeroImage}
-        format="avif"
-        loading="lazy"
-        width={800}
-        height={600}
-        alt="Hero Image"
-      />
-      <div
-        class="absolute inset-0 -z-1 -ms-4 me-4 mt-4 -mb-4 size-full rounded-md bg-linear-to-tr from-stone-200 via-white/0 to-white/0 lg:-ms-6 lg:me-6 lg:mt-6 lg:-mb-6 dark:from-stone-800 dark:via-stone-900/0 dark:to-stone-900/0"
-      >
-      </div>
-    </div>
-    <!-- End Col -->
   </div>
-  <!-- End Grid -->
 </div>
-<!-- End Hero -->

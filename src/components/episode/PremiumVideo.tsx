@@ -61,19 +61,19 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
 
   if (!session?.user) {
     return (
-      <div className="bg-accent-4 max-w-[450px] rounded-lg p-4">
+      <div className="bg-accent-4 text-secondary-foreground max-w-[480px] rounded-lg p-4">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
-        <p className="font-semibold">
-          Dang! Why aren't you subscribed already?
+        <p className="text-center font-semibold">
+          Dang! You're missing out on premium content!
         </p>
         <p className="text-sm">
-          You're missing out on great premium content here which you can't see
-          unless you are subscribed.
+          If you're seeing this then you're missing out on awesome premium
+          content here which you can view if you upgrade to the Premium plan.
         </p>
         <p className="text-sm">
           Subscribe now or login to view premium content.
         </p>
-        <div className="flex flex-row gap-x-4">
+        <div className="flex flex-row justify-between gap-4">
           <a href="/signup">
             <Button>Sign Up to Subscribe</Button>
           </a>
@@ -87,8 +87,15 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
 
   if (!isPremium) {
     return (
-      <div className="bg-card rounded-lg p-4">
-        <p>This content is for premium subscribers only.</p>
+      <div className="bg-accent-4 text-secondary-foreground max-w-[450px] rounded-lg p-4">
+        <BadgeAlert className="text-accent-5 mx-auto size-16" />
+        <p className="text-center font-semibold">
+          Dang! You're missing out on premium content!
+        </p>
+        <p className="text-sm">
+          If you're seeing this then you're missing out on awesome premium
+          content here which you can view if you upgrade to the Premium plan.
+        </p>
         <Button
           onClick={() =>
             subscription.upgrade({

@@ -1,17 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Pricing from "@/components/partials/Pricing";
+import { SubscriptionCard } from "@/components/partials/UpgradeSubscription";
 ---
 
-<BaseLayout title="Subscription Plans | Airwar Trail">
+<BaseLayout title="Choose a Plan | Airwar Trail">
   <div class="container mx-auto px-4 py-8">
-    <h1 class="mb-8 text-center text-3xl font-bold">Subscription Plans</h1>
-    <div class="mx-auto max-w-screen-md space-y-4 text-justify">
-      <p>
-        The Airwar Trail brings the incredible stories of the past to you. The
-        podcast, documentaries, interviews, and images will bring their voices
-        alive in an up close and personal way.
-      </p>
+    <h1 class="mb-8 text-center text-3xl font-bold">Choose a Plan</h1>
+    <div class="mx-auto mb-12 max-w-screen-md space-y-4 text-justify">
       <p>
         We are committed to bringing you the very best historical content. It
         takes many hours of research, money, and time to produce this content.
@@ -22,7 +17,11 @@ import Pricing from "@/components/partials/Pricing";
         the past, the Airwar Trail is the perfect place for you to learn about
         the amazing stories of World War 2.
       </p>
+      <p>
+        We are excited to have you join us on this journey through the past.
+        Select a plan below to get started.
+      </p>
     </div>
-    <Pricing />
+    <SubscriptionCard client:load />
   </div>
 </BaseLayout>

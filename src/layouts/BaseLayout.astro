@@ -32,7 +32,13 @@ interface Props {
   scriptUrl?: string;
 }
 
-const { meta, structuredData, externalScript, scriptUrl } = Astro.props;
+const {
+  title = siteMeta.title,
+  meta,
+  structuredData,
+  externalScript,
+  scriptUrl,
+} = Astro.props;
 const umamiId = import.meta.env.UMAMI_ID;
 ---
 
@@ -41,7 +47,7 @@ const umamiId = import.meta.env.UMAMI_ID;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{siteMeta.title}</title>
+    <title>{title}</title>
     <meta name="description" content={siteMeta.description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
