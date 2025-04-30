@@ -127,9 +127,18 @@ export const auth = betterAuth({
         plans: [
           {
             name: "premium", // This must match the plan name in the client side component
-            priceId: "price_1RC1jsE1nIE0FtFy5VTk62mP", // The price id from Stripe
+            priceId: "price_1RJRAiE1nIE0FtFy8qxYKWyk", // The price id from Stripe
           },
         ],
+        getCheckoutSessionParams: async () => {
+          return {
+            params: {
+              tax_id_collection: {
+                enabled: true,
+              },
+            },
+          };
+        },
       },
       onEvent: async (event) => {
         try {
@@ -265,6 +274,30 @@ export const auth = betterAuth({
             } catch (error) {
               console.error(
                 "Error updating subscription status in database:",
+                error,
+              );
+            }
+          } else if (event.type === "checkout.session.expired") {
+            const session = event.data.object as Stripe.Checkout.Session;
+            console.log("Checkout session expired:", {
+              id: session.id,
+              customerId: session.customer,
+              status: session.status,
+            });
+
+            try {
+              // If you store sessions by session.id, delete by session.id
+              await client.execute({
+                sql: `
+                  DELETE FROM subscription
+                  WHERE stripeSessionId = ?
+                `,
+                args: [session.id],
+              });
+              console.log("Stale session deleted from database");
+            } catch (error) {
+              console.error(
+                "Error deleting stale session from database:",
                 error,
               );
             }

@@ -194,7 +194,6 @@ export function SignupForm({
 
                     <Button
                       type="submit"
-                      variant="secondary"
                       className="w-full"
                       disabled={isLoading}
                     >

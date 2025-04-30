@@ -75,7 +75,9 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
       ) : (
         <div className="flex flex-row gap-x-2 lg:gap-x-4">
           <a href="/login">
-            <Button className="h-9 px-1 sm:px-4">Login</Button>
+            <Button className="h-9 px-1 text-xs sm:px-4 sm:text-lg">
+              Login
+            </Button>
           </a>
         </div>
       )}

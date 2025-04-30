@@ -61,16 +61,16 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-4">
         <DropdownMenuItem onClick={() => setTheme("light")} className="text-lg">
-          <Sun className="size-6" /> Light
+          <Sun className="focus:text-accent-foreground size-6" /> Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")} className="text-lg">
-          <Moon className="size-6" /> Dark
+          <Moon className="focus:text-accent-foreground size-6" /> Dark
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("system")}
           className="text-lg"
         >
-          <Monitor className="size-6" /> System
+          <Monitor className="focus:text-accent-foreground size-6" /> System
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

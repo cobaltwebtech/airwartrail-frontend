@@ -218,7 +218,6 @@ export function LoginForm({
                     <div className="flex flex-col gap-3">
                       <Button
                         type="submit"
-                        variant="secondary"
                         className="w-full"
                         disabled={isLoading}
                       >
@@ -251,6 +250,7 @@ export function LoginForm({
 
                       <Button
                         type="button"
+                        variant="reversed"
                         className="w-full"
                         onClick={() => setShowPasswordLogin(!showPasswordLogin)}
                       >

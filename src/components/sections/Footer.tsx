@@ -23,7 +23,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-primary mx-auto mt-12 w-full px-4 py-10 sm:px-6 lg:px-8">
+    <footer className="text-light bg-airwar-600 dark:bg-airwar-900 mx-auto mt-12 w-full px-4 py-10 sm:px-6 lg:px-8">
       {/* Grid */}
       <div className="mx-auto grid max-w-screen-lg grid-cols-1 items-center gap-5 md:grid-cols-3">
         <div>
@@ -41,10 +41,10 @@ const Footer = () => {
           {footerItems.map(({ title, url }) => (
             <li key={url}>
               <a
-                className="flex items-center justify-start text-sm text-nowrap lg:justify-center"
+                className="flex items-center justify-start lg:justify-center"
                 href={url}
               >
-                <span className="text-muted-foreground">{title}</span>
+                <span className="text-sm font-light text-nowrap">{title}</span>
               </a>
             </li>
           ))}
