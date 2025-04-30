@@ -13,8 +13,8 @@ export const POST: APIRoute = async ({ request }) => {
     const validatedData = contactFormSchema.parse(body);
 
     const { data, error } = await resend.emails.send({
-      from: "Airwar Trail <noreply@contact.cobaltweb.tech>",
-      to: "cgarza@cobaltweb.tech",
+      from: "Airwar Trail <contact@airwartrail.com>",
+      to: "vwilliams@ophfoundation.org",
       subject: "New Contact Form Submission",
       react: await ContactForm({
         fullName: validatedData.fullName,

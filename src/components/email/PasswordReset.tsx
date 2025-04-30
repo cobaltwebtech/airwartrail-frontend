@@ -4,6 +4,7 @@ import {
   Head,
   Preview,
   Body,
+  Heading,
   Container,
   Section,
   Img,
@@ -33,10 +34,13 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
                   <Link href="https://www.airwartrail.com/">
                     <Img
                       alt="Airwar Trail Logo"
-                      height="120"
-                      src="https://cobalt2.b-cdn.net/graphics/airwartrail/eaawp_logo.png"
+                      height="150"
+                      src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
                     />
                   </Link>
+                  <Heading as="h1" className="text-4xl">
+                    Airwar Trail
+                  </Heading>
                 </Column>
               </Row>
               <Row>
@@ -93,9 +97,9 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
                 <Column className="text-center">
                   <Img
                     alt="Airwar Trail Logo"
-                    width="120"
-                    src="https://cobalt2.b-cdn.net/graphics/airwartrail/eaawp_logo.png"
-                    className="mx-auto w-[120px]"
+                    width="80"
+                    src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
+                    className="mx-auto w-[80px]"
                   />
                 </Column>
               </Row>
@@ -105,7 +109,7 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
                     <Img
                       alt="YouTube logo"
                       height="64"
-                      src="https://cobalt2.b-cdn.net/graphics/airwartrail/youtube-dark-icon.png"
+                      src="https://airwartrail-assets.b-cdn.net/email-assets/youtube-dark-icon.png"
                       width="64"
                       className="mx-auto"
                     />
