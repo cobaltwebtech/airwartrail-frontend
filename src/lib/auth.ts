@@ -144,7 +144,7 @@ export const auth = betterAuth({
         try {
           console.log("Processing Stripe webhook event:", event.type);
 
-          // Handle critical subscription events
+          // Handle events from Stripe sent via webhook
           if (event.type === "checkout.session.completed") {
             const session = event.data.object;
             console.log("Checkout session completed:", {
@@ -278,21 +278,21 @@ export const auth = betterAuth({
               );
             }
           } else if (event.type === "checkout.session.expired") {
+            // Delete stale checkout session from database
             const session = event.data.object as Stripe.Checkout.Session;
             console.log("Checkout session expired:", {
-              id: session.id,
               customerId: session.customer,
               status: session.status,
+              sessionId: session.client_reference_id,
             });
 
             try {
-              // If you store sessions by session.id, delete by session.id
               await client.execute({
                 sql: `
                   DELETE FROM subscription
-                  WHERE stripeSessionId = ?
+                  WHERE referenceId = ? AND status = 'incomplete'
                 `,
-                args: [session.id],
+                args: [session.client_reference_id],
               });
               console.log("Stale session deleted from database");
             } catch (error) {
@@ -307,8 +307,6 @@ export const auth = betterAuth({
             "Error processing webhook within onEvent handler:",
             error,
           );
-          // Continue execution - don't throw the error
-          // This prevents Better Auth from seeing the error from *within* this handler
         }
 
         // Return undefined to indicate to Better Auth that you've handled the event
