@@ -62,8 +62,12 @@ export default function Pricing() {
             </CardContent>
             <CardFooter>
               <a href="/signup" className="w-full">
-                <Button className="w-full" size="lg"><UserPlus className="size-6" />
-                <span className="font-bold text-lg">Subscribe to Premium</span></Button>
+                <Button className="w-full" size="lg">
+                  <UserPlus className="size-6" />
+                  <span className="text-lg font-bold">
+                    Subscribe to Premium
+                  </span>
+                </Button>
               </a>
             </CardFooter>
           </Card>

@@ -154,7 +154,9 @@ export function SubscriptionCard() {
             ) : (
               <>
                 <UserPlus className="size-6" />
-                <span className="font-bold text-lg">Upgrade to Premium Plan</span>
+                <span className="text-lg font-bold">
+                  Upgrade to Premium Plan
+                </span>
               </>
             )}
           </Button>
