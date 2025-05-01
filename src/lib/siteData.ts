@@ -1,11 +1,11 @@
-import ogImageSrc from "@/images/placeholder.png";
+import ogImageSrc from "@/assets/static/opengraphimage.jpg";
 
 export const siteMeta = {
   title: "Airwar Trail",
   tagline: "Airwar Trail bringing stories of the past",
   description: "Airwar Trail bringing stories of the past",
   description_short: "Airwar Trail video interviews",
-  url: "https://airwartrail.cobaltdev.workers.dev/",
+  url: "https://www.airwartrail.com/",
   author: "Cobalt Web Technologies",
 };
 

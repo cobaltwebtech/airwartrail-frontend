@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, UserPlus } from "lucide-react";
 
 export default function Pricing() {
   return (
@@ -43,25 +43,27 @@ export default function Pricing() {
               <ul className="space-y-3">
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  All features from Free plan plus...
+                  All features from Basic plan plus...
                 </li>
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Premium feature one placeholder
+                  Full-length films, interviews, and other video presentations
                 </li>
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Premium feature two placeholder
+                  Bonus content of high-res photographs, historical materials,
+                  War Department productions, and much more
                 </li>
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Premium feature three placeholder
+                  Access to episodes and content early before everyone else
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
               <a href="/signup" className="w-full">
-                <Button className="w-full">Subscribe to Premium</Button>
+                <Button className="w-full" size="lg"><UserPlus className="size-6" />
+                <span className="font-bold text-lg">Subscribe to Premium</span></Button>
               </a>
             </CardFooter>
           </Card>
@@ -69,7 +71,7 @@ export default function Pricing() {
           {/* Free Plan */}
           <Card className="flex h-full flex-col md:col-span-1">
             <CardHeader>
-              <CardTitle className="text-2xl">Free</CardTitle>
+              <CardTitle className="text-2xl">Basic</CardTitle>
               <CardDescription>Get started with our entry plan</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -82,15 +84,15 @@ export default function Pricing() {
               <ul className="space-y-3">
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Feature one placeholder
+                  Bi-weekly release of episodes and other content
                 </li>
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Feature two placeholder
+                  Sneak previews of documentary films
                 </li>
                 <li className="flex items-center">
                   <Check className="mr-2 size-5 text-green-500" />
-                  Feature three placeholder
+                  Sneak previews of interviews of WWII individuals
                 </li>
               </ul>
             </CardContent>

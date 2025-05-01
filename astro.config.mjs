@@ -7,7 +7,7 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
-  site: "https://airwartrail.cobaltweb.dev",
+  site: "https://www.airwartrail.com",
   integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],

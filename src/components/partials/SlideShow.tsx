@@ -8,8 +8,8 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 interface SlideProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   image: string;
   alt: string;
 }
@@ -46,14 +46,14 @@ export function SlideShow({ slides }: SlideShowProps) {
                 alt={slide.alt}
               />
             </div>
-            <div className="mb-4 space-y-4 text-center">
+            {/* <div className="mb-4 space-y-4 text-center">
               <h3 className="text-primary-foreground text-2xl font-bold md:text-3xl lg:text-4xl">
                 {slide.title}
               </h3>
               <p className="text-accent-foreground font-light md:text-lg">
                 {slide.description}
               </p>
-            </div>
+            </div> */}
           </div>
         </SwiperSlide>
       ))}

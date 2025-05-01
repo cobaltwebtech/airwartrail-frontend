@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 import { client } from "@/lib/auth-client";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -122,26 +122,27 @@ export function SubscriptionCard() {
           <ul className="space-y-3">
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              All features from Free plan plus...
+              All features from Basic plan plus...
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Premium feature one placeholder
+              Full-length films, interviews, and other video presentations
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Premium feature two placeholder
+              Bonus content of high-res photographs, historical materials, War
+              Department productions, and much more
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Premium feature three placeholder
+              Access to episodes and content early before everyone else
             </li>
           </ul>
         </CardContent>
         <CardFooter>
           <Button
             className="w-full"
-            variant="secondary"
+            size="lg"
             onClick={handleSubscribe}
             disabled={isSubscribing}
           >
@@ -151,7 +152,10 @@ export function SubscriptionCard() {
                 <span>Proceeding to payment...</span>
               </div>
             ) : (
-              "Upgrade to Premium Plan"
+              <>
+                <UserPlus className="size-6" />
+                <span className="font-bold text-lg">Upgrade to Premium Plan</span>
+              </>
             )}
           </Button>
         </CardFooter>
@@ -160,7 +164,7 @@ export function SubscriptionCard() {
       {/* Free Plan */}
       <Card className="flex h-full flex-col">
         <CardHeader>
-          <CardTitle className="text-2xl">Free</CardTitle>
+          <CardTitle className="text-2xl">Basic</CardTitle>
           <CardDescription>Get started with our entry plan</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
@@ -171,21 +175,23 @@ export function SubscriptionCard() {
           <ul className="space-y-3">
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Feature one placeholder
+              Bi-weekly release of episodes and other content
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Feature two placeholder
+              Sneak previews of documentary films
             </li>
             <li className="flex items-center">
               <Check className="mr-2 size-5 text-green-500" />
-              Feature three placeholder
+              Sneak previews of interviews of WWII individuals
             </li>
           </ul>
         </CardContent>
         <CardFooter>
           <a href="/episodes" className="w-full">
-            <Button className="w-full">Stay on Free Tier</Button>
+            <Button className="w-full" variant="secondary">
+              Stay on Free Tier
+            </Button>
           </a>
         </CardFooter>
       </Card>

@@ -168,8 +168,8 @@ export function BillingInfo() {
             <p className="text-muted-foreground text-sm font-medium">
               Current Plan
             </p>
-            <p className="text-lg font-medium">
-              {isFreeTier ? "Free Tier" : "Premium Tier"}
+            <p className="text-lg font-semibold">
+              {isFreeTier ? "Basic Plan" : "Premium"}
             </p>
             {!isFreeTier && subscriptionData?.periodEnd && (
               <div className="text-muted-foreground mt-1 text-sm">
