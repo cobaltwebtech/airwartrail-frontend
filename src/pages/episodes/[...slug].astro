@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import PremiumContent from "@/components/episode/PremiumContent.astro";
+import FreeContent from "@/components/episode/FreeContent.astro";
 
 export async function getStaticPaths() {
   const episodes = await getCollection("episodes");
@@ -72,7 +73,12 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
     </header>
 
     <div class="prose prose-lg dark:prose-invert max-w-none">
-      <Content components={{ PremiumVideo: PremiumContent }} />
+      <Content
+        components={{
+          PremiumVideo: PremiumContent,
+          FreeVideo: FreeContent,
+        }}
+      />
     </div>
   </article>
 </BaseLayout>

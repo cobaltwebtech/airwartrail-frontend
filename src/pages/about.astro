@@ -1,24 +1,36 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
+import { Button } from "@/components/ui/button";
 import AboutImage from "@/assets/static/IMG_8393adj-topaz.avif";
-
-// Editable content
-const title = "About the Airwar Trail";
-const paragraphs = [
-  "The Airwar Trail brings the incredible stories of the past to you. The podcast, documentaries, interviews, and images will bring their voices alive in an up close and personal way.",
-  "For over twenty years, military historian Dr. Vernon L. Williams has followed the Air War Trail across England, the United States, and Germany in search of interviews and the voices of those who lived the history of World War II.",
-  "You can hear their stories and see the history that they lived as the war played out for the embattled British people in the skies over Europe.",
-  "Whether you are a history buff or just someone who loves learning about the past, the Airwar Trail is the perfect place for you to learn about the amazing stories of World War 2.",
-];
+import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
 ---
 
-<BaseLayout title={`About Airwar Trail | Airwar Trail`}>
+<BaseLayout title={`About Air War Trail | Air War Trail`}>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="mb-8 text-center text-3xl font-bold">{title}</h1>
-    <div class="mx-auto grid gap-8 text-justify sm:grid-cols-2">
-      <div class="space-y-4 text-lg">
-        {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    <h1 class="mb-8 text-center text-3xl font-bold">About the Air War Trail</h1>
+    <div class="mx-auto mb-10 grid gap-8 text-justify md:grid-cols-2">
+      <div class="space-y-4">
+        <p>
+          Dr. Vernon L. Williams is a military and naval historian. He received
+          his doctorate from Texas A&M University in 1985. He is currently
+          serving as President of the Old Primero Historical Foundation and
+          Director of the East Anglia Air War Project. Before 2018 he spent
+          thirty years as professor of history in the Department of History at
+          Abilene Christian University. Since 2001 Dr. Williams has been working
+          to document the wartime experiences of American and British citizens
+          alike. Planned outcomes from this project include several books over
+          the next few years and a continuing series of documentary films.
+        </p>
+        <p>Recently, Dr. Williams has completed two books:</p>
+        <p>
+          Flight Surgeon: A War Diary, 1941-1945, Edited by Vernon L. Williams,
+          TCU University Press, 2021
+        </p>
+        <p>
+          Empire Marine: Major General Littleton W.T. Waller and the Growth of
+          American Imperialism, 1856-1926, TCU University Press, 2024
+        </p>
       </div>
       <div>
         <Image
@@ -28,9 +40,93 @@ const paragraphs = [
           loading="lazy"
           width={800}
           height={600}
-          alt="Hero Image"
+          alt="About Air War Trail image"
         />
       </div>
+    </div>
+    <div class="space-y-4">
+      <p>
+        Currently, Dr. Williams is writing a volume about the sense of community
+        that developed between the Americans and British families living in
+        villages around the American bases in wartime England. The working title
+        for the book is: Little America: The Anglo/American Cultural Exchange in
+        World War II England, 1942-1945, in progress with an expected completion
+        and submission date of Spring 2026. Little America will be organized
+        into nine chapters:
+      </p>
+      <ul class="ml-8 list-disc md:ml-16">
+        <li>Chapter 1. Little America, A Sense of Place</li>
+        <li>Chapter 2. The Red Cross and the Aero Clubs</li>
+        <li>Chapter 3. Race and the Shifting Landscape</li>
+        <li>Chapter 4. Big Bands and the Jitterbug</li>
+        <li>Chapter 5. Glamour and Hollywood</li>
+        <li>Chapter 6. The Moral Dilemma</li>
+        <li>Chapter 7. War Brides</li>
+        <li>Chapter 8. Bonds that are Never Broken</li>
+        <li>Chapter 9. Epilogue</li>
+      </ul>
+      <p>
+        Six new documentaries have been released by Dr. Williams for Old Segundo
+        Productions in recent years. Three of these films appear in the Air War
+        Series and three in the History of the American West Series. During the
+        last twenty years, Dr. Williams has produced over twenty-one documentary
+        films on military and American history subjects.
+      </p>
+      <p>
+        Cokedale, Colorado, 1907-1947: A Model Company Town and the Promise of
+        Hope and Community, released 2024
+      </p>
+      <p>
+        Wethersfield at War: From World War II to the Cold War, An Essex Story
+        of Service, Determination, and the Anglo-American Spirit, released 2023
+      </p>
+      <p>
+        Primero, Colorado, 1901-1928: John D. Rockefeller, Jr., Company Towns,
+        and the Quest for a Better World, released 2018
+      </p>
+      <p>
+        Rendezvous Over Berlin, A Texas Cowboy Finds His Destiny Over the Skies
+        of Nazi Germany, 1942-1943, released 2020
+      </p>
+      <p>
+        Willard, Colorado: The Burlington Railroad, Community, and Life on the
+        Twentieth Century’s Colorado High Plains, released in 2020
+      </p>
+      <p>
+        From Ozark to Fortress Europe: Flight Surgeon Thurman Shuller, War,
+        Medicine, and a Life of Service, released 2021
+      </p>
+      <p>
+        Williams’ first documentary film, Deopham Green, appeared in 2004 and
+        since that time, he has produced and directed twenty documentaries on
+        various subjects. You can visit oldsegundo.com to find information on
+        the films that are currently available and learn about others that are
+        now in the production and pre-production stages.
+      </p>
+      <p>
+        Academic Background<br />
+        Ph.D., 1985<br />
+        Texas A&M University, College Station, Texas<br />
+        Major: American Military and Naval History<br />
+        Minors: American West and Nautical Archaeology
+      </p>
+    </div>
+    <div class="flex flex-col items-center space-y-4">
+      <a href="https://www.oldsegundo.com/">
+        <Image
+          class=""
+          src={OldSegundoLogo}
+          loading="lazy"
+          width={400}
+          height={400}
+          alt="Old Segundo Productions Logo"
+        />
+      </a>
+      <a href="https://www.oldsegundo.com/">
+        <Button className="text-xl font-bold" size="lg"
+          >Check Out Old Segundo</Button
+        >
+      </a>
     </div>
   </div>
 </BaseLayout>
