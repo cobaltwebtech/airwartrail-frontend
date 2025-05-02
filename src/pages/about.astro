@@ -6,30 +6,55 @@ import AboutImage from "@/assets/static/IMG_8393adj-topaz.avif";
 import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
 ---
 
-<BaseLayout title={`About Air War Trail | Air War Trail`}>
+<BaseLayout
+  title={`About Air War Trail | Air War Trail`}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://www.airwartrail.com/about/",
+    url: "https://www.airwartrail.com/about/",
+    name: "About | Air War Trail",
+    description:
+      "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://www.airwartrail.com/",
+      name: "Air War Trail",
+      description:
+        "The podcast, documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. Air War Trail's mission is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+    },
+    inLanguage: "en-US",
+  }}
+>
   <div class="container mx-auto px-4 py-8">
     <h1 class="mb-8 text-center text-3xl font-bold">About the Air War Trail</h1>
     <div class="mx-auto mb-10 grid gap-8 text-justify md:grid-cols-2">
       <div class="space-y-4">
         <p>
-          Dr. Vernon L. Williams is a military and naval historian. He received
-          his doctorate from Texas A&M University in 1985. He is currently
-          serving as President of the Old Primero Historical Foundation and
-          Director of the East Anglia Air War Project. Before 2018 he spent
-          thirty years as professor of history in the Department of History at
-          Abilene Christian University. Since 2001 Dr. Williams has been working
-          to document the wartime experiences of American and British citizens
-          alike. Planned outcomes from this project include several books over
-          the next few years and a continuing series of documentary films.
-        </p>
-        <p>Recently, Dr. Williams has completed two books:</p>
-        <p>
-          Flight Surgeon: A War Diary, 1941-1945, Edited by Vernon L. Williams,
-          TCU University Press, 2021
+          The podcast, documentaries, interviews, and images bring the voices
+          alive from those who experienced World War II in an up close and
+          personal way. These are their stories, when freedom stood in the
+          balance and a generation of the free made a difference in the world.
         </p>
         <p>
-          Empire Marine: Major General Littleton W.T. Waller and the Growth of
-          American Imperialism, 1856-1926, TCU University Press, 2024
+          In 2002 Military Historian and Producer/Director Vernon L. Williams
+          established the East Anglia Air War Project with a mission to document
+          the American air war against the German empire in the ETO. For
+          twenty-three years, Dr. Williams has traveled across the United States
+          interviewing ground and air crews who served in wartime England during
+          the Second World War.
+        </p>
+        <p>
+          Meanwhile, Williams made countless trips to England and searched out
+          British family members who lived in the villages around the airfields
+          across East Anglia. The net result of more than two decades of
+          research, oral history interviews, and an extensive document archive,
+          Williams has produced over a dozen full length broadcast quality
+          documentaries on the air war, with more on the way, recorded hundreds
+          of comprehensive oral history interviews, and collected more than
+          fifty thousand World War Two photographs. Now the East Anglia Air War
+          Collection is available on a new podcast and streaming service through
+          the Air War Trail.
         </p>
       </div>
       <div>
@@ -45,6 +70,27 @@ import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
       </div>
     </div>
     <div class="space-y-4">
+      <h3 class="text-xl font-bold">About the Historian</h3>
+      <p>
+        Dr. Vernon L. Williams is a military and naval historian. He received
+        his doctorate from Texas A&M University in 1985. He is currently serving
+        as President of the Old Primero Historical Foundation and Director of
+        the East Anglia Air War Project. Before 2018 he spent thirty years as
+        professor of history in the Department of History at Abilene Christian
+        University. Since 2001 Dr. Williams has been working to document the
+        wartime experiences of American and British citizens alike. Planned
+        outcomes from this project include several books over the next few years
+        and a continuing series of documentary films.
+      </p>
+      <p>Recently, Dr. Williams has completed two books:</p>
+      <p>
+        Flight Surgeon: A War Diary, 1941-1945, Edited by Vernon L. Williams,
+        TCU University Press, 2021
+      </p>
+      <p>
+        Empire Marine: Major General Littleton W.T. Waller and the Growth of
+        American Imperialism, 1856-1926, TCU University Press, 2024
+      </p>
       <p>
         Currently, Dr. Williams is writing a volume about the sense of community
         that developed between the Americans and British families living in

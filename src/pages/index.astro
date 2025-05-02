@@ -5,7 +5,17 @@ import LatestEpisode from "@/components/sections/LatestEpisode.astro";
 import Pricing from "@/components/partials/Pricing";
 ---
 
-<BaseLayout>
+<BaseLayout
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    url: "https://www.airwartrail.com/",
+    name: "Air War Trail",
+    description:
+      "The podcast, documentaries, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. Air War Trail's mission is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+    inLanguage: "en-US",
+  }}
+>
   <LatestEpisode />
   <Pricing />
   <HeroSection />

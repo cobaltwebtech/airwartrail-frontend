@@ -1,10 +1,10 @@
 import ogImageSrc from "@/assets/static/opengraphimage.jpg";
 
 export const siteMeta = {
-  title: "Airwar Trail",
-  tagline: "Airwar Trail bringing stories of the past",
-  description: "Airwar Trail bringing stories of the past",
-  description_short: "Airwar Trail video interviews",
+  title: "Air War Trail",
+  tagline: "Air War Trail bringing stories of the past",
+  description: "Air War Trail bringing stories of the past",
+  description_short: "Air War Trail video interviews",
   url: "https://www.airwartrail.com/",
   author: "Cobalt Web Technologies",
 };
@@ -34,6 +34,6 @@ export const openGraph = {
   type: "website",
   url: siteMeta.url,
   title: `${siteMeta.title} - Airwar Trail bringing stories of the past`,
-  description: "Airwar Trail is about World War II history and interviews.",
+  description: "Air War Trail is about World War II history and interviews.",
   image: ogImageSrc,
 };

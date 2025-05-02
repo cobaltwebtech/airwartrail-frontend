@@ -33,13 +33,13 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
                 <Column align="center">
                   <Link href="https://www.airwartrail.com/">
                     <Img
-                      alt="Airwar Trail Logo"
+                      alt="Air War Trail Logo"
                       height="150"
                       src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
                     />
                   </Link>
                   <Heading as="h1" className="text-4xl">
-                    Airwar Trail
+                    Air War Trail
                   </Heading>
                 </Column>
               </Row>
@@ -96,7 +96,7 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
               <Row className="mt-[24px]">
                 <Column className="text-center">
                   <Img
-                    alt="Airwar Trail Logo"
+                    alt="Air War Trail Logo"
                     width="80"
                     src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
                     className="mx-auto w-[80px]"
@@ -120,7 +120,7 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ url }) => {
               <Row className="my-[12px]">
                 <Column className="text-center">
                   <Text className="my-[8px] text-[12px] leading-[24px] text-stone-500">
-                    Airwar Trail is a subsidiary of Old Segundo Productions
+                    Air War Trail is a subsidiary of Old Segundo Productions
                   </Text>
                   <Text className="mt-[4px] mb-0 text-[12px] leading-[24px] font-semibold text-stone-500">
                     <Link href="mailto:info@airwartrail.com">
