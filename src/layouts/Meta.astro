@@ -1,8 +1,8 @@
 ---
 import { getImage } from "astro:assets";
 import { siteMeta, openGraph, seoMeta } from "@/lib/siteData";
-import faviconSvgSrc from "@/assets/static/favicon.svg";
-import faviconSrc from "@/assets/static/icon-mask.png";
+import faviconSvg from "@/assets/static/favicon.svg";
+import faviconMask from "@/assets/static/icon-mask.png";
 
 // Default properties for the Meta component. These values are used if props are not provided.
 // 'meta' sets a default description meta tag to describe the page content.
@@ -29,19 +29,6 @@ const socialImageRes = await getImage({
   height: 630,
 });
 const socialImage = Astro.url.origin + socialImageRes.src;
-
-// Generate and optimize the favicon images
-const faviconSvg = await getImage({
-  src: faviconSvgSrc,
-  format: "svg",
-});
-
-const appleTouchIcon = await getImage({
-  src: faviconSrc,
-  width: 180,
-  height: 180,
-  format: "png",
-});
 ---
 
 <!-- Inject structured data into the page if provided. This data is formatted as JSON-LD, a method recommended by Google for structured data pass -->{
@@ -89,7 +76,7 @@ const appleTouchIcon = await getImage({
 <link href="/favicon.ico" rel="icon" sizes="any" type="image/x-icon" />
 <link href={faviconSvg.src} rel="icon" type="image/svg+xml" sizes="any" />
 <meta name="mobile-web-app-capable" content="yes" />
-<link href={appleTouchIcon.src} rel="apple-touch-icon" />
-<link href={appleTouchIcon.src} rel="shortcut icon" />
+<link href={faviconMask.src} rel="apple-touch-icon" />
+<link href={faviconMask.src} rel="shortcut icon" />
 <!-- Set theme color -->
 <meta name="theme-color" content="#647b52" />
