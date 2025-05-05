@@ -203,7 +203,7 @@ export function BillingInfo() {
                 <span>Proceeding to payment...</span>
               </div>
             ) : (
-              "Upgrade to Premium Tier"
+              "Upgrade to Premium Plan"
             )}
           </Button>
         )}

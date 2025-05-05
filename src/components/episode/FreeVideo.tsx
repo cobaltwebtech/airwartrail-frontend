@@ -1,5 +1,6 @@
+import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface FreeVideoProps {
   videoUrl: string;
@@ -12,6 +13,9 @@ function extractVideoId(url: string): string | null {
 }
 
 export function FreeVideo({ videoUrl }: FreeVideoProps) {
+  const { data: session } = useSession();
+  const [isPremium, setIsPremium] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [tokenQuery, setTokenQuery] = useState<string | null>(null);
 
@@ -21,7 +25,33 @@ export function FreeVideo({ videoUrl }: FreeVideoProps) {
   }, []);
 
   useEffect(() => {
-    if (videoUrl) {
+    async function checkPremiumStatus() {
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data: subscriptions } = await subscription.list();
+        const activeSubscription = subscriptions?.find(
+          (sub) => sub.status === "active" || sub.status === "trialing",
+        );
+        setIsPremium(!!activeSubscription);
+      } catch (error) {
+        console.error("Error checking subscription status:", error);
+        setIsPremium(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (mounted) {
+      checkPremiumStatus();
+    }
+  }, [session?.user, mounted]);
+
+  useEffect(() => {
+    if (!isPremium && videoUrl) {
       const videoId = extractVideoId(videoUrl);
       if (!videoId) return;
       fetch(`/api/bunny/videoToken?videoId=${videoId}`)
@@ -32,25 +62,33 @@ export function FreeVideo({ videoUrl }: FreeVideoProps) {
           setTokenQuery(null);
         });
     }
-  }, [videoUrl]);
+  }, [isPremium, videoUrl]);
 
-  if (!mounted) {
+  if (loading) {
     return (
       <div className="flex justify-center">
-        <Loader className="size-12 animate-spin" />
+        <Loader2 className="size-12 animate-spin" />
       </div>
     );
   }
 
-  if (tokenQuery) {
-    const fullUrl = `${videoUrl}${tokenQuery}&autoplay=false&loop=false&muted=true&preload=true&responsive=true`;
+  if (!mounted) {
+    return (
+      <div className="flex justify-center">
+        <Loader2 className="size-12 animate-spin" />
+      </div>
+    );
+  }
+
+  if ((!isPremium || !session?.user) && tokenQuery) {
+    const fullUrl = `${videoUrl}${tokenQuery}&autoplay=false&loop=false&muted=false&preload=true&responsive=true`;
 
     return (
       <div className="relative pt-[56.25%]">
         <iframe
           src={fullUrl}
           loading="eager"
-          className="absolute top-0 h-full w-full border-0"
+          className="absolute top-0 h-full w-full rounded-lg border-0"
           allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
           allowFullScreen={true}
         ></iframe>

@@ -4,7 +4,9 @@ export const prerender = true;
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
 import { Button } from "@/components/ui/button";
-import AboutImage from "@/assets/static/IMG_8393adj-topaz.avif";
+import { VideoEmbed } from "@/components/partials/VideoEmbed";
+const videoUrl =
+  "https://iframe.mediadelivery.net/embed/416789/8da9d225-0791-40ca-a625-0a35dcaade9e";
 import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
 ---
 
@@ -59,16 +61,10 @@ import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
           the Air War Trail.
         </p>
       </div>
-      <div>
-        <Image
-          class="w-full rounded-md"
-          src={AboutImage}
-          format="avif"
-          loading="lazy"
-          width={800}
-          height={600}
-          alt="About Air War Trail image"
-        />
+      <div
+        class="from-primary via-card/40 to-primary aspect-video rounded-lg bg-linear-to-tr p-4"
+      >
+        <VideoEmbed videoUrl={videoUrl} client:load />
       </div>
     </div>
     <div class="space-y-4">

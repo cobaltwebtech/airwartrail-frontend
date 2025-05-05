@@ -1,24 +1,30 @@
 import { useSession, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Loader2, BadgeAlert } from "lucide-react";
+import { Autoplay, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Loader2, BadgeAlert, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface PremiumVideoProps {
-  videoUrl: string;
+interface PremiumSlideProps {
+  title?: string;
+  description?: string;
+  image: string;
+  alt?: string;
 }
 
-function extractVideoId(url: string): string | null {
-  // Example: https://iframe.mediadelivery.net/embed/759/eb1c4f77-0cda-46be-b47d-1118ad7c2ffe
-  const match = url.match(/\/embed\/[^/]+\/([^?]+)/);
-  return match ? match[1] : null;
+interface PremiumSlideShowProps {
+  slideData: PremiumSlideProps[];
+  premiumImagesUrl: string;
 }
 
-export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
+export function PremiumSlideShow({
+  slideData,
+  premiumImagesUrl,
+}: PremiumSlideShowProps) {
   const { data: session } = useSession();
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [tokenQuery, setTokenQuery] = useState<string | null>(null);
 
   // Handle hydration
   useEffect(() => {
@@ -50,20 +56,6 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
       checkPremiumStatus();
     }
   }, [session?.user, mounted]);
-
-  useEffect(() => {
-    if (isPremium && videoUrl) {
-      const videoId = extractVideoId(videoUrl);
-      if (!videoId) return;
-      fetch(`/api/bunny/videoToken?videoId=${videoId}`)
-        .then((res) => res.json() as Promise<{ url: string }>)
-        .then((data) => setTokenQuery(data.url))
-        .catch((err) => {
-          console.error("Failed to fetch video token", err);
-          setTokenQuery(null);
-        });
-    }
-  }, [isPremium, videoUrl]);
 
   if (!mounted) {
     return (
@@ -133,18 +125,58 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
     );
   }
 
-  if (isPremium && tokenQuery) {
-    const fullUrl = `${videoUrl}${tokenQuery}&autoplay=false&loop=false&muted=false&preload=true&responsive=true`;
-
+  if (isPremium) {
     return (
-      <div className="relative pt-[56.25%]">
-        <iframe
-          src={fullUrl}
-          loading="eager"
-          className="absolute top-0 h-full w-full rounded-lg border-0"
-          allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-          allowFullScreen={true}
-        ></iframe>
+      <div className="space-y-4">
+        <Swiper
+          slidesPerView={1}
+          spaceBetween={30}
+          loop={true}
+          autoplay={{
+            delay: 3000,
+            pauseOnMouseEnter: true,
+          }}
+          navigation={true}
+          modules={[Autoplay, Navigation]}
+          className="bg-primary w-full rounded-lg"
+        >
+          {slideData.map((slide, index) => (
+            <SwiperSlide key={index}>
+              <div className="space-y-4 px-4 py-8 md:px-8 lg:px-12">
+                <div className="flex items-center justify-center px-6 sm:p-0">
+                  <img
+                    src={slide.image}
+                    className="max-h-[400px] w-auto rounded-md object-contain"
+                    alt={slide.alt}
+                  />
+                </div>
+                {/* <div className="mb-4 space-y-4 text-center">
+              <h3 className="text-primary-foreground text-2xl font-bold md:text-3xl lg:text-4xl">
+                {slide.title}
+              </h3>
+              <p className="text-accent-foreground font-light md:text-lg">
+                {slide.description}
+              </p>
+            </div> */}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        <div>
+          <p>
+            You may download all images for your personal use by clicking the
+            button below. High resolution images will be bundled in a .zip
+            compressed format. If you would like to use any images for
+            commercial purposes please send us a message on the{" "}
+            <a href="/contact">contact page</a>.
+          </p>
+          <a href={premiumImagesUrl}>
+            <Button>
+              <Download />
+              Download Bonus Images
+            </Button>
+          </a>
+        </div>
       </div>
     );
   }

@@ -42,7 +42,7 @@ export function SubscriptionCard() {
 
         // Check for already subscribed error (status 400)
         if (result.error.status === 400) {
-          toast.error("Error: You are already subscribed to Premium Tier.");
+          toast.error("Error: You are already subscribed to Premium Plan.");
         } else {
           toast.error(result.error.message || "Failed to upgrade subscription");
         }
@@ -102,9 +102,9 @@ export function SubscriptionCard() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
       {/* Premium Plan card with upgrade process to Stripe checkout */}
-      <Card className="border-primary col-span-2 flex h-full w-full flex-col border-2">
+      <Card className="border-primary flex h-full flex-col border-2 lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-2xl">Premium</CardTitle>
           <CardDescription>
@@ -120,22 +120,30 @@ export function SubscriptionCard() {
             </span>
           </p>
           <ul className="space-y-3">
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              All features from Basic plan plus...
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                All features from Basic plan plus...
+              </span>
             </li>
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Full-length films, interviews, and other video presentations
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Full-length films, interviews, and other video presentations
+              </span>
             </li>
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Bonus content of high-res photographs, historical materials, War
-              Department productions, and much more
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Bonus content of high-res photographs, historical materials, War
+                Department productions, and much more
+              </span>
             </li>
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Access to episodes and content early before everyone else
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Access to episodes and content early before everyone else
+              </span>
             </li>
           </ul>
         </CardContent>
@@ -164,7 +172,7 @@ export function SubscriptionCard() {
       </Card>
 
       {/* Free Plan */}
-      <Card className="flex h-full flex-col">
+      <Card className="flex h-full flex-col lg:col-span-1">
         <CardHeader>
           <CardTitle className="text-2xl">Basic</CardTitle>
           <CardDescription>Get started with our entry plan</CardDescription>
@@ -172,20 +180,28 @@ export function SubscriptionCard() {
         <CardContent className="flex-grow">
           <p className="mb-6 text-3xl font-bold">
             $0
-            <span className="text-base font-normal text-gray-500">/month</span>
+            <span className="text-base font-normal text-gray-500">
+              &nbsp;/month
+            </span>
           </p>
           <ul className="space-y-3">
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Bi-weekly release of episodes and other content
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Bi-weekly release of episodes and other content
+              </span>
             </li>
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Sneak previews of documentary films
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Sneak previews of documentary films
+              </span>
             </li>
-            <li className="flex items-center">
-              <Check className="mr-2 size-5 text-green-500" />
-              Sneak previews of interviews of WWII individuals
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Sneak previews of interviews of WWII individuals
+              </span>
             </li>
           </ul>
         </CardContent>
