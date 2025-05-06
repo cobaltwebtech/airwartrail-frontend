@@ -9,6 +9,7 @@ import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro
 import { Toaster } from "@/components/ui/sonner";
 import { AstroFont } from "astro-font";
 import { join } from "path";
+import BackToTop from "@/components/partials/BackToTop";
 
 // Get the session data from Astro session storage
 const sessionData = await Astro.session?.get("session");
@@ -136,6 +137,7 @@ const umamiId = import.meta.env.UMAMI_ID;
     </main>
     <Footer client:visible />
     <BreakpointIndicator />
+    <BackToTop client:visible />
     <Toaster position="top-right" client:load />
     <!-- Import Preline UI with View Transition support -->
     <script>

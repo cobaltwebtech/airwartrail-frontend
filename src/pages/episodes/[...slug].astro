@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { TableOfContents } from "@/components/partials/TableOfContents";
 import PremiumVideoWrapper from "@/components/episode/PremiumVideoWrapper.astro";
 import FreeVideoWrapper from "@/components/episode/FreeVideoWrapper.astro";
 import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
@@ -29,7 +30,7 @@ export async function getStaticPaths() {
 }
 
 const { episode } = Astro.props;
-const { Content } = await episode.render();
+const { Content, headings } = await episode.render();
 
 // Format the date
 const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
@@ -55,32 +56,52 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
-  <article class="px-4 py-8">
-    <header class="mb-8">
-      <h1 class="mb-2 text-4xl font-bold">{episode.data.title}</h1>
-      <div class="mb-4">
-        <span>{formattedDate}</span>
-        <span class="ml-4">By {episode.data.author}</span>
+  <div class="container mx-auto grid grid-cols-1 gap-8 md:grid-cols-[auto_15%]">
+    <article class="px-4 py-8">
+      <header class="mb-8">
+        <h1 class="mb-2 text-4xl font-bold">{episode.data.title}</h1>
+        <div class="mb-4">
+          <span>{formattedDate}</span>
+          <span class="ml-4">By {episode.data.author}</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          {
+            episode.data.tags.map((tag) => (
+              <span class="bg-accent-1 text-secondary-foreground rounded-full px-3 py-1 text-sm">
+                {tag}
+              </span>
+            ))
+          }
+        </div>
+      </header>
+
+      <div class="prose prose-lg dark:prose-invert max-w-max">
+        <Content
+          components={{
+            PremiumVideo: PremiumVideoWrapper,
+            PremiumSlideShow: PremiumSlideshowWrapper,
+            FreeVideo: FreeVideoWrapper,
+          }}
+        />
       </div>
-      <div class="flex flex-wrap gap-2">
+    </article>
+    <!-- Table of Contents (sidebar)  -->
+    <aside class="hidden flex-col gap-4 md:flex">
+      <div
+        class="sticky top-40 hidden self-start transition-all duration-200 md:block"
+      >
         {
-          episode.data.tags.map((tag) => (
-            <span class="bg-accent-1 text-secondary-foreground rounded-full px-3 py-1 text-sm">
-              {tag}
-            </span>
-          ))
+          headings && headings.length > 0 && (
+            <TableOfContents
+              client:load
+              headings={headings.map((h) => ({
+                ...h,
+                subheadings: [],
+              }))}
+            />
+          )
         }
       </div>
-    </header>
-
-    <div class="prose prose-lg dark:prose-invert max-w-none">
-      <Content
-        components={{
-          PremiumVideo: PremiumVideoWrapper,
-          PremiumSlideShow: PremiumSlideshowWrapper,
-          FreeVideo: FreeVideoWrapper,
-        }}
-      />
-    </div>
-  </article>
+    </aside>
+  </div>
 </BaseLayout>

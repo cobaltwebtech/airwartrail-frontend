@@ -84,15 +84,22 @@ export function FreeVideo({ videoUrl }: FreeVideoProps) {
     const fullUrl = `${videoUrl}${tokenQuery}&autoplay=false&loop=false&muted=false&preload=true&responsive=true`;
 
     return (
-      <div className="relative pt-[56.25%]">
-        <iframe
-          src={fullUrl}
-          loading="eager"
-          className="absolute top-0 h-full w-full rounded-lg border-0"
-          allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-          allowFullScreen={true}
-        ></iframe>
-      </div>
+      <>
+        <p>
+          If you are not currently subscribed to our Premium Plan, please{" "}
+          <a href="/subscribe">subscribe now</a> to view the full length video
+          or you can watch the short clip below.
+        </p>
+        <div className="relative pt-[56.25%]">
+          <iframe
+            src={fullUrl}
+            loading="eager"
+            className="absolute top-0 h-full w-full rounded-lg border-0"
+            allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+            allowFullScreen={true}
+          ></iframe>
+        </div>
+      </>
     );
   }
 }
