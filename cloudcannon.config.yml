@@ -72,3 +72,17 @@ _snippets:
       videoUrl:
         type: url
         label: Video URL
+  premium_download:
+    template: mdx_component
+    inline: false
+    preview:
+      text: Free Video
+    definitions:
+      component_name: PremiumDownload
+      named_args:
+        - editor_key: downloadUrl
+          type: string
+    _inputs:
+      downloadUrl:
+        type: url
+        label: Content URL

@@ -13,6 +13,7 @@ import { TableOfContents } from "@/components/partials/TableOfContents";
 import PremiumVideoWrapper from "@/components/episode/PremiumVideoWrapper.astro";
 import FreeVideoWrapper from "@/components/episode/FreeVideoWrapper.astro";
 import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
+import PremiumDownloadWrapper from "@/components/episode/PremiumDownloadWrapper.astro";
 
 // Get the slug from params
 const { slug } = Astro.params;
@@ -84,8 +85,9 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
         <Content
           components={{
             PremiumVideo: PremiumVideoWrapper,
-            PremiumSlideShow: PremiumSlideshowWrapper,
             FreeVideo: FreeVideoWrapper,
+            PremiumSlideShow: PremiumSlideshowWrapper,
+            PremiumDownload: PremiumDownloadWrapper,
           }}
         />
       </div>
