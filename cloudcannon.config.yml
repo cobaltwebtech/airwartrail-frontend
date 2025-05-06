@@ -76,7 +76,7 @@ _snippets:
     template: mdx_component
     inline: false
     preview:
-      text: Free Video
+      text: Premium Download
     definitions:
       component_name: PremiumDownload
       named_args:
