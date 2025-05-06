@@ -1,6 +1,6 @@
 _schema: _schema
 paths:
-  uploads: src/assets/uploads
+  uploads: public/uploads
   static:
 collections_config:
   src_content_episodes:
@@ -21,26 +21,6 @@ collections_config:
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
-timezone: America/Chicago
-markdown:
-  engine: commonmark
-  options:
-    xhtml: false
-    breaks: false
-    linkify: false
-    typographer: false
-    spaced_lists: false
-    sentence_per_line: false
-    gfm: true
-    code_block_fences: "```"
-    escape_snippets_in_code_blocks: false
-    treat_indentation_as_code: false
-    table: false
-    strikethrough: false
-    subscript: false
-    superscript: false
-    heading_ids: false
-    attributes: false
 _snippets_imports:
   mdx: true
 _snippets:
@@ -58,6 +38,7 @@ _snippets:
       videoUrl:
         type: url
         label: Video URL
+        cascade: true
   free_video:
     template: mdx_component
     inline: false
@@ -72,6 +53,7 @@ _snippets:
       videoUrl:
         type: url
         label: Video URL
+        cascade: true
   premium_download:
     template: mdx_component
     inline: false
@@ -86,3 +68,24 @@ _snippets:
       downloadUrl:
         type: url
         label: Content URL
+        cascade: true
+timezone: America/Chicago
+markdown:
+  engine: commonmark
+  options:
+    xhtml: false
+    breaks: false
+    linkify: false
+    typographer: false
+    spaced_lists: false
+    sentence_per_line: false
+    gfm: true
+    code_block_fences: '```'
+    escape_snippets_in_code_blocks: false
+    treat_indentation_as_code: false
+    table: false
+    strikethrough: false
+    subscript: false
+    superscript: false
+    heading_ids: false
+    attributes: false
