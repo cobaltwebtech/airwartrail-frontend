@@ -58,3 +58,17 @@ _snippets:
       videoUrl:
         type: url
         label: Video URL
+  free_video:
+    template: mdx_component
+    inline: false
+    preview:
+      text: Free Video
+    definitions:
+      component_name: FreeVideo
+      named_args:
+        - editor_key: videoUrl
+          type: string
+    _inputs:
+      videoUrl:
+        type: url
+        label: Video URL

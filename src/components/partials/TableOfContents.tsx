@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 
 type Heading = {
   depth: number;
@@ -38,8 +39,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       <li className="flex flex-col">
         <a
           href={"#" + heading.slug}
-          className="hover:bg-accent-5 mb-2 line-clamp-2 w-full rounded-full px-4 py-2 text-xs transition-colors duration-400 first-letter:uppercase"
+          className="group hover:bg-primary mb-2 line-clamp-2 flex w-full flex-row items-center gap-2 rounded-lg px-4 py-2 text-xs transition-colors duration-400 first-letter:uppercase"
         >
+          <ArrowRight className="size-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
           <span className="">{heading.text}</span>
         </a>
         {heading.subheadings.length > 0 && (
@@ -55,7 +57,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <nav className="max-w-max">
-      <h1 className="mb-3 text-xl">Jump to Section</h1>
+      <p className="mb-3 text-center text-xl">Jump to Section</p>
       <ul className="flex flex-col gap-1 [text-wrap:balance]">
         {toc.map((heading, index) => (
           <HeadingItem key={index} heading={heading} />

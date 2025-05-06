@@ -109,10 +109,10 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
 
   if (!isPremium) {
     return (
-      <div className="bg-accent-4 text-secondary-foreground max-w-[450px] rounded-lg p-4">
+      <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
-        <p className="text-center font-semibold">
-          Dang! You're missing out on premium content!
+        <p className="font-semibold">
+          Oh no! You're missing out on premium content!
         </p>
         <p className="text-sm">
           If you're seeing this then you're missing out on awesome premium
@@ -141,7 +141,7 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
         <iframe
           src={fullUrl}
           loading="eager"
-          className="absolute top-0 h-full w-full rounded-lg border-0"
+          className="absolute top-0 aspect-video w-full rounded-lg border-0"
           allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
           allowFullScreen={true}
         ></iframe>

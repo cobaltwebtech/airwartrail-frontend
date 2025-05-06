@@ -101,10 +101,10 @@ export function PremiumSlideShow({
 
   if (!isPremium) {
     return (
-      <div className="bg-accent-4 text-secondary-foreground max-w-[450px] rounded-lg p-4">
+      <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
-        <p className="text-center font-semibold">
-          Dang! You're missing out on premium content!
+        <p className="font-semibold">
+          Oh no! You're missing out on premium content!
         </p>
         <p className="text-sm">
           If you're seeing this then you're missing out on awesome premium
@@ -127,7 +127,7 @@ export function PremiumSlideShow({
 
   if (isPremium) {
     return (
-      <div className="space-y-4">
+      <div className="my-8 space-y-4">
         <Swiper
           slidesPerView={1}
           spaceBetween={30}
@@ -150,14 +150,6 @@ export function PremiumSlideShow({
                     alt={slide.alt}
                   />
                 </div>
-                {/* <div className="mb-4 space-y-4 text-center">
-              <h3 className="text-primary-foreground text-2xl font-bold md:text-3xl lg:text-4xl">
-                {slide.title}
-              </h3>
-              <p className="text-accent-foreground font-light md:text-lg">
-                {slide.description}
-              </p>
-            </div> */}
               </div>
             </SwiperSlide>
           ))}

@@ -94,7 +94,7 @@ export function FreeVideo({ videoUrl }: FreeVideoProps) {
           <iframe
             src={fullUrl}
             loading="eager"
-            className="absolute top-0 h-full w-full rounded-lg border-0"
+            className="absolute top-0 aspect-video w-full rounded-lg border-0"
             allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
             allowFullScreen={true}
           ></iframe>
