@@ -11,6 +11,8 @@ collections_config:
     disable_url: false
     description: This is where episodes are managed.
     _enabled_editors:
+      - content
+      - visual
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
