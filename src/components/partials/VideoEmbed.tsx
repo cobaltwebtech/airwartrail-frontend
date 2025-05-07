@@ -1,38 +1,19 @@
 import { useEffect, useState } from "react";
+import { useVideoToken } from "@/lib/useVideoToken";
 import { Loader2 } from "lucide-react";
 
 interface VideoEmbedProps {
   videoUrl: string;
 }
 
-function extractVideoId(url: string): string | null {
-  // Inspect and extract the paramters from the embed URL
-  const match = url.match(/\/embed\/[^/]+\/([^?]+)/);
-  return match ? match[1] : null;
-}
-
 export function VideoEmbed({ videoUrl }: VideoEmbedProps) {
+  const { tokenQuery } = useVideoToken(videoUrl);
   const [mounted, setMounted] = useState(false);
-  const [tokenQuery, setTokenQuery] = useState<string | null>(null);
 
   // Handle hydration
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (videoUrl) {
-      const videoId = extractVideoId(videoUrl);
-      if (!videoId) return;
-      fetch(`/api/bunny/videoToken?videoId=${videoId}`)
-        .then((res) => res.json() as Promise<{ url: string }>)
-        .then((data) => setTokenQuery(data.url))
-        .catch((err) => {
-          console.error("Failed to fetch video token", err);
-          setTokenQuery(null);
-        });
-    }
-  }, [videoUrl]);
 
   if (!mounted) {
     return (

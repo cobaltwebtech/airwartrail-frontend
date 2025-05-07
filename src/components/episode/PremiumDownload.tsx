@@ -1,5 +1,5 @@
-import { useSession, subscription } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { useSubStatus } from "@/lib/useSubStatus";
+import { subscription } from "@/lib/auth-client";
 import { Button } from "../ui/button";
 import { Loader2, BadgeAlert, Download } from "lucide-react";
 
@@ -8,41 +8,8 @@ interface PremiumDownloadProps {
 }
 
 export function PremiumDownload({ downloadUrl }: PremiumDownloadProps) {
-  const { data: session } = useSession();
-  const [isPremium, setIsPremium] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  // Handle hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    async function checkPremiumStatus() {
-      if (!session?.user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: subscriptions } = await subscription.list();
-        const activeSubscription = subscriptions?.find(
-          (sub) => sub.status === "active" || sub.status === "trialing",
-        );
-        setIsPremium(!!activeSubscription);
-      } catch (error) {
-        console.error("Error checking subscription status:", error);
-        setIsPremium(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (mounted) {
-      checkPremiumStatus();
-    }
-  }, [session?.user, mounted]);
+  // Use the React hooks for checking subscription status
+  const { session, isPremium, loading, mounted } = useSubStatus();
 
   if (!mounted) {
     return (

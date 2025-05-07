@@ -21,7 +21,7 @@ const dialect = new LibsqlDialect({ client });
 
 // Initialize Stripe
 export const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-03-31.basil",
+  apiVersion: "2025-04-30.basil",
 });
 
 // Initialize Resend

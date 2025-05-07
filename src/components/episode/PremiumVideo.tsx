@@ -1,69 +1,18 @@
-import { useSession, subscription } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { subscription } from "@/lib/auth-client";
+import { useSubStatus } from "@/lib/useSubStatus";
+import { useVideoToken } from "@/lib/useVideoToken";
 import { Button } from "../ui/button";
 import { Loader2, BadgeAlert } from "lucide-react";
 
 interface PremiumVideoProps {
   videoUrl: string;
+  videoTitle?: string;
 }
 
-function extractVideoId(url: string): string | null {
-  // Example: https://iframe.mediadelivery.net/embed/759/eb1c4f77-0cda-46be-b47d-1118ad7c2ffe
-  const match = url.match(/\/embed\/[^/]+\/([^?]+)/);
-  return match ? match[1] : null;
-}
-
-export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
-  const { data: session } = useSession();
-  const [isPremium, setIsPremium] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const [tokenQuery, setTokenQuery] = useState<string | null>(null);
-
-  // Handle hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    async function checkPremiumStatus() {
-      if (!session?.user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: subscriptions } = await subscription.list();
-        const activeSubscription = subscriptions?.find(
-          (sub) => sub.status === "active" || sub.status === "trialing",
-        );
-        setIsPremium(!!activeSubscription);
-      } catch (error) {
-        console.error("Error checking subscription status:", error);
-        setIsPremium(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (mounted) {
-      checkPremiumStatus();
-    }
-  }, [session?.user, mounted]);
-
-  useEffect(() => {
-    if (isPremium && videoUrl) {
-      const videoId = extractVideoId(videoUrl);
-      if (!videoId) return;
-      fetch(`/api/bunny/videoToken?videoId=${videoId}`)
-        .then((res) => res.json() as Promise<{ url: string }>)
-        .then((data) => setTokenQuery(data.url))
-        .catch((err) => {
-          console.error("Failed to fetch video token", err);
-          setTokenQuery(null);
-        });
-    }
-  }, [isPremium, videoUrl]);
+export function PremiumVideo({ videoUrl, videoTitle }: PremiumVideoProps) {
+  // Use the React hooks for checking subscription status and generating secure token on video
+  const { session, isPremium, loading, mounted } = useSubStatus();
+  const { tokenQuery } = useVideoToken(videoUrl);
 
   if (!mounted) {
     return (
@@ -137,15 +86,18 @@ export function PremiumVideo({ videoUrl }: PremiumVideoProps) {
     const fullUrl = `${videoUrl}${tokenQuery}&autoplay=false&loop=false&muted=false&preload=true&responsive=true`;
 
     return (
-      <div className="relative pt-[56.25%]">
-        <iframe
-          src={fullUrl}
-          loading="eager"
-          className="absolute top-0 aspect-video w-full rounded-lg border-0"
-          allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-          allowFullScreen={true}
-        ></iframe>
-      </div>
+      <>
+        {videoTitle && <h4>{videoTitle}</h4>}
+        <div className="relative pt-[56.25%]">
+          <iframe
+            src={fullUrl}
+            loading="eager"
+            className="absolute top-0 aspect-video w-full rounded-lg border-0"
+            allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+            allowFullScreen={true}
+          ></iframe>
+        </div>
+      </>
     );
   }
 }

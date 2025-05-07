@@ -1,68 +1,16 @@
-import { useSession, subscription } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { useSubStatus } from "@/lib/useSubStatus";
+import { useVideoToken } from "@/lib/useVideoToken";
 import { Loader2 } from "lucide-react";
 
 interface FreeVideoProps {
   videoUrl: string;
+  videoTitle?: string;
 }
 
-function extractVideoId(url: string): string | null {
-  // Inspect and extract the paramters from the embed URL
-  const match = url.match(/\/embed\/[^/]+\/([^?]+)/);
-  return match ? match[1] : null;
-}
-
-export function FreeVideo({ videoUrl }: FreeVideoProps) {
-  const { data: session } = useSession();
-  const [isPremium, setIsPremium] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const [tokenQuery, setTokenQuery] = useState<string | null>(null);
-
-  // Handle hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    async function checkPremiumStatus() {
-      if (!session?.user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data: subscriptions } = await subscription.list();
-        const activeSubscription = subscriptions?.find(
-          (sub) => sub.status === "active" || sub.status === "trialing",
-        );
-        setIsPremium(!!activeSubscription);
-      } catch (error) {
-        console.error("Error checking subscription status:", error);
-        setIsPremium(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (mounted) {
-      checkPremiumStatus();
-    }
-  }, [session?.user, mounted]);
-
-  useEffect(() => {
-    if (!isPremium && videoUrl) {
-      const videoId = extractVideoId(videoUrl);
-      if (!videoId) return;
-      fetch(`/api/bunny/videoToken?videoId=${videoId}`)
-        .then((res) => res.json() as Promise<{ url: string }>)
-        .then((data) => setTokenQuery(data.url))
-        .catch((err) => {
-          console.error("Failed to fetch video token", err);
-          setTokenQuery(null);
-        });
-    }
-  }, [isPremium, videoUrl]);
+export function FreeVideo({ videoUrl, videoTitle }: FreeVideoProps) {
+  // Use the React hooks for checking subscription status and generating secure token on video
+  const { session, isPremium, loading, mounted } = useSubStatus();
+  const { tokenQuery } = useVideoToken(videoUrl);
 
   if (loading) {
     return (
@@ -90,6 +38,7 @@ export function FreeVideo({ videoUrl }: FreeVideoProps) {
           <a href="/subscribe">subscribe now</a> to view the full length video
           or you can watch the short clip below.
         </p>
+        {videoTitle && <h4>{videoTitle}</h4>}
         <div className="relative pt-[56.25%]">
           <iframe
             src={fullUrl}

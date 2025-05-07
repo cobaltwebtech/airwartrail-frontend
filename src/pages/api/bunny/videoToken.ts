@@ -18,10 +18,10 @@ export const GET: APIRoute = async ({ url }) => {
   const toHash = `${bunnyTokenKey}${videoId}${expires}`;
   const token = crypto.createHash("sha256").update(toHash).digest("hex");
 
-  // Build signed URL
-  const signedUrl = `?token=${token}&expires=${expires}`;
+  // Concetenate the token and expiration for use in the URL on client side
+  const signedQuery = `?token=${token}&expires=${expires}`;
 
-  return new Response(JSON.stringify({ url: signedUrl }), {
+  return new Response(JSON.stringify({ tokenQuery: signedQuery }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
