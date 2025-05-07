@@ -4,10 +4,10 @@ paths:
   uploads_use_relative_path: false
   static: public/
 collections_config:
-  src_content_episodes:
+  episodes:
     path: src/content/episodes
     name: Episodes
-    icon: content_paste
+    icon: ondemand_video
     disable_url: false
     description: This is where episodes are managed.
     _enabled_editors:
