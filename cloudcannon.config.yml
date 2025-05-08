@@ -8,6 +8,7 @@ collections_config:
     path: src/content/episodes
     name: Episodes
     icon: ondemand_video
+    extension: mdx
     disable_url: false
     description: This is where episodes are managed.
     _enabled_editors:
