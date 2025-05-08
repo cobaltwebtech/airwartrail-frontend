@@ -13,6 +13,10 @@ collections_config:
     _enabled_editors:
       - content
       - visual
+    schemas:
+      default:
+        name: New Post
+        path: cloudcannon/schemas/post.md
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
