@@ -15,7 +15,7 @@
     "migrate:auth": "npx @better-auth/cli migrate --config src/lib/auth.ts",
     "clean": "rimraf dist .astro node_modules yarn.lock .yarn package-lock.json .wrangler"
   },
-  "packageManager": "yarn@4.9.1",
+  "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@astrojs/cloudflare": "12.5.2",
     "@astrojs/mdx": "4.2.6",
@@ -37,7 +37,7 @@
     "@tailwindcss/vite": "^4.1.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "astro": "5.7.10",
+    "astro": "5.7.12",
     "astro-font": "^1.1.0",
     "better-auth": "^1.2.7",
     "better-sqlite3": "^11.9.1",
