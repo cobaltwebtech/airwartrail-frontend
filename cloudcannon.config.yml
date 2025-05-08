@@ -8,19 +8,34 @@ collections_config:
     path: src/content/episodes
     name: Episodes
     icon: ondemand_video
-    extension: mdx
     disable_url: false
     description: This is where episodes are managed.
     _enabled_editors:
       - content
       - visual
-    schemas:
-      default:
-        name: New Post
-        path: cloudcannon/schemas/post.md
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
+    schemas:
+      default:
+        path: cloudcannon/schemas/post.md
+        reorder_inputs: true
+        hide_extra_inputs: false
+        remove_empty_inputs: false
+        remove_extra_inputs: true
+        name: New Post
+        icon: notes
+        _enabled_editors:
+          - visual
+          - content
+          - data
+        create:
+          path: '[relative_base_path]/{title|slugify}.mdx'
+          extra_data:
+          publish_to:
+          _inputs:
+          _select_data:
+          _structures:
   pages:
     path: src/pages
     name: Pages
@@ -29,6 +44,10 @@ collections_config:
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
+_enabled_editors:
+  - visual
+  - content
+  - data
 _snippets_imports:
   mdx: true
 _snippets:
@@ -81,6 +100,10 @@ _snippets:
         type: url
         label: Content URL
         cascade: true
+source_editor:
+  tab_size: 2
+  theme: monokai
+  show_gutter: true
 timezone: America/Chicago
 markdown:
   engine: commonmark
@@ -92,12 +115,12 @@ markdown:
     spaced_lists: false
     sentence_per_line: false
     gfm: true
-    code_block_fences: "```"
+    code_block_fences: '```'
     escape_snippets_in_code_blocks: false
     treat_indentation_as_code: false
     table: false
-    strikethrough: false
-    subscript: false
-    superscript: false
+    strikethrough: true
+    subscript: true
+    superscript: true
     heading_ids: false
     attributes: false
