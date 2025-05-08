@@ -1,4 +1,6 @@
 ---
+export const prerender = true;
+
 import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import {
@@ -12,30 +14,24 @@ import {
 import { TableOfContents } from "@/components/partials/TableOfContents";
 import PremiumVideoWrapper from "@/components/episode/PremiumVideoWrapper.astro";
 import FreeVideoWrapper from "@/components/episode/FreeVideoWrapper.astro";
-import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
 import PremiumDownloadWrapper from "@/components/episode/PremiumDownloadWrapper.astro";
+import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
 
-// Get the slug from params
-const { slug } = Astro.params;
-let episode;
-let Content;
-let headings;
+export async function getStaticPaths() {
+  const episodes = await getCollection("episodes");
 
-try {
-  // Handle the slug format, if it's an array join it
-  const slugString = Array.isArray(slug) ? slug.join("/") : slug;
-
-  // Get the episode in the collection
-  const allEpisodes = await getCollection("episodes");
-  episode = allEpisodes.find((ep) => ep.slug === slugString);
-
-  if (!episode) throw new Error(`Episode not found: ${slugString}`);
-
-  ({ Content, headings } = await episode.render());
-} catch (error) {
-  console.error("Error loading episode:", error);
-  return Astro.redirect("/404");
+  return episodes.map((episode) => ({
+    params: {
+      slug: episode.slug,
+    },
+    props: {
+      episode,
+    },
+  }));
 }
+
+const { episode } = Astro.props;
+const { Content, headings } = await episode.render();
 
 // Format the date
 const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
@@ -83,7 +79,6 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
 
       <div class="prose prose-lg dark:prose-invert max-w-max">
         <Content
-          bookshop:live
           components={{
             PremiumVideo: PremiumVideoWrapper,
             FreeVideo: FreeVideoWrapper,

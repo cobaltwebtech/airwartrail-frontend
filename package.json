@@ -21,7 +21,6 @@
     "@astrojs/mdx": "4.2.6",
     "@astrojs/react": "4.2.7",
     "@better-auth/stripe": "^1.2.7",
-    "@bookshop/astro-bookshop": "3.14.0",
     "@hookform/resolvers": "^5.0.1",
     "@libsql/client": "0.4.1",
     "@libsql/kysely-libsql": "0.4.1",
@@ -65,9 +64,6 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.2.7",
-    "@bookshop/astro-engine": "3.14.0",
-    "@bookshop/browser": "3.14.0",
-    "@bookshop/generate": "3.14.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/parser": "^8.30.1",

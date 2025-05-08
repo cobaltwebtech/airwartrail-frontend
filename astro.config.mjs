@@ -4,12 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import { remarkReadingTime } from "./src/lib/readTime";
 import cloudflare from "@astrojs/cloudflare";
-import bookshop from "@bookshop/astro-bookshop";
 
 export default defineConfig({
   output: "server",
   site: "https://www.airwartrail.com",
-  integrations: [bookshop(), mdx(), react()],
+  integrations: [mdx(), react()],
   vite: {
     plugins: [tailwindcss()],
     resolve: {
