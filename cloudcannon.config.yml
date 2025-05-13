@@ -38,7 +38,7 @@ collections_config:
           - visual
           - data
         create:
-          path: '[relative_base_path]/{title|slugify}.mdx'
+          path: "[relative_base_path]/{title|slugify}.mdx"
           extra_data:
           publish_to:
           _inputs:
@@ -89,6 +89,23 @@ _snippets:
         type: url
         label: Video URL
         cascade: true
+  youtube_video:
+    template: mdx_component
+    inline: false
+    preview:
+      text: YouTube Video
+    definitions:
+      component_name: YoutubeVideo
+      named_args:
+        - editor_key: ytShareUrl
+          type: string
+        - editor_key: videoTitle
+          type: string
+    _inputs:
+      ytShareUrl:
+        type: url
+        label: YouTube Video URL
+        cascade: true
   premium_download:
     template: mdx_component
     inline: false
@@ -119,7 +136,7 @@ markdown:
     spaced_lists: false
     sentence_per_line: false
     gfm: true
-    code_block_fences: '```'
+    code_block_fences: "```"
     escape_snippets_in_code_blocks: false
     treat_indentation_as_code: false
     table: false
