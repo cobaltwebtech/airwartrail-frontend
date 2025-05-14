@@ -34,8 +34,8 @@ export const auth = betterAuth({
     type: "sqlite",
   },
   session: {
-    expiresIn: 60 * 60 * 24, // Session expires in 1 day
-    updateAge: 60 * 60, // Every 1 hour the session expiration is updated
+    expiresIn: 60 * 60 * 24 * 7, // Session expires in 7 days
+    updateAge: 60 * 60 * 24, // Every 24 hours the session expiration is updated
   },
   emailAndPassword: {
     enabled: true,

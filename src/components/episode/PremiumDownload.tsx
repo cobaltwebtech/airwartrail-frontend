@@ -1,7 +1,7 @@
 import { useSubStatus } from "@/lib/useSubStatus";
 import { subscription } from "@/lib/auth-client";
 import { Button } from "../ui/button";
-import { Loader2, BadgeAlert, Download } from "lucide-react";
+import { Loader2, CircleX, BadgeAlert, Download } from "lucide-react";
 
 interface PremiumDownloadProps {
   downloadUrl: string;
@@ -21,8 +21,11 @@ export function PremiumDownload({ downloadUrl }: PremiumDownloadProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center">
-        <Loader2 className="size-12 animate-spin" />
+      <div className="flex flex-col items-center text-red-500">
+        <CircleX className="size-12" />
+        <p className="text-lg font-semibold">
+          Error loading content. Please refresh page.
+        </p>
       </div>
     );
   }

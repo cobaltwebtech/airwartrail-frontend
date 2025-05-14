@@ -1,6 +1,7 @@
 import { useSubStatus } from "@/lib/useSubStatus";
 import { useVideoToken } from "@/lib/useVideoToken";
-import { Loader2 } from "lucide-react";
+import { Loader2, CircleX } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FreeVideoProps {
   videoUrl: string;
@@ -14,16 +15,19 @@ export function FreeVideo({ videoUrl, videoTitle }: FreeVideoProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center">
+      <Skeleton className="flex aspect-video items-center justify-center">
         <Loader2 className="size-12 animate-spin" />
-      </div>
+      </Skeleton>
     );
   }
 
   if (!mounted) {
     return (
-      <div className="flex justify-center">
-        <Loader2 className="size-12 animate-spin" />
+      <div className="flex flex-col items-center text-red-500">
+        <CircleX className="size-12" />
+        <p className="text-lg font-semibold">
+          Error loading video. Please refresh page.
+        </p>
       </div>
     );
   }

@@ -1,14 +1,14 @@
 {
   "name": "airwartrail",
   "type": "module",
-  "version": "0.36.1",
+  "version": "0.36.2",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "format": "ttier . --write",
+    "format": "prettier . --write",
     "lint": "eslint .",
     "update": "pnpm up --latest --recursive '*'",
     "update:astro": "pnpm dlx @astrojs/upgrade",
@@ -71,5 +71,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
     "wrangler": "^4.14.4"
+  },
+  "resolutions": {
+    "kysely": "^0.28.2"
   }
 }

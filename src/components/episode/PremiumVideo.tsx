@@ -2,7 +2,8 @@ import { subscription } from "@/lib/auth-client";
 import { useSubStatus } from "@/lib/useSubStatus";
 import { useVideoToken } from "@/lib/useVideoToken";
 import { Button } from "../ui/button";
-import { Loader2, BadgeAlert } from "lucide-react";
+import { Loader2, CircleX, BadgeAlert } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PremiumVideoProps {
   videoUrl: string;
@@ -14,18 +15,21 @@ export function PremiumVideo({ videoUrl, videoTitle }: PremiumVideoProps) {
   const { session, isPremium, loading, mounted } = useSubStatus();
   const { tokenQuery } = useVideoToken(videoUrl);
 
-  if (!mounted) {
+  if (loading) {
     return (
-      <div className="flex justify-center">
+      <Skeleton className="flex aspect-video items-center justify-center">
         <Loader2 className="size-12 animate-spin" />
-      </div>
+      </Skeleton>
     );
   }
 
-  if (loading) {
+  if (!mounted) {
     return (
-      <div className="flex justify-center">
-        <Loader2 className="size-12 animate-spin" />
+      <div className="flex flex-col items-center text-red-500">
+        <CircleX className="size-12" />
+        <p className="text-lg font-semibold">
+          Error loading video. Please refresh page.
+        </p>
       </div>
     );
   }
