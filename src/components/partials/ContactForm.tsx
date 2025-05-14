@@ -30,6 +30,10 @@ export default function ContactForm() {
     },
   });
 
+  interface ApiErrorResponse {
+    details?: string;
+  }
+
   async function onSubmit(data: ContactFormValues) {
     try {
       setIsSubmitting(true);
@@ -42,7 +46,7 @@ export default function ContactForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = (await response.json()) as ApiErrorResponse;
         throw new Error(errorData.details || "Failed to send message");
       }
 

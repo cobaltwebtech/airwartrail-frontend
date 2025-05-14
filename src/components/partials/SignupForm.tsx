@@ -61,7 +61,7 @@ export function SignupForm({
         email: data.email,
         password: data.password,
         name: data.fullName,
-        callbackURL: "/subscribe",
+        callbackURL: "/subscribe/upgrade",
       });
 
       if (signupError) {

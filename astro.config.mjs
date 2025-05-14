@@ -2,7 +2,6 @@ import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
-import { remarkReadingTime } from "./src/lib/readTime";
 import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
@@ -20,7 +19,6 @@ export default defineConfig({
     },
   },
   markdown: {
-    remarkPlugins: [remarkReadingTime],
     drafts: true,
   },
   adapter: cloudflare({

@@ -89,7 +89,7 @@ export function PremiumDownload({ downloadUrl }: PremiumDownloadProps) {
           purposes please send us a message on the{" "}
           <a href="/contact">contact page</a>.
         </p>
-        <a href={downloadUrl}>
+        <a href={downloadUrl} download>
           <Button>
             <Download />
             Download Bonus Images
