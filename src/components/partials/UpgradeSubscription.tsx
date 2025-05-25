@@ -103,6 +103,49 @@ export function SubscriptionCard() {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8">
+      {/* Free Plan */}
+      <Card className="flex h-full flex-col lg:col-span-1">
+        <CardHeader>
+          <CardTitle className="text-2xl">Basic</CardTitle>
+          <CardDescription>Get started with our entry plan</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <p className="mb-6 text-3xl font-bold">
+            $0
+            <span className="text-base font-normal text-gray-500">
+              &nbsp;/month
+            </span>
+          </p>
+          <ul className="space-y-3">
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Bi-weekly release of episodes and other content
+              </span>
+            </li>
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Sneak previews of documentary films
+              </span>
+            </li>
+            <li className="flex flex-row items-center gap-2">
+              <Check className="size-[24px] basis-1/12 text-green-500" />
+              <span className="basis-11/12">
+                Sneak previews of interviews of WWII individuals
+              </span>
+            </li>
+          </ul>
+        </CardContent>
+        <CardFooter>
+          <a href="/episodes" className="w-full">
+            <Button className="w-full" variant="secondary">
+              Stay on Free Tier
+            </Button>
+          </a>
+        </CardFooter>
+      </Card>
+
       {/* Premium Plan card with upgrade process to Stripe checkout */}
       <Card className="border-primary flex h-full flex-col border-2 lg:col-span-2">
         <CardHeader>
@@ -168,49 +211,6 @@ export function SubscriptionCard() {
               </>
             )}
           </Button>
-        </CardFooter>
-      </Card>
-
-      {/* Free Plan */}
-      <Card className="flex h-full flex-col lg:col-span-1">
-        <CardHeader>
-          <CardTitle className="text-2xl">Basic</CardTitle>
-          <CardDescription>Get started with our entry plan</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <p className="mb-6 text-3xl font-bold">
-            $0
-            <span className="text-base font-normal text-gray-500">
-              &nbsp;/month
-            </span>
-          </p>
-          <ul className="space-y-3">
-            <li className="flex flex-row items-center gap-2">
-              <Check className="size-[24px] basis-1/12 text-green-500" />
-              <span className="basis-11/12">
-                Bi-weekly release of episodes and other content
-              </span>
-            </li>
-            <li className="flex flex-row items-center gap-2">
-              <Check className="size-[24px] basis-1/12 text-green-500" />
-              <span className="basis-11/12">
-                Sneak previews of documentary films
-              </span>
-            </li>
-            <li className="flex flex-row items-center gap-2">
-              <Check className="size-[24px] basis-1/12 text-green-500" />
-              <span className="basis-11/12">
-                Sneak previews of interviews of WWII individuals
-              </span>
-            </li>
-          </ul>
-        </CardContent>
-        <CardFooter>
-          <a href="/episodes" className="w-full">
-            <Button className="w-full" variant="secondary">
-              Stay on Free Tier
-            </Button>
-          </a>
         </CardFooter>
       </Card>
     </div>
