@@ -139,15 +139,5 @@ const umamiId = import.meta.env.UMAMI_ID;
     <BreakpointIndicator />
     <BackToTop client:visible />
     <Toaster position="top-right" client:load />
-    <!-- Import Preline UI with View Transition support -->
-    <script>
-      document.addEventListener("astro:page-load", async () => {
-        // Only initialize Preline if there are elements that need it
-        if (document.querySelector("[data-hs-collapse]")) {
-          const preline = await import("preline/dist/preline.js");
-          preline.HSStaticMethods.autoInit();
-        }
-      });
-    </script>
   </body>
 </html>
