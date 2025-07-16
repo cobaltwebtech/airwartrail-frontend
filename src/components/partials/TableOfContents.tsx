@@ -22,7 +22,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     headings.forEach((h) => {
       const heading = { ...h, subheadings: [] };
       parentHeadings.set(heading.depth, heading);
-      // Change 2 to 1 if your markdown includes your <h1>
+      // Change 2 to 1 if the markdown includes <h1>
       if (heading.depth === 1 || heading.depth === 2) {
         toc.push(heading);
       } else {

@@ -76,7 +76,7 @@ _snippets:
     template: mdx_component
     inline: false
     preview:
-      text: Free Video
+      text: Free Video (Not YouTube)
     definitions:
       component_name: FreeVideo
       named_args:
@@ -89,13 +89,30 @@ _snippets:
         type: url
         label: Video URL
         cascade: true
-  youtube_video:
+  ytEveryone_video:
     template: mdx_component
     inline: false
     preview:
-      text: YouTube Video
+      text: YouTube Everyone
     definitions:
-      component_name: YoutubeVideo
+      component_name: YtVideoEveryone
+      named_args:
+        - editor_key: ytShareUrl
+          type: string
+        - editor_key: videoTitle
+          type: string
+    _inputs:
+      ytShareUrl:
+        type: url
+        label: YouTube Video URL
+        cascade: true
+  ytFree_video:
+    template: mdx_component
+    inline: false
+    preview:
+      text: YouTube Basic User
+    definitions:
+      component_name: YtFreeVideo
       named_args:
         - editor_key: ytShareUrl
           type: string

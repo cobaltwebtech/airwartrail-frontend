@@ -16,8 +16,8 @@ import PremiumVideoWrapper from "@/components/episode/PremiumVideoWrapper.astro"
 import FreeVideoWrapper from "@/components/episode/FreeVideoWrapper.astro";
 import PremiumDownloadWrapper from "@/components/episode/PremiumDownloadWrapper.astro";
 import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
-import YoutubeVideoWrapper from "@/components/episode/YoutubeVideoWrapper.astro";
-import { Y } from "node_modules/better-auth/dist/shared/better-auth.qzSbzJNO";
+import YtVideoEveryoneWrapper from "@/components/episode/YtVideoEveryoneWrapper.astro";
+import YtVideoFreeWrapper from "@/components/episode/YtVideoFreeWrapper.astro";
 
 export async function getStaticPaths() {
   const episodes = await getCollection("episodes");
@@ -84,7 +84,8 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
           components={{
             PremiumVideo: PremiumVideoWrapper,
             FreeVideo: FreeVideoWrapper,
-            YoutubeVideo: YoutubeVideoWrapper,
+            YtVideoEveryone: YtVideoEveryoneWrapper,
+            YtVideoFree: YtVideoFreeWrapper,
             PremiumSlideShow: PremiumSlideshowWrapper,
             PremiumDownload: PremiumDownloadWrapper,
           }}
