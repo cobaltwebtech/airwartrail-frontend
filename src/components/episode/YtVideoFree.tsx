@@ -2,12 +2,12 @@ import { useSubStatus } from "@/lib/useSubStatus";
 import { Loader2, CircleX } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface YoutubeVideoProps {
+interface YtVideoFreeProps {
   ytShareUrl: string;
   videoTitle?: string;
 }
 
-export function YoutubeVideo({ ytShareUrl, videoTitle }: YoutubeVideoProps) {
+export function YtVideoFree({ ytShareUrl, videoTitle }: YtVideoFreeProps) {
   // Use the React hooks for checking subscription status and generating secure token on video
   const { session, isPremium, loading, mounted } = useSubStatus();
 
