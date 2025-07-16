@@ -112,7 +112,7 @@ _snippets:
     preview:
       text: YouTube Basic User
     definitions:
-      component_name: YtFreeVideo
+      component_name: YtVideoFree
       named_args:
         - editor_key: ytShareUrl
           type: string
