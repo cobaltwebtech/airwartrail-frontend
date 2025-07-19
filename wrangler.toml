@@ -1,16 +1,23 @@
 name = "airwartrail"
 main = "./dist/_worker.js/index.js"
-compatibility_date = "2025-04-22"
+compatibility_date = "2025-07-18"
 compatibility_flags = [ "nodejs_compat" ]
 
 [assets]
 binding = "ASSETS"
 directory = "./dist"
 
+[[d1_databases]]
+binding = "AIRWARTRAIL_BETTERAUTH_DB"
+database_name = "airwartrail-betterauth-prod"
+database_id = "4681c0c4-0406-4bde-a0a6-9171789fc995"
+preview_database_id = "9db8e957-73c9-4090-9e32-a199cb3b0b7b"
+migrations_dir = "./drizzle/migrations"
+
 [[kv_namespaces]]
-binding = "BETTERAUTH_KV"
-id = "838df67fbba14d33a8661dfcd40e6058"
-preview_id = "37e8db82617b474e960382a848ad6d2e"
+binding = "AIRWARTRAIL_AUTHSESSIONS_KV"
+id = "999bdb40ae474547865ac978cf8bfb56"
+preview_id = "ad777aef999948558542184d077a9395"
 
 [observability]
 enabled = true

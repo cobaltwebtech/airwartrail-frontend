@@ -3,7 +3,7 @@ import { z } from "zod";
 export const signupSchema = z
   .object({
     fullName: z.string().min(1, { message: "Please enter your full name" }),
-    email: z.string().email({ message: "Please enter a valid email address" }),
+    email: z.email({ message: "Please enter a valid email address" }),
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters" })
@@ -40,7 +40,7 @@ export type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export const contactFormSchema = z.object({
   fullName: z.string().min(1, { message: "Please enter your full name" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
+  email: z.email({ message: "Please enter a valid email address" }),
   phone: z.string().min(1, { message: "Please enter your phone number" }),
   message: z.string().optional(),
 });

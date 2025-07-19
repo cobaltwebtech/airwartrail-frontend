@@ -1,8 +1,21 @@
-import { auth } from "@/lib/auth";
+import { createAuth } from "@/lib/auth";
 import type { APIRoute } from "astro";
 
 export const ALL: APIRoute = async (ctx) => {
   try {
+    // Get the environment from the Astro context with proper error handling
+    const runtime = ctx.locals.runtime as { env: Env } | undefined;
+    if (!runtime) {
+      throw new Error("Runtime environment not available");
+    }
+
+    const env = runtime.env;
+    if (!env) {
+      throw new Error("Environment variables not available");
+    }
+
+    // Create the auth instance with the environment
+    const auth = createAuth(env);
     const response = await auth.handler(ctx.request);
 
     // If the auth is good then set the session data using Astro Sessions

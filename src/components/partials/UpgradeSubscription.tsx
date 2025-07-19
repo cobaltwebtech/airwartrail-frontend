@@ -27,7 +27,7 @@ export function SubscriptionCard() {
     try {
       // Initiate the upgrade process to Stripe checkout
       const result = await client.subscription.upgrade({
-        plan: "premium",
+        plan: "premium", // This must match the plan name in the auth.ts config
         successUrl: `${window.location.origin}/subscribe/success`,
         cancelUrl: `${window.location.origin}/subscribe/upgrade`,
       });

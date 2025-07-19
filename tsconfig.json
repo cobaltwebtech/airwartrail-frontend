@@ -15,7 +15,7 @@
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "target": "es2023",
+    "target": "esnext",
     "allowJs": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,

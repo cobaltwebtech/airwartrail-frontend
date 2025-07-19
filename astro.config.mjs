@@ -22,7 +22,7 @@ export default defineConfig({
     drafts: true,
   },
   adapter: cloudflare({
-    sessionKVBindingName: "BETTERAUTH_KV",
+    sessionKVBindingName: "AIRWARTRAIL_AUTHSESSIONS_KV",
     imageService: "cloudflare",
     platformProxy: {
       enabled: true,
