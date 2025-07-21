@@ -21,6 +21,9 @@ export default defineConfig({
   markdown: {
     drafts: true,
   },
+  session: {
+    ttl: 60 * 60 * 24 * 7, // Session data expiration set to 7 days stored on Cloudflare KV
+  },
   adapter: cloudflare({
     sessionKVBindingName: "AIRWARTRAIL_AUTHSESSIONS_KV",
     imageService: "cloudflare",

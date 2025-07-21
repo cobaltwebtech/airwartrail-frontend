@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { magicLink } from "better-auth/plugins";
+import { magicLink, admin } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import { stripe } from "@better-auth/stripe";
@@ -16,7 +16,7 @@ import * as schema from "@/lib/auth-schema";
 // Initialize Drizzle with the Cloudflare D1 database
 export const createDrizzle = (db: D1Database) => drizzle(db, { schema });
 
-// Initialize Stripe 
+// Initialize Stripe
 export const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-06-30.basil",
 });
@@ -24,7 +24,7 @@ export const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
 // Initialize Resend for email service
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-export const createAuth = (env: Env) =>
+export const auth = (env: Env) =>
   betterAuth({
     secret: import.meta.env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(createDrizzle(env.AIRWARTRAIL_BETTERAUTH_DB), {
@@ -36,6 +36,12 @@ export const createAuth = (env: Env) =>
     },
     rateLimit: {
       enabled: true,
+    },
+    advanced: {
+      ipAddress: {
+        // Cloudflare specific header for rate limiting
+        ipAddressHeaders: ["cf-connecting-ip"],
+      },
     },
     emailAndPassword: {
       enabled: true,
@@ -98,6 +104,7 @@ export const createAuth = (env: Env) =>
       },
     },
     plugins: [
+      admin(),
       magicLink({
         disableSignUp: true,
         sendMagicLink: async ({ email, url }) => {
@@ -356,11 +363,11 @@ export const createAuth = (env: Env) =>
             );
           }
 
-          // Return undefined to indicate to Better Auth that you've handled the event
+          // Return undefined to indicate to Better Auth that the event was handled
           return undefined;
         },
       }),
     ],
   });
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof auth>;

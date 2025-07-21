@@ -10,8 +10,7 @@ directory = "./dist"
 [[d1_databases]]
 binding = "AIRWARTRAIL_BETTERAUTH_DB"
 database_name = "airwartrail-betterauth-prod"
-database_id = "4681c0c4-0406-4bde-a0a6-9171789fc995"
-preview_database_id = "9db8e957-73c9-4090-9e32-a199cb3b0b7b"
+database_id = "eb6181c1-142c-4445-9bb6-6743054581ae"
 migrations_dir = "./drizzle/migrations"
 
 [[kv_namespaces]]

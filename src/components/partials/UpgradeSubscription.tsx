@@ -42,7 +42,7 @@ export function SubscriptionCard() {
 
         // Check for already subscribed error (status 400)
         if (result.error.status === 400) {
-          toast.error("Error: You are already subscribed to Premium Plan.");
+          toast.error("You are already subscribed to the Premium Plan.");
         } else {
           toast.error(result.error.message || "Failed to upgrade subscription");
         }

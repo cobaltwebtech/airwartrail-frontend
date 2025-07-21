@@ -1,4 +1,4 @@
-import { createAuth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import type { APIRoute } from "astro";
 
 export const ALL: APIRoute = async (ctx) => {
@@ -15,8 +15,8 @@ export const ALL: APIRoute = async (ctx) => {
     }
 
     // Create the auth instance with the environment
-    const auth = createAuth(env);
-    const response = await auth.handler(ctx.request);
+    const createAuth = auth(env);
+    const response = await createAuth.handler(ctx.request);
 
     // If the auth is good then set the session data using Astro Sessions
     if (response && response.ok && ctx.session) {
@@ -34,7 +34,7 @@ export const ALL: APIRoute = async (ctx) => {
 
     // Destroy session data on sign out
     if (ctx.url.pathname.endsWith("/sign-out")) {
-      await ctx.session?.destroy();
+      ctx.session?.destroy();
 
       return new Response(JSON.stringify({ success: true }), { status: 200 });
     }

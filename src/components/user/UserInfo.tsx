@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Pencil, Loader2, CircleUserRound } from "lucide-react";
+import { Pencil, Loader2, CircleUserRound, ShieldUser } from "lucide-react";
 
 export function UserInfo() {
   const { data: session } = useSession();
@@ -36,6 +36,9 @@ export function UserInfo() {
   const [mounted, setMounted] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
+
+  // Check if user is admin
+  const isAdmin = session?.user?.role === "admin";
 
   useEffect(() => {
     setMounted(true);
@@ -172,122 +175,129 @@ export function UserInfo() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Name</p>
-              <p className="text-lg">{session?.user?.name || "Not set"}</p>
+        {/* Admin Badge - Only visible to admin users */}
+        {isAdmin && (
+          <div className="border-border bg-accent-6 mb-4 rounded-lg border p-4">
+            <div className="flex items-center gap-2">
+              <ShieldUser className="text-destructive size-6" />
+              <p className="text-sm font-semibold">Administrator Account</p>
             </div>
-            <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Update Name</DialogTitle>
-                  <DialogDescription>
-                    Enter your new name below.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleNameSubmit}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Name
-                      </Label>
-                      <Input
-                        id="name"
-                        value={nameInput}
-                        placeholder={session?.user?.name || "Enter your name"}
-                        onChange={(e) => setNameInput(e.target.value)}
-                        className="col-span-3"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit" disabled={isLoading || !nameInput}>
-                      {isLoading ? "Saving..." : "Update Name"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <p className="mt-1 text-xs">
+              You have admin privileges and access to all premium content.
+            </p>
           </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Email</p>
-              <p className="text-lg">{session?.user?.email}</p>
-              <p
-                className={`mt-1 text-sm ${session?.user?.emailVerified ? "text-green-600" : "text-yellow-600"}`}
-              >
-                {session?.user?.emailVerified
-                  ? "✓ Email verified"
-                  : "⚠ Email not verified. Check your inbox for a verification email."}
-              </p>
-              {!session?.user?.emailVerified && ( // Conditionally render button if email is not verified
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="mt-1 h-auto p-0 text-blue-500"
-                  onClick={handleSendVerification}
-                  disabled={isSendingVerification}
-                >
-                  {isSendingVerification ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Resend Verification Email"
-                  )}
-                </Button>
-              )}
-            </div>
-            <Dialog
-              open={isEmailDialogOpen}
-              onOpenChange={setIsEmailDialogOpen}
+        )}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Name</p>
+            <p className="text-lg">{session?.user?.name || "Not set"}</p>
+          </div>
+          <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Name</DialogTitle>
+                <DialogDescription>
+                  Enter your new name below.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleNameSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={nameInput}
+                      placeholder={session?.user?.name || "Enter your name"}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" disabled={isLoading || !nameInput}>
+                    {isLoading ? "Saving..." : "Update Name"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Email</p>
+            <p className="text-lg">{session?.user?.email}</p>
+            <p
+              className={`mt-1 text-sm ${session?.user?.emailVerified ? "text-green-600" : "text-yellow-600"}`}
             >
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Update Email</DialogTitle>
-                  <DialogDescription>
-                    Enter your new email address below. You'll need to confirm
-                    your change of email before it can be updated. A
-                    verification will be sent to your prior email address.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleEmailSubmit}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="email" className="text-right">
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={emailInput}
-                        placeholder={session?.user?.email || "Enter your email"}
-                        onChange={(e) => setEmailInput(e.target.value)}
-                        className="col-span-3"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit" disabled={isLoading || !emailInput}>
-                      {isLoading ? "Saving..." : "Update Email"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+              {session?.user?.emailVerified
+                ? "✓ Email verified"
+                : "⚠ Email not verified. Check your inbox for a verification email."}
+            </p>
+            {!session?.user?.emailVerified && (
+              <Button
+                variant="link"
+                size="sm"
+                className="mt-1 h-auto p-0 text-blue-500"
+                onClick={handleSendVerification}
+                disabled={isSendingVerification}
+              >
+                {isSendingVerification ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Resend Verification Email"
+                )}
+              </Button>
+            )}
           </div>
+          <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Email</DialogTitle>
+                <DialogDescription>
+                  Enter your new email address below. You'll need to confirm
+                  your change of email before it can be updated. A verification
+                  will be sent to your prior email address.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleEmailSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={emailInput}
+                      placeholder={session?.user?.email || "Enter your email"}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" disabled={isLoading || !emailInput}>
+                    {isLoading ? "Saving..." : "Update Email"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardContent>
     </Card>
