@@ -5,7 +5,10 @@ interface YtVideoEveryoneProps {
   videoTitle?: string;
 }
 
-export function YtVideoEveryone({ ytShareUrl, videoTitle }: YtVideoEveryoneProps) {
+export function YtVideoEveryone({
+  ytShareUrl,
+  videoTitle,
+}: YtVideoEveryoneProps) {
   // Extract YouTube video ID from various possible URL formats
   const extractYouTubeId = (url: string): string => {
     // Handle youtu.be short links

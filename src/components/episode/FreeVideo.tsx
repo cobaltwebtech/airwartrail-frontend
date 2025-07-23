@@ -37,11 +37,6 @@ export function FreeVideo({ videoUrl, videoTitle }: FreeVideoProps) {
 
     return (
       <>
-        <p>
-          If you are not currently subscribed to our Premium Plan, please{" "}
-          <a href="/subscribe">subscribe now</a> to view the full length video
-          or you can watch the short clip below.
-        </p>
         {videoTitle && <h4>{videoTitle}</h4>}
         <div className="relative pt-[56.25%]">
           <iframe
@@ -52,6 +47,12 @@ export function FreeVideo({ videoUrl, videoTitle }: FreeVideoProps) {
             allowFullScreen={true}
           ></iframe>
         </div>
+        <p>
+          Want to see the full-length film? Subscribe to our Premium Plan for
+          exclusive documentaries, rare interviews, and extraordinary bonus
+          content—plus, your membership helps us preserve history.{" "}
+          <a href="/subscribe">Subscribe Now!</a>
+        </p>
       </>
     );
   }
