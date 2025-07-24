@@ -39,11 +39,10 @@ export function PremiumVideo({ videoUrl, videoTitle }: PremiumVideoProps) {
       <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
         <p className="font-semibold">
-           missing out on premium content!
+          Basic user, you're missing out on premium content!
         </p>
         <p className="text-sm">
-          If you're seeing this then you're missing out on awesome premium
-          content here which you can view if you upgrade to the Premium plan.
+          If you're seeing this then you're missing out on awesome premium content here which you can view if you upgrade to the Premium plan.
         </p>
         <p className="text-sm font-semibold">
           Subscribe now or login to view premium content.
@@ -65,11 +64,10 @@ export function PremiumVideo({ videoUrl, videoTitle }: PremiumVideoProps) {
       <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
         <p className="font-semibold">
-           missing out on premium content!
+          Basic user, you're missing out on premium content!
         </p>
         <p className="text-sm">
-          If you're seeing this then you're missing out on awesome premium
-          content here which you can view if you upgrade to the Premium plan.
+          If you're seeing this then you're missing out on awesome premium content here which you can view if you upgrade to the Premium plan.
         </p>
         <Button
           onClick={() =>
