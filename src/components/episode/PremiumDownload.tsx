@@ -35,7 +35,7 @@ export function PremiumDownload({ downloadUrl }: PremiumDownloadProps) {
       <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
         <p className="font-semibold">
-          Basic user, You're missing out on premium content!
+           missing out on premium content!
         </p>
         <p className="text-sm">
           If you're seeing this then you're missing out on awesome premium
@@ -61,7 +61,7 @@ export function PremiumDownload({ downloadUrl }: PremiumDownloadProps) {
       <div className="bg-airwar-400 dark:bg-airwar-600 text-card-foreground my-10 rounded-lg p-4 text-center">
         <BadgeAlert className="text-accent-5 mx-auto size-16" />
         <p className="font-semibold">
-          Basic user, You're missing out on premium content!
+           missing out on premium content!
         </p>
         <p className="text-sm">
           If you're seeing this then you're missing out on awesome premium
