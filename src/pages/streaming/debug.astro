@@ -1,0 +1,36 @@
+---
+import { SingleVideoPlayer } from "@/components/video/SingleVideoPlayer";
+import { VideoDebug } from "@/components/video/VideoDebug";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Video from API: "Background - Edit 3"
+const TEST_MUX_ASSET_ID = "wu02lOVyy019aSdxiF9m7DN1sZUqkvnVYFu9xFY6y7EJI";
+const TEST_LIBRARY_ID = "NsJZrLfu";
+
+---
+
+<BaseLayout
+  title="Debug | Air War Trail"
+>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="mb-8 text-center text-3xl font-bold">Streaming Library</h1>
+    
+    <!-- Debug Panel -->
+    <div class="max-w-4xl mx-auto mb-8">
+      <VideoDebug client:load libraryId={TEST_LIBRARY_ID} limit={5} />
+    </div>
+    
+    <!-- Test Video Player -->
+    <div class="max-w-4xl mx-auto">
+      <SingleVideoPlayer
+        client:load
+        muxAssetId={TEST_MUX_ASSET_ID}
+        libraryId={TEST_LIBRARY_ID}
+        title="Background - Edit 3"
+      />
+      <p class="text-center text-sm text-muted-foreground mt-4">
+        Testing video playback with signed tokens.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

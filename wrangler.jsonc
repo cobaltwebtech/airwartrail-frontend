@@ -1,0 +1,45 @@
+{  
+  "name": "airwartrail-frontend",
+	"main": "./dist/_worker.js/index.js",
+	"compatibility_date": "2025-12-15",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+  "placement": {
+    "mode": "smart"
+  },
+	"workers_dev": false,
+	"observability": {
+		"enabled": true
+	},
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
+	"d1_databases": [
+		{
+      "binding": "DB_AUTH",
+			"database_name": "airwartrail-frontend-auth",
+			"database_id": "992f6914-4e3b-4bae-9eac-639f4a675498",
+			"migrations_dir": "./drizzle/migrations"
+    }
+  ],
+	"kv_namespaces": [
+		{
+			"binding": "KV_AUTH",
+			"id": "999bdb40ae474547865ac978cf8bfb56"
+		}
+	],
+	"services": [
+		{
+			// Service Binding to the Airwartrail CMS Worker for direct access
+			"binding": "AWT_CMS",
+			"service": "airwartrail-cms"
+		}
+	],
+	"vars": {
+		"BETTER_AUTH_URL": "https://www.airwartrail.com",
+		"UMAMI_ID": "6e001137-4b73-407b-9422-27c1f4bfcb24",
+		"TURNSTILE_PUBLIC_KEY": "3x00000000000000000000FF"
+	}
+}

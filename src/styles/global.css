@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@/styles/lenis.css";
+@import "./lenis.css";
 @import "preline/variants.css";
 @import "tw-animate-css";
 @import "swiper/css";
@@ -12,123 +12,123 @@
 @plugin "@tailwindcss/forms";
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.9951 0.01 131.36);
-  --foreground: oklch(0.1685 0.047 132.35);
-  --light: oklch(0.9951 0.01 131.36);
-  --card: oklch(0.9705 0.039 91.2);
-  --card-foreground: oklch(0.209 0.057 131.33);
-  --popover: oklch(0.9705 0.039 91.2);
-  --popover-foreground: oklch(0.209 0.057 131.33);
-  --primary: oklch(0.77 0.054 130.3);
-  --primary-foreground: oklch(0.2969 0.083 132.35);
-  --secondary: oklch(0.8741 0.169 91.03);
-  --secondary-foreground: oklch(0.1685 0.047 132.35);
-  --muted: oklch(0.9884 0.025 128.75);
-  --muted-foreground: oklch(0.2969 0.083 132.35);
-  --accent-foreground: oklch(0.3764 0.077 90.4);
-  --destructive: oklch(0.6139 0.224 29.17);
-  --border: oklch(0.923 0.003 48.717);
-  --input: oklch(1 0 0);
-  --ring: oklch(0.709 0.01 56.259);
-  --accent-1: oklch(0.86 0.0325 130.63);
-  --accent-2: oklch(0.3989 0.091 274.38);
-  --accent-3: oklch(0.8741 0.169 91.03);
-  --accent-4: oklch(0.856 0.071 274.28);
-  --accent-5: oklch(0.4248 0.174 29.23);
-  --accent-6: oklch(0.921 0.091 274.38);
+	--radius: 0.625rem;
+	--background: oklch(0.9951 0.01 131.36);
+	--foreground: oklch(0.1685 0.047 132.35);
+	--light: oklch(0.9951 0.01 131.36);
+	--card: oklch(0.9705 0.039 91.2);
+	--card-foreground: oklch(0.209 0.057 131.33);
+	--popover: oklch(0.9705 0.039 91.2);
+	--popover-foreground: oklch(0.209 0.057 131.33);
+	--primary: oklch(0.77 0.054 130.3);
+	--primary-foreground: oklch(0.2969 0.083 132.35);
+	--secondary: oklch(0.8741 0.169 91.03);
+	--secondary-foreground: oklch(0.1685 0.047 132.35);
+	--muted: oklch(0.9884 0.025 128.75);
+	--muted-foreground: oklch(0.2969 0.083 132.35);
+	--accent-foreground: oklch(0.3764 0.077 90.4);
+	--destructive: oklch(0.6139 0.224 29.17);
+	--border: oklch(0.923 0.003 48.717);
+	--input: oklch(1 0 0);
+	--ring: oklch(0.709 0.01 56.259);
+	--accent-1: oklch(0.86 0.0325 130.63);
+	--accent-2: oklch(0.3989 0.091 274.38);
+	--accent-3: oklch(0.8741 0.169 91.03);
+	--accent-4: oklch(0.856 0.071 274.28);
+	--accent-5: oklch(0.4248 0.174 29.23);
+	--accent-6: oklch(0.921 0.091 274.38);
 }
 
 .dark {
-  --background: oklch(0.1685 0.047 132.35);
-  --foreground: oklch(0.9698 0.053 130.61);
-  --card: oklch(0.209 0.057 131.33);
-  --card-foreground: oklch(0.9687 0.002 17.2);
-  --popover: oklch(0.209 0.057 131.33);
-  --popover-foreground: oklch(0.9687 0.002 17.2);
-  --primary: oklch(0.3391 0.028 133.02);
-  --primary-foreground: oklch(0.9706 0.063 131.73);
-  --secondary: oklch(0.8741 0.169 91.03);
-  --secondary-foreground: oklch(0.1685 0.047 132.35);
-  --muted: oklch(0.5331 0.002 17.24);
-  --muted-foreground: oklch(0.825 0.002 170.625);
-  --accent-foreground: oklch(0.9508 0.066 91.19);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.5331 0.002 17.24);
-  --accent-1: oklch(0.8862 0.063 132.27);
-  --accent-2: oklch(0.3097 0.141 274.47);
-  --accent-3: oklch(0.8741 0.169 91.03);
-  --accent-4: oklch(0.856 0.071 274.28);
-  --accent-5: oklch(0.6139 0.224 29.17);
-  --accent-6: oklch(0.3097 0.141 274.47);
+	--background: oklch(0.1685 0.047 132.35);
+	--foreground: oklch(0.9698 0.053 130.61);
+	--card: oklch(0.209 0.057 131.33);
+	--card-foreground: oklch(0.9687 0.002 17.2);
+	--popover: oklch(0.209 0.057 131.33);
+	--popover-foreground: oklch(0.9687 0.002 17.2);
+	--primary: oklch(0.3391 0.028 133.02);
+	--primary-foreground: oklch(0.9706 0.063 131.73);
+	--secondary: oklch(0.8741 0.169 91.03);
+	--secondary-foreground: oklch(0.1685 0.047 132.35);
+	--muted: oklch(0.5331 0.002 17.24);
+	--muted-foreground: oklch(0.825 0.002 170.625);
+	--accent-foreground: oklch(0.9508 0.066 91.19);
+	--destructive: oklch(0.704 0.191 22.216);
+	--border: oklch(1 0 0 / 10%);
+	--input: oklch(1 0 0 / 15%);
+	--ring: oklch(0.5331 0.002 17.24);
+	--accent-1: oklch(0.8862 0.063 132.27);
+	--accent-2: oklch(0.3097 0.141 274.47);
+	--accent-3: oklch(0.8741 0.169 91.03);
+	--accent-4: oklch(0.856 0.071 274.28);
+	--accent-5: oklch(0.6139 0.224 29.17);
+	--accent-6: oklch(0.3097 0.141 274.47);
 }
 
 @theme inline {
-  --default-font-family:
-    "Reddit Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    Roboto, Helvetica, Arial, sans-serif;
-  --radius-sm: calc(var(--radius) - 8px);
-  --radius-md: calc(var(--radius) - 6px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 2px);
-  --color-airwar-50: oklch(0.97 0.0069 124.45);
-  --color-airwar-100: oklch(0.93 0.0185 127.15);
-  --color-airwar-200: oklch(0.86 0.0325 130.63);
-  --color-airwar-300: oklch(0.77 0.054 130.3);
-  --color-airwar-400: oklch(0.69 0.0662 130.87);
-  --color-airwar-500: oklch(0.55 0.0666 132.06);
-  --color-airwar-600: oklch(0.5 0.0635 132.74);
-  --color-airwar-700: oklch(0.42 0.0476 133.05);
-  --color-airwar-800: oklch(0.37 0.0367 133.16);
-  --color-airwar-900: oklch(0.3391 0.028 133.02);
-  --color-airwar-950: oklch(0.23 0.023 134.39);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-airwar-green: var(--airwar-green);
-  --color-light: var(--light);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-accent-1: var(--accent-1);
-  --color-accent-2: var(--accent-2);
-  --color-accent-3: var(--accent-3);
-  --color-accent-4: var(--accent-4);
-  --color-accent-5: var(--accent-5);
-  --color-accent-6: var(--accent-6);
+	--default-font-family:
+		"Reddit Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+		Roboto, Helvetica, Arial, sans-serif;
+	--radius-sm: calc(var(--radius) - 8px);
+	--radius-md: calc(var(--radius) - 6px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 2px);
+	--color-airwar-50: oklch(0.97 0.0069 124.45);
+	--color-airwar-100: oklch(0.93 0.0185 127.15);
+	--color-airwar-200: oklch(0.86 0.0325 130.63);
+	--color-airwar-300: oklch(0.77 0.054 130.3);
+	--color-airwar-400: oklch(0.69 0.0662 130.87);
+	--color-airwar-500: oklch(0.55 0.0666 132.06);
+	--color-airwar-600: oklch(0.5 0.0635 132.74);
+	--color-airwar-700: oklch(0.42 0.0476 133.05);
+	--color-airwar-800: oklch(0.37 0.0367 133.16);
+	--color-airwar-900: oklch(0.3391 0.028 133.02);
+	--color-airwar-950: oklch(0.23 0.023 134.39);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-airwar-green: var(--airwar-green);
+	--color-light: var(--light);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-accent-1: var(--accent-1);
+	--color-accent-2: var(--accent-2);
+	--color-accent-3: var(--accent-3);
+	--color-accent-4: var(--accent-4);
+	--color-accent-5: var(--accent-5);
+	--color-accent-6: var(--accent-6);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }
 
 @layer utilities {
-  .prose {
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      @apply scroll-mt-36;
-    }
-  }
+	.prose {
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			@apply scroll-mt-36;
+		}
+	}
 }

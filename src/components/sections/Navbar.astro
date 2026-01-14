@@ -1,9 +1,9 @@
 ---
-import { SquareMenu, CircleX } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CircleX, SquareMenu } from "lucide-react";
+import Logo from "@/assets/svgs/Airwar-Trail-Logo.svg";
 import { AuthButtons } from "@/components/partials/AuthButtons";
 import { ThemeToggle } from "@/components/partials/ThemeToggle";
-import Logo from "@/assets/svgs/Airwar-Trail-Logo.svg";
+import { Button } from "@/components/ui/button";
 
 const { sessionData } = Astro.props;
 
@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const navItems: Array<NavItem> = [
-  { title: "Episodes", url: "/episodes" },
+  { title: "Streaming", url: "/streaming" },
   { title: "About", url: "/about" },
   { title: "Contact", url: "/contact" },
   { title: "Subscribe", url: "/subscribe" },
