@@ -1,32 +1,40 @@
 import type { APIRoute } from "astro";
-import { stripeClient } from "@/lib/auth";
+import { createStripeClient } from "@/lib/auth";
 
-export const POST: APIRoute = async ({ request }) => {
-  try {
-    const { customerId, email } = (await request.json()) as {
-      customerId?: string;
-      email?: string;
-    };
+export const POST: APIRoute = async ({ request, locals }) => {
+	try {
+		const { customerId, email } = (await request.json()) as {
+			customerId?: string;
+			email?: string;
+		};
 
-    if (!customerId || !email) {
-      return new Response("Customer ID and email are required", {
-        status: 400,
-      });
-    }
+		if (!customerId || !email) {
+			return new Response("Customer ID and email are required", {
+				status: 400,
+			});
+		}
 
-    // Update the customer's email in Stripe
-    await stripeClient.customers.update(customerId, {
-      email: email,
-    });
+		// Get the environment from the Astro context
+		const runtime = locals.runtime as { env: Env } | undefined;
+		if (!runtime?.env) {
+			throw new Error("Environment variables not available");
+		}
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.error("Error updating email in Stripe:", error);
-    return new Response("Internal Server Error", { status: 500 });
-  }
+		const stripeClient = createStripeClient(runtime.env);
+
+		// Update the customer's email in Stripe
+		await stripeClient.customers.update(customerId, {
+			email: email,
+		});
+
+		return new Response(JSON.stringify({ success: true }), {
+			status: 200,
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+	} catch (error) {
+		console.error("Error updating email in Stripe:", error);
+		return new Response("Internal Server Error", { status: 500 });
+	}
 };

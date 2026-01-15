@@ -1,13 +1,11 @@
 ---
 export const prerender = true;
 
-import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Image } from "astro:assets";
-import { Button } from "@/components/ui/button";
-import { VideoEmbed } from "@/components/partials/VideoEmbed";
-const videoUrl =
-  "https://iframe.mediadelivery.net/embed/416789/8da9d225-0791-40ca-a625-0a35dcaade9e";
 import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
+import { Button } from "@/components/ui/button";
+import { VideoEmbed } from "@/components/video/VideoEmbed";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
@@ -64,7 +62,12 @@ import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
       <div
         class="from-primary via-card/40 to-primary aspect-video rounded-lg bg-linear-to-tr p-4"
       >
-        <VideoEmbed videoUrl={videoUrl} client:load />
+      <VideoEmbed
+        client:load
+        videoId="cECZfWBvA2sAawmbsS4TpsyW"
+        libraryId="NsJZrLfu"
+        thumbnailTime={5}
+      />
       </div>
     </div>
     <div class="space-y-4">

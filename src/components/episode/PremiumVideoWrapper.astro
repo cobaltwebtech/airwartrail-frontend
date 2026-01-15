@@ -1,8 +1,0 @@
----
-// This Astro component is used to wrap the React components for premium content
-import { PremiumVideo } from "@/components/episode/PremiumVideo";
-
-const { videoUrl, ...props } = Astro.props;
----
-
-<PremiumVideo client:visible videoUrl={videoUrl} {...props} />

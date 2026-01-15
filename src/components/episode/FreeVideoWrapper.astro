@@ -1,8 +1,0 @@
----
-// This Astro component is used to wrap the React components for free content
-import { FreeVideo } from "@/components/episode/FreeVideo";
-
-const { videoUrl, ...props } = Astro.props;
----
-
-<FreeVideo client:visible videoUrl={videoUrl} {...props} />
