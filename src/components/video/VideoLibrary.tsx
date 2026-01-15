@@ -5,7 +5,7 @@
  * Supports infinite scrolling for large video collections.
  */
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
@@ -15,16 +15,16 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import {
-	AlertCircle,
 	ArrowDown,
 	ArrowUp,
 	ArrowUpDown,
-	CheckCircle,
 	Film,
 	Grid3X3,
 	List,
 	Loader2,
+	OctagonX,
 	Play,
+	Tags,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -32,6 +32,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
+	CardAction,
+	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
@@ -44,6 +46,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -52,8 +55,15 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Video } from "@/lib/trpc";
+import { VideoThumbnail } from "@/components/video/VideoThumbnail";
+import type {
+	SearchVideosByTagsInput,
+	Video,
+	VideoStatus,
+	VideoTag,
+} from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
+import { formatTimeAgo } from "@/lib/video-helpers";
 
 interface VideoLibraryProps {
 	/** The library ID to fetch videos from */
@@ -120,46 +130,21 @@ const formatDate = (date: Date | string | null | undefined): string => {
 // Read stored settings once at module level
 const initialSettings = getStoredSettings();
 
-interface VideoThumbnailProps {
-	playbackId: string | null;
-	alt: string;
-	className?: string;
-	width?: number;
-	height?: number;
-	aspectVideo?: boolean;
-	policy?: "public" | "signed";
-	libraryId: string;
-}
-
-// VideoThumbnail component for displaying Mux video thumbnails
-function VideoThumbnail({
-	playbackId,
-	alt,
-	className,
-	width = 320,
-	height = 180,
-}: VideoThumbnailProps) {
-	if (!playbackId) {
-		return (
-			<div className={`${className} bg-muted flex items-center justify-center`}>
-				<Film className="h-8 w-8 text-muted-foreground" />
-			</div>
-		);
-	}
-
-	const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=${width}&height=${height}&fit_mode=pad`;
-
-	return (
-		<img src={thumbnailUrl} alt={alt} className={className} loading="lazy" />
-	);
-}
-
 function VideoLibraryContent({
 	libraryId,
 	pageSize = DEFAULT_PAGE_SIZE,
 	initialViewMode,
 }: VideoLibraryProps) {
 	const [searchTerm, setSearchTerm] = useState("");
+	const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(() => {
+		// Initialize from URL query params (using slugs)
+		if (typeof window !== "undefined") {
+			const params = new URLSearchParams(window.location.search);
+			const tags = params.get("tags");
+			return tags ? tags.split(",").filter(Boolean) : [];
+		}
+		return [];
+	});
 
 	// Initialize state from stored settings
 	const [sortCriteria, setSortCriteria] = useState(
@@ -178,6 +163,21 @@ function VideoLibraryContent({
 	// Ref for infinite scroll observer
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Update URL when selected tags change (using slugs)
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const params = new URLSearchParams(window.location.search);
+		if (selectedTagSlugs.length > 0) {
+			params.set("tags", selectedTagSlugs.join(","));
+		} else {
+			params.delete("tags");
+		}
+
+		const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+		window.history.replaceState({}, "", newUrl);
+	}, [selectedTagSlugs]);
 
 	// Persist settings to localStorage with debouncing
 	useEffect(() => {
@@ -202,7 +202,35 @@ function VideoLibraryContent({
 		};
 	}, [viewMode, sortCriteria, sortDirection, tableSorting]);
 
-	// Infinite query for videos
+	// Fetch all active tags using the new tag management API
+	const {
+		data: tagsData,
+		isLoading: isLoadingTags,
+		error: tagsError,
+	} = useQuery({
+		queryKey: ["mux", "listTags"],
+		queryFn: async () => {
+			type ListTagsClient = {
+				mux: {
+					listTags: {
+						query: (input: Record<string, never>) => Promise<VideoTag[]>;
+					};
+				};
+			};
+			const client = trpcClient as unknown as ListTagsClient;
+			return client.mux.listTags.query({});
+		},
+	});
+
+	// Map slugs to IDs for API queries
+	const selectedTagIds = useMemo(() => {
+		if (!tagsData || selectedTagSlugs.length === 0) return [];
+		return selectedTagSlugs
+			.map((slug) => tagsData.find((tag) => tag.slug === slug)?.id)
+			.filter((id): id is string => Boolean(id));
+	}, [tagsData, selectedTagSlugs]);
+
+	// Infinite query for videos (filtered by tags if selected)
 	const {
 		data,
 		isLoading,
@@ -211,8 +239,81 @@ function VideoLibraryContent({
 		hasNextPage,
 		isFetchingNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["mux", "listVideosFromDatabase", libraryId, pageSize],
+		queryKey: [
+			"mux",
+			selectedTagIds.length > 0
+				? "searchVideosByTags"
+				: "listVideosFromDatabase",
+			libraryId,
+			pageSize,
+			selectedTagIds,
+		],
 		queryFn: async ({ pageParam = 0 }) => {
+			// If tags are selected, use searchVideosByTags
+			if (selectedTagIds.length > 0) {
+				type SearchVideoResult = {
+					id: string;
+					title: string;
+					description?: string;
+					muxPlaybackId: string | null;
+					playbackPolicy: "public" | "signed";
+					duration: number;
+					createdAt: string;
+					tagCount?: number;
+					views?: number;
+					isPublished?: boolean;
+					status?: string;
+				};
+				type SearchVideosClient = {
+					mux: {
+						searchVideosByTags: {
+							query: (
+								input: SearchVideosByTagsInput,
+							) => Promise<SearchVideoResult[]>;
+						};
+					};
+				};
+				const client = trpcClient as unknown as SearchVideosClient;
+				const results = await client.mux.searchVideosByTags.query({
+					libraryId,
+					tagIds: selectedTagIds,
+					matchMode: "any", // Show videos with ANY of the selected tags
+					limit: pageSize,
+					offset: pageParam,
+				});
+				// Map searchVideosByTags response to Video type with all required fields
+				return results.map(
+					(result): Video => ({
+						id: result.id,
+						libraryId: libraryId,
+						muxAssetId: "",
+						muxPlaybackId: result.muxPlaybackId,
+						muxEnvironmentId: null,
+						status: (result.status as VideoStatus) ?? "ready",
+						errorCategory: null,
+						errorMessages: null,
+						title: result.title,
+						description: result.description ?? null,
+						duration: result.duration,
+						aspectRatio: null,
+						maxWidth: null,
+						maxHeight: null,
+						maxStoredFrameRate: null,
+						resolutionTier: null,
+						videoQuality: null,
+						playbackId: result.muxPlaybackId,
+						policy: result.playbackPolicy,
+						isPublished: result.isPublished ?? true,
+						publishedAt: null,
+						views: result.views ?? 0,
+						viewCountSyncedAt: null,
+						createdAt: result.createdAt,
+						updatedAt: result.createdAt,
+					}),
+				);
+			}
+
+			// Otherwise, list all videos
 			type ListVideosClient = {
 				mux: {
 					listVideosFromDatabase: {
@@ -236,14 +337,6 @@ function VideoLibraryContent({
 			if (lastPage.length < pageSize) return undefined;
 			return allPages.length * pageSize;
 		},
-		// Poll every 5 seconds while any video is processing
-		refetchInterval: (query) => {
-			const allVideos = query.state.data?.pages.flat() ?? [];
-			const hasProcessingVideos = allVideos.some(
-				(video) => video.status !== "ready" && video.status !== "errored",
-			);
-			return hasProcessingVideos ? 5000 : false;
-		},
 	});
 
 	// Flatten all pages into a single array
@@ -254,6 +347,8 @@ function VideoLibraryContent({
 	// Filter and sort videos
 	const filteredVideos = useMemo(() => {
 		return allVideos
+			.filter((video) => video.isPublished === true)
+			.filter((video) => video.status === "ready")
 			.filter((video) =>
 				video.title.toLowerCase().includes(searchTerm.toLowerCase()),
 			)
@@ -295,10 +390,25 @@ function VideoLibraryContent({
 		setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
 	};
 
-	const handleSelectVideo = useCallback((video: Video) => {
-		// TODO: Implement video player dialog
-		console.log("Selected video:", video);
-	}, []);
+	const toggleTag = (tagSlug: string) => {
+		setSelectedTagSlugs((prev) => {
+			if (prev.includes(tagSlug)) {
+				// Remove tag
+				return prev.filter((slug) => slug !== tagSlug);
+			}
+			// Add tag
+			return [...prev, tagSlug];
+		});
+	};
+
+	const clearAllTags = () => {
+		setSelectedTagSlugs([]);
+	};
+
+	const buildVideoUrl = useCallback(
+		(videoId: string) => `/watch/library_${libraryId}/${videoId}`,
+		[libraryId],
+	);
 
 	const handleSortingChange = useCallback(
 		(updater: SortingState | ((old: SortingState) => SortingState)) => {
@@ -316,24 +426,22 @@ function VideoLibraryContent({
 			{
 				accessorKey: "thumbnail",
 				header: "",
-				size: 80,
 				enableSorting: false,
 				cell: ({ row }) => (
-					<button
-						type="button"
-						onClick={() => handleSelectVideo(row.original)}
-						className="relative h-12 w-20 overflow-hidden rounded focus:outline-none focus:ring-2 focus:ring-primary"
-					>
-						<VideoThumbnail
-							playbackId={row.original.playbackId}
-							alt={row.original.title}
-							className="h-full w-full object-cover"
-							width={160}
-							height={90}
-							policy={row.original.policy ?? undefined}
-							libraryId={libraryId}
-						/>
-					</button>
+					<div className="max-w-25 mx-auto">
+						<a href={buildVideoUrl(row.original.id)} className="">
+							<VideoThumbnail
+								playbackId={row.original.playbackId}
+								alt={row.original.title}
+								className="size-full object-cover rounded-md"
+								width={160}
+								height={90}
+								thumbnailTime={5}
+								policy={row.original.policy ?? undefined}
+								libraryId={libraryId}
+							/>
+						</a>
+					</div>
 				),
 			},
 			{
@@ -349,13 +457,12 @@ function VideoLibraryContent({
 					</Button>
 				),
 				cell: ({ row }) => (
-					<button
-						type="button"
-						onClick={() => handleSelectVideo(row.original)}
-						className="font-medium text-left hover:underline focus:outline-none focus:underline"
+					<a
+						href={buildVideoUrl(row.original.id)}
+						className="font-semibold text-foreground hover:underline"
 					>
 						{row.original.title}
-					</button>
+					</a>
 				),
 			},
 			{
@@ -377,63 +484,6 @@ function VideoLibraryContent({
 				),
 			},
 			{
-				accessorKey: "views",
-				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Views
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				),
-				cell: ({ row }) => (
-					<Badge variant="secondary">
-						{row.original.views?.toLocaleString() ?? 0}
-					</Badge>
-				),
-			},
-			{
-				accessorKey: "status",
-				header: "Status",
-				cell: ({ row }) => {
-					const status = row.original.status;
-					return (
-						<Badge
-							variant={
-								status === "ready"
-									? "default"
-									: status === "errored"
-										? "destructive"
-										: "secondary"
-							}
-							className="gap-1"
-						>
-							{status === "ready" && <CheckCircle className="size-3" />}
-							{status === "errored" && <AlertCircle className="size-3" />}
-							{status === "preparing" && (
-								<Loader2 className="size-3 animate-spin" />
-							)}
-							{status === "ready"
-								? "Ready"
-								: status === "errored"
-									? "Error"
-									: "Processing"}
-						</Badge>
-					);
-				},
-			},
-			{
-				accessorKey: "isPublished",
-				header: "Visibility",
-				cell: ({ row }) => (
-					<Badge variant={row.original.isPublished ? "default" : "secondary"}>
-						{row.original.isPublished ? "Published" : "Unpublished"}
-					</Badge>
-				),
-			},
-			{
 				accessorKey: "createdAt",
 				header: ({ column }) => (
 					<Button
@@ -451,8 +501,26 @@ function VideoLibraryContent({
 					</span>
 				),
 			},
+			{
+				accessorKey: "views",
+				header: ({ column }) => (
+					<Button
+						variant="ghost"
+						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+						className="-ml-4"
+					>
+						Views
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					</Button>
+				),
+				cell: ({ row }) => (
+					<Badge variant="secondary">
+						{row.original.views?.toLocaleString() ?? 0}
+					</Badge>
+				),
+			},
 		],
-		[handleSelectVideo, libraryId],
+		[buildVideoUrl, libraryId],
 	);
 
 	const table = useReactTable({
@@ -468,15 +536,113 @@ function VideoLibraryContent({
 
 	if (error) {
 		return (
-			<div className="text-destructive p-4">
-				Error loading videos:{" "}
-				{error instanceof Error ? error.message : String(error)}
+			<div className="w-full mx-auto max-w-md flex flex-col items-center justify-center text-center text-destructive p-4">
+				<OctagonX className="size-12" />
+				<p>Error Loading Videos</p>
+				<p>Try refreshing the page.</p>
 			</div>
 		);
 	}
 
+	const VideoTags = () => {
+		if (isLoadingTags) {
+			return (
+				<Card>
+					<CardHeader>
+						<h3 className="text-lg font-semibold">Tags</h3>
+						<CardDescription>
+							Browse videos by category or genre.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<Skeleton className="h-8 w-full" />
+					</CardContent>
+				</Card>
+			);
+		}
+
+		if (tagsError) {
+			return (
+				<Card>
+					<CardHeader>
+						<h3 className="text-lg font-semibold">Tags</h3>
+						<CardDescription>
+							Browse videos by category or genre.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-destructive">Failed to load tags</p>
+					</CardContent>
+				</Card>
+			);
+		}
+
+		const activeTags = tagsData ?? [];
+
+		if (activeTags.length === 0) {
+			return (
+				<Card>
+					<CardHeader>
+						<h3 className="text-lg font-semibold">Tags</h3>
+						<CardDescription>
+							Browse videos by category or genre.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">No tags available</p>
+					</CardContent>
+				</Card>
+			);
+		}
+
+		return (
+			<Card>
+				<CardHeader>
+					<div className="flex items-center gap-2">
+						<Tags className="size-8" />
+						<h3 className="text-lg font-semibold">Tags</h3>
+					</div>
+					<CardDescription>
+						Browse videos by category or genre. Filter videos by selecting tags
+						below. You may select multiple tags.
+					</CardDescription>
+					{selectedTagSlugs.length > 0 && (
+						<CardAction>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={clearAllTags}
+								className="w-fit"
+							>
+								Clear Filters ({selectedTagSlugs.length})
+							</Button>
+						</CardAction>
+					)}
+				</CardHeader>
+				<CardContent className="space-y-3">
+					<div className="flex flex-wrap gap-2">
+						{activeTags.map((tag) => {
+							const isSelected = selectedTagSlugs.includes(tag.slug);
+							return (
+								<Badge
+									key={tag.id}
+									variant={isSelected ? "secondary" : "outline"}
+									className="cursor-pointer hover:opacity-80 transition-opacity"
+									onClick={() => toggleTag(tag.slug)}
+								>
+									{tag.name}
+								</Badge>
+							);
+						})}
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
+
 	return (
 		<div className="space-y-4">
+			{/* Search and view mode controls */}
 			<div className="flex justify-between gap-2">
 				<Input
 					placeholder="Search videos..."
@@ -524,7 +690,7 @@ function VideoLibraryContent({
 				</div>
 			</div>
 
-			{/* TODO: Add video player dialog when selectedVideo is set */}
+			<VideoTags />
 
 			{isLoading && (
 				<div className="text-muted-foreground flex items-center justify-center py-12">
@@ -533,8 +699,9 @@ function VideoLibraryContent({
 				</div>
 			)}
 
+			{/* Table layout for videos */}
 			{!isLoading && viewMode === "table" && (
-				<div className="rounded-md border">
+				<div className="rounded-t-lg border bg-card">
 					<Table>
 						<TableHeader>
 							{table.getHeaderGroups().map((headerGroup) => (
@@ -584,75 +751,52 @@ function VideoLibraryContent({
 				</div>
 			)}
 
+			{/* Grid layout for videos */}
 			{!isLoading && viewMode === "grid" && (
 				<>
 					<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 						{filteredVideos.map((video) => (
-							<Card key={video.id} className="gap-2 overflow-hidden pt-0 pb-2">
+							<Card
+								key={video.id}
+								className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
+							>
 								<div className="relative">
 									<VideoThumbnail
 										playbackId={video.playbackId}
 										alt={video.title}
 										className="aspect-video w-full object-cover"
 										aspectVideo
+										thumbnailTime={5}
 										policy={video.policy ?? undefined}
 										libraryId={libraryId}
 									/>
-									<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-										<Button
-											variant="secondary"
-											size="icon"
-											onClick={() => handleSelectVideo(video)}
+									<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer">
+										<a
+											href={buildVideoUrl(video.id)}
+											className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground"
 										>
-											<Play className="h-6 w-6" />
-										</Button>
+											<Play className="size-6" />
+										</a>
 									</div>
-									<div className="absolute right-2 bottom-2 rounded bg-black/70 px-1 text-xs text-white">
+									<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
 										{formatDuration(video.duration)}
 									</div>
 								</div>
-								<CardHeader className="p-4">
-									<button
-										type="button"
-										onClick={() => handleSelectVideo(video)}
-										className="text-left cursor-pointer group"
+								<CardHeader className="p-4 flex items-center justify-between">
+									<a
+										href={buildVideoUrl(video.id)}
+										className="text-left hover:text-accent-foreground"
 									>
-										<h3 className="font-semibold line-clamp-2 group-hover:underline">
+										<h3 className="font-semibold line-clamp-2">
 											{video.title}
 										</h3>
-									</button>
+									</a>
 									<CardDescription>
-										<div className="space-y-1">
-											<div className="flex items-center gap-2 text-xs">
-												<Badge variant="secondary">
-													{video.views?.toLocaleString() ?? 0} views
-												</Badge>
-												<Badge
-													variant={
-														video.status === "ready"
-															? "default"
-															: video.status === "errored"
-																? "destructive"
-																: "secondary"
-													}
-												>
-													{video.status === "ready"
-														? "Ready"
-														: video.status === "errored"
-															? "Error"
-															: "Processing"}
-												</Badge>
-											</div>
-											{video.isPublished && (
-												<Badge variant="default" className="text-xs">
-													Published
-												</Badge>
-											)}
-										</div>
+										<Badge>{video.views?.toLocaleString() ?? 0} views</Badge>
 									</CardDescription>
 								</CardHeader>
 								<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-									Uploaded on {formatDate(video.createdAt)}
+									Uploaded {formatTimeAgo(video.createdAt)}
 								</CardFooter>
 							</Card>
 						))}
@@ -667,9 +811,7 @@ function VideoLibraryContent({
 							</div>
 						)}
 						{!hasNextPage && filteredVideos.length > 0 && (
-							<p className="text-muted-foreground text-sm">
-								No more videos to load
-							</p>
+							<p className="text-muted-foreground text-xs">End of videos</p>
 						)}
 					</div>
 				</>

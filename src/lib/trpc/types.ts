@@ -31,7 +31,6 @@ export interface Video {
 	publishedAt: string | null;
 	views: number;
 	viewCountSyncedAt: string | null;
-	tags: string[];
 	createdAt: string;
 	updatedAt: string;
 }
@@ -162,6 +161,40 @@ export interface Chapter {
 }
 
 // ============================================================================
+// Tag Types
+// ============================================================================
+
+export interface VideoTag {
+	id: string;
+	slug: string;
+	name: string;
+	description?: string;
+	isActive: boolean;
+	createdAt: number;
+}
+
+export interface VideoTagAssignment {
+	id: string;
+	videoId: string;
+	tagId: string;
+	assignedAt: number;
+}
+
+export interface VideoTagDetail {
+	id: string;
+	slug: string;
+	name: string;
+	description?: string;
+}
+
+export interface TagStatistic {
+	tagId: string;
+	tagSlug: string;
+	tagName: string;
+	videoCount: number;
+}
+
+// ============================================================================
 // Upload Types
 // ============================================================================
 
@@ -265,6 +298,46 @@ export interface GetPlaylistInput {
 export interface GetPlaylistBySlugInput {
 	slug: string;
 	libraryId: string;
+}
+
+// Tag Management Inputs
+export interface CreateTagInput {
+	name: string;
+	description?: string;
+}
+
+export interface UpdateTagInput {
+	tagId: string;
+	name?: string;
+	description?: string | null;
+	isActive?: boolean;
+}
+
+export interface DeleteTagInput {
+	tagId: string;
+}
+
+export interface GetTagStatisticsInput {
+	libraryId?: string;
+}
+
+export interface SetVideoTagsInput {
+	videoId: string;
+	libraryId: string;
+	tagIds: string[];
+}
+
+export interface GetVideoTagsInput {
+	videoId: string;
+	libraryId: string;
+}
+
+export interface SearchVideosByTagsInput {
+	libraryId: string;
+	tagIds: string[];
+	matchMode?: "any" | "all";
+	limit?: number;
+	offset?: number;
 }
 
 // ============================================================================

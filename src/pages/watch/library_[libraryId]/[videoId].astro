@@ -1,0 +1,46 @@
+---
+
+import { RelatedVideos } from "@/components/video/RelatedVideos";
+import { VideoPlayerDetail } from "@/components/video/VideoPlayerDetail";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Extract parameters from the URL
+const videoId = Astro.params.videoId ?? "";
+const libraryId = Astro.params.libraryId ?? "";
+const pageUrl = Astro.url.href;
+const pageTitle = "Streaming | Air War Trail";
+
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "WebPage",
+	"@id": pageUrl,
+	url: pageUrl,
+	name: pageTitle,
+	description:
+		"Watch streaming content from Air War Trail. Detailed view for a single video with related information and resources.",
+	isPartOf: {
+		"@type": "WebSite",
+		url: "https://www.airwartrail.com/",
+		name: "Air War Trail",
+	},
+	inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+		{!videoId || !libraryId ? (
+			<div class="rounded-lg border bg-muted/30 p-6 text-center">
+				<p class="text-lg font-semibold">Video not found</p>
+				<p class="text-sm text-muted-foreground mt-2">
+					A video and library identifier are required to load this page.
+				</p>
+			</div>
+		) : (
+				<VideoPlayerDetail
+					client:load
+					videoId={videoId}
+					libraryId={libraryId}
+				/>
+				<RelatedVideos client:load videoId={videoId} libraryId={libraryId} />
+		)}
+</BaseLayout>

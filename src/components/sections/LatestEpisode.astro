@@ -1,11 +1,7 @@
 ---
-
 import { TvMinimalPlay, UserPlus } from "@lucide/astro";
-import { VideoEmbed } from "@/components/partials/VideoEmbed";
 import { Button } from "@/components/ui/button";
-
-const videoUrl =
-  "https://iframe.mediadelivery.net/embed/416789/8da9d225-0791-40ca-a625-0a35dcaade9e";
+import { VideoEmbed } from "@/components/video/VideoEmbed";
 ---
 
 <div class="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
@@ -21,7 +17,12 @@ const videoUrl =
     <div
       class="from-primary via-card/40 to-primary flex aspect-video flex-col justify-center rounded-lg bg-linear-to-tr p-4 lg:col-span-3"
     >
-      <VideoEmbed videoUrl={videoUrl} client:load />
+      <VideoEmbed
+        client:load
+        videoId="cECZfWBvA2sAawmbsS4TpsyW"
+        libraryId="NsJZrLfu"
+        thumbnailTime={5}
+      />
     </div>
 
     <div class="lg:col-span-2">

@@ -54,7 +54,7 @@ export function createApiKeyTRPCClient(env: Env, apiKey: string) {
   return createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        url: 'https://awt-cms-worker/trpc',
+        url: 'https://awt-backend-worker/trpc',
         transformer: superjson,
         headers: {
           'x-api-key': apiKey,

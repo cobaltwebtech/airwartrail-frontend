@@ -1,6 +1,6 @@
-import { useSubStatus } from "@/lib/useSubStatus";
-import { Loader2, CircleX } from "lucide-react";
+import { CircleX, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSubStatus } from "@/lib/useSubStatus";
 
 interface YtVideoFreeProps {
 	ytShareUrl: string;
@@ -21,7 +21,7 @@ export function YtVideoFree({ ytShareUrl, videoTitle }: YtVideoFreeProps) {
 
 		// Handle youtube.com links with v parameter
 		const match = url.match(
-			/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+			/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
 		);
 		return match ? match[1] : "";
 	};

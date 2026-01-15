@@ -1,10 +1,11 @@
 ---
-import { SingleVideoPlayer } from "@/components/video/SingleVideoPlayer";
+
 import { VideoDebug } from "@/components/video/VideoDebug";
+import { VideoPlayerDetail } from "@/components/video/VideoPlayerDetail";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 // Video from API: "Background - Edit 3"
-const TEST_MUX_ASSET_ID = "wu02lOVyy019aSdxiF9m7DN1sZUqkvnVYFu9xFY6y7EJI";
+const TEST_VIDEO_ID = "cECZfWBvA2sAawmbsS4TpsyW";
 const TEST_LIBRARY_ID = "NsJZrLfu";
 
 ---
@@ -22,11 +23,10 @@ const TEST_LIBRARY_ID = "NsJZrLfu";
     
     <!-- Test Video Player -->
     <div class="max-w-4xl mx-auto">
-      <SingleVideoPlayer
+      <VideoPlayerDetail
         client:load
-        muxAssetId={TEST_MUX_ASSET_ID}
+        videoId={TEST_VIDEO_ID}
         libraryId={TEST_LIBRARY_ID}
-        title="Background - Edit 3"
       />
       <p class="text-center text-sm text-muted-foreground mt-4">
         Testing video playback with signed tokens.

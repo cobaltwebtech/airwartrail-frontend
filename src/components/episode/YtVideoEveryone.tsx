@@ -1,4 +1,4 @@
-import { Loader2, CircleX } from "lucide-react";
+import { CircleX, Loader2 } from "lucide-react";
 
 interface YtVideoEveryoneProps {
 	ytShareUrl: string;
@@ -19,7 +19,7 @@ export function YtVideoEveryone({
 
 		// Handle youtube.com links with v parameter
 		const match = url.match(
-			/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+			/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
 		);
 		return match ? match[1] : "";
 	};

@@ -1,7 +1,7 @@
-import { useSubStatus } from "@/lib/useSubStatus";
+import { BadgeAlert, CircleX, Download, Loader2 } from "lucide-react";
 import { subscription } from "@/lib/auth-client";
+import { useSubStatus } from "@/lib/useSubStatus";
 import { Button } from "../ui/button";
-import { Loader2, CircleX, BadgeAlert, Download } from "lucide-react";
 
 interface PremiumDownloadProps {
 	downloadUrl: string;

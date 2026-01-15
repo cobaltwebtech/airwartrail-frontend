@@ -149,7 +149,7 @@ function VideoDebugContent({ libraryId, limit = 10 }: VideoDebugProps) {
 									📋 Full data for first video
 								</summary>
 								<pre className="bg-background p-2 rounded text-xs overflow-auto max-h-150 mt-2">
-									{JSON.stringify(videos[0], null, 2)}
+									{JSON.stringify(videos[3], null, 2)}
 								</pre>
 							</details>
 						)}

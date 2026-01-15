@@ -1,8 +1,13 @@
 ---
+
 export const prerender = true;
 
 import { getCollection } from "astro:content";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import PremiumDownloadWrapper from "@/components/episode/PremiumDownloadWrapper.astro";
+import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
+import YtVideoEveryoneWrapper from "@/components/episode/YtVideoEveryoneWrapper.astro";
+import YtVideoFreeWrapper from "@/components/episode/YtVideoFreeWrapper.astro";
+import { TableOfContents } from "@/components/partials/TableOfContents";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,13 +16,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { TableOfContents } from "@/components/partials/TableOfContents";
-import PremiumVideoWrapper from "@/components/episode/PremiumVideoWrapper.astro";
-import FreeVideoWrapper from "@/components/episode/FreeVideoWrapper.astro";
-import PremiumDownloadWrapper from "@/components/episode/PremiumDownloadWrapper.astro";
-import PremiumSlideshowWrapper from "@/components/episode/PremiumSlideshowWrapper.astro";
-import YtVideoEveryoneWrapper from "@/components/episode/YtVideoEveryoneWrapper.astro";
-import YtVideoFreeWrapper from "@/components/episode/YtVideoFreeWrapper.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
   const episodes = await getCollection("episodes");
@@ -82,8 +81,6 @@ const formattedDate = new Date(episode.data.date).toLocaleDateString("en-US", {
       <div class="prose prose-lg dark:prose-invert max-w-max">
         <Content
           components={{
-            PremiumVideo: PremiumVideoWrapper,
-            FreeVideo: FreeVideoWrapper,
             YtVideoEveryone: YtVideoEveryoneWrapper,
             YtVideoFree: YtVideoFreeWrapper,
             PremiumSlideShow: PremiumSlideshowWrapper,

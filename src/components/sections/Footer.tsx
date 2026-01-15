@@ -23,9 +23,9 @@ const Footer = () => {
 	}, []);
 
 	return (
-		<footer className="text-light bg-airwar-600 dark:bg-airwar-900 mx-auto mt-12 w-full px-4 py-10 sm:px-6 lg:px-8">
+		<footer className="text-light bg-airwar-600 dark:bg-airwar-900 mx-auto w-full p-4 sm:px-6 lg:px-8">
 			{/* Grid */}
-			<div className="mx-auto grid max-w-screen-lg grid-cols-1 items-center gap-5 md:grid-cols-3">
+			<div className="mx-auto grid max-w-5xl items-center gap-5 md:grid-cols-3">
 				<div>
 					<p className="mb-2 text-xl font-bold">{siteMeta.title}</p>
 					<p className="mb-2 text-sm">
@@ -44,7 +44,9 @@ const Footer = () => {
 								className="flex items-center justify-start lg:justify-center"
 								href={url}
 							>
-								<span className="text-sm font-light text-nowrap">{title}</span>
+								<span className="text-sm font-semibold text-nowrap">
+									{title}
+								</span>
 							</a>
 						</li>
 					))}
@@ -66,6 +68,7 @@ const Footer = () => {
 							height="24"
 							viewBox="0 0 24 24"
 						>
+							<title>YouTube Icon</title>
 							<path
 								fill="currentColor"
 								fillRule="evenodd"

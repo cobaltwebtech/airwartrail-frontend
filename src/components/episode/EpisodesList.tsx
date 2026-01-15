@@ -1,5 +1,21 @@
-import { useState } from "react";
 import type { CollectionEntry } from "astro:content";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import { ArrowUpDown, MoveRight } from "lucide-react";
+import { useState } from "react";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
 	Pagination,
 	PaginationContent,
@@ -10,28 +26,12 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoveRight } from "lucide-react";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import {
 	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
-	CardDescription,
-	CardContent,
-	CardFooter,
 } from "../ui/card";
 
 interface EpisodesListProps {
