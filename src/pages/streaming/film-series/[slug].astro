@@ -9,7 +9,7 @@ if (!slug) {
 	return Astro.redirect("/streaming/film-series");
 }
 
-const videoLibraryId = "NsJZrLfu";
+const videoLibraryId = import.meta.env.AWT_VIDEO_LIBRARY_ID;
 
 // Format the page title from the slug
 const formatTitle = (slug: string) => {

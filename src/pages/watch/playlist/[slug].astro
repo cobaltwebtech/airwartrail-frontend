@@ -19,7 +19,7 @@ if (!slug) {
 const videoParam = Astro.url.searchParams.get("video");
 const startIndex = videoParam ? parseInt(videoParam, 10) : 0;
 
-const videoLibraryId = "NsJZrLfu";
+const videoLibraryId = import.meta.env.AWT_VIDEO_LIBRARY_ID;
 
 // Format the page title from the slug
 const formatTitle = (slug: string) => {
