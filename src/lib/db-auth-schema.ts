@@ -80,5 +80,10 @@ export const subscription = sqliteTable("subscription", {
 	periodStart: integer("period_start", { mode: "timestamp" }),
 	periodEnd: integer("period_end", { mode: "timestamp" }),
 	cancelAtPeriodEnd: integer("cancel_at_period_end", { mode: "boolean" }),
+	cancelAt: integer("cancel_at", { mode: "timestamp" }),
+	canceledAt: integer("canceled_at", { mode: "timestamp" }),
+	endedAt: integer("ended_at", { mode: "timestamp" }),
 	seats: integer("seats"),
+	trialStart: integer("trial_start", { mode: "timestamp" }),
+	trialEnd: integer("trial_end", { mode: "timestamp" }),
 });

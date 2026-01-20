@@ -135,7 +135,7 @@ export interface PlaylistVideo {
 	sortOrder: number;
 	customTitle: string | null;
 	customDescription: string | null;
-	addedAt: Date;
+	addedAt: Date | string; // Date when video was added to playlist
 	// Joined video data
 	title: string;
 	description: string | null;
@@ -144,6 +144,7 @@ export interface PlaylistVideo {
 	duration: number | null;
 	status: string;
 	isPublished: boolean;
+	createdAt: Date | string; // Date when video was uploaded to library
 }
 
 // ============================================================================

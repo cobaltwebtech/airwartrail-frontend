@@ -1,4 +1,7 @@
-import { useSession, subscription } from "@/lib/auth-client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CreditCard, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -8,8 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { CreditCard, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { subscription, useSession } from "@/lib/auth-client";
 
 // Define types for the subscription data
 type Subscription = {
@@ -30,14 +32,27 @@ type Subscription = {
 	cancelAtPeriodEnd?: boolean;
 };
 
-export function BillingInfo() {
+function BillingInfoContent() {
+	const queryClient = useQueryClient();
 	const { data: session } = useSession();
-	const [subscriptionData, setSubscriptionData] = useState<Subscription | null>(
-		null,
-	);
-	const [loading, setLoading] = useState(true);
 	const [isManagingPayment, setIsManagingPayment] = useState(false);
 	const [isUpgrading, setIsUpgrading] = useState(false);
+
+	// Query subscription data
+	const { data: subscriptionData, isLoading: loading } = useQuery({
+		queryKey: ["subscription", session?.user?.id],
+		queryFn: async (): Promise<Subscription | null> => {
+			const { data: subscriptions } = await subscription.list();
+			const activeSubscription = subscriptions?.find(
+				(sub) => sub.status === "active" || sub.status === "trialing",
+			);
+			return (activeSubscription as Subscription) || null;
+		},
+		enabled: !!session?.user,
+		staleTime: 1000 * 60 * 5, // 5 minutes
+		refetchOnWindowFocus: true, // Refetch when user returns to tab
+		refetchOnMount: true, // Always refetch when component mounts
+	});
 
 	const handleUpgrade = async () => {
 		setIsUpgrading(true);
@@ -47,40 +62,16 @@ export function BillingInfo() {
 				successUrl: "/subscribe/success",
 				cancelUrl: window.location.href,
 			});
+			// Invalidate cache after upgrade to reflect new status
+			await queryClient.invalidateQueries({
+				queryKey: ["subscription", session?.user?.id],
+			});
 		} catch (error) {
 			console.error("Error upgrading subscription:", error);
 		} finally {
 			setIsUpgrading(false);
 		}
 	};
-
-	useEffect(() => {
-		async function fetchSubscription() {
-			try {
-				// Add a small delay to allow webhook to process
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Fetch the subscription data for the user
-				const { data: subscriptions } = await subscription.list();
-				const activeSubscription = subscriptions?.find(
-					(sub) => sub.status === "active" || sub.status === "trialing",
-				);
-				console.log("Active subscription:", activeSubscription);
-
-				setSubscriptionData(activeSubscription || null);
-			} catch (error) {
-				console.error("Error fetching subscription:", error);
-				// Add a delay to prevent race conditions with Stripe
-				setTimeout(fetchSubscription, 2000);
-			} finally {
-				setLoading(false);
-			}
-		}
-
-		if (session?.user) {
-			fetchSubscription();
-		}
-	}, [session?.user]);
 
 	// Check if the user has an active subscription
 	const hasActiveSubscription =
@@ -127,7 +118,7 @@ export function BillingInfo() {
 	// Render a static version as a fallback to avoid rendering issues during hydration
 	if (loading) {
 		return (
-			<Card>
+			<Card className="row-span-2">
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<div>
@@ -146,7 +137,7 @@ export function BillingInfo() {
 	}
 
 	return (
-		<Card>
+		<Card className="row-span-2">
 			<CardHeader>
 				<div className="flex items-center justify-between">
 					<div>
@@ -163,7 +154,7 @@ export function BillingInfo() {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<div className="grid gap-4">
+				<div>
 					<div>
 						<p className="text-muted-foreground text-sm font-medium">
 							Current Plan
@@ -176,13 +167,15 @@ export function BillingInfo() {
 								{subscriptionData.cancelAtPeriodEnd?.valueOf() ? (
 									<p>
 										Your subscription ends on {subscriptionEndDate}. If you
-										would like to reactivate your subscription click the button
+										would like to renew your subscription click the button
 										below.
 									</p>
 								) : (
 									<p>
 										Your subscription is active and renews on{" "}
-										{subscriptionEndDate}.
+										{subscriptionEndDate}. If you wish to cancel your
+										subscription or need to update your payment details click
+										the button below.
 									</p>
 								)}
 							</div>
@@ -226,3 +219,23 @@ export function BillingInfo() {
 		</Card>
 	);
 }
+
+/**
+ * BillingInfo with QueryProvider wrapper
+ *
+ * Displays subscription status and allows users to manage billing.
+ *
+ * @example
+ * ```astro
+ * <BillingInfo client:load />
+ * ```
+ */
+export function BillingInfo() {
+	return (
+		<QueryProvider showDevtools={false}>
+			<BillingInfoContent />
+		</QueryProvider>
+	);
+}
+
+export default BillingInfo;

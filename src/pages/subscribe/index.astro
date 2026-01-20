@@ -1,30 +1,28 @@
 ---
 export const prerender = true;
 
+import { Pricing } from "@/components/partials/Pricing";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Pricing from "@/components/partials/Pricing";
 ---
 
 <BaseLayout title="Subscription Plans | Air War Trail">
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="mb-8 text-center text-3xl font-bold">Subscription Plans</h1>
-    <div class="mx-auto max-w-screen-md space-y-4 text-justify">
-      <p>
-        The Air War Trail brings the incredible stories of the past to you. The
-        podcast, documentaries, interviews, and images will bring their voices
-        alive in an up close and personal way.
-      </p>
-      <p>
-        We are committed to bringing you the very best historical content. It
-        takes many hours of research, money, and time to produce this content.
-        Your support through subscribing helps us to do that.
-      </p>
-      <p>
-        Whether you are a history buff or just someone who loves learning about
-        the past, the Air War Trail is the perfect place for you to learn about
-        the amazing stories of World War 2.
-      </p>
-    </div>
-    <Pricing />
+  <h1 class="mb-8 text-center text-3xl font-bold">Subscription Plans</h1>
+  <div class="mx-auto max-w-3xl space-y-4 text-justify">
+    <p>
+      The Air War Trail brings the incredible stories of the past to you. The
+      podcast, documentaries, interviews, and images will bring their voices
+      alive in an up close and personal way.
+    </p>
+    <p>
+      We are committed to bringing you the very best historical content. It
+      takes many hours of research, money, and time to produce this content.
+      Your support through subscribing helps us to do that.
+    </p>
+    <p>
+      Whether you are a history buff or just someone who loves learning about
+      the past, the Air War Trail is the perfect place for you to learn about
+      the amazing stories of World War 2.
+    </p>
   </div>
+  <Pricing />
 </BaseLayout>

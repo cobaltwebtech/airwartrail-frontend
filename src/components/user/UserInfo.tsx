@@ -1,10 +1,7 @@
-import { useState, useEffect } from "react";
-import {
-	useSession,
-	updateUser,
-	changeEmail,
-	sendVerificationEmail,
-} from "@/lib/auth-client";
+import { CircleUserRound, Loader2, Pencil, ShieldUser } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -24,25 +21,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Pencil, Loader2, CircleUserRound, ShieldUser } from "lucide-react";
+import {
+	changeEmail,
+	sendVerificationEmail,
+	updateUser,
+	useSession,
+} from "@/lib/auth-client";
 
-export function UserInfo() {
-	const { data: session } = useSession();
+function UserInfoContent() {
+	const session = useSession();
+	const user = session.data?.user;
 	const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
 	const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSendingVerification, setIsSendingVerification] = useState(false);
-	const [mounted, setMounted] = useState(false);
 	const [nameInput, setNameInput] = useState("");
 	const [emailInput, setEmailInput] = useState("");
 
 	// Check if user is admin
-	const isAdmin = session?.user?.role === "admin";
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
+	const isAdmin = user?.role === "admin";
 
 	// Logic for updating the name
 	const handleNameSubmit = async (e: React.FormEvent) => {
@@ -50,7 +47,7 @@ export function UserInfo() {
 		setIsLoading(true);
 
 		try {
-			if (nameInput && nameInput !== session?.user?.name) {
+			if (nameInput && nameInput !== user?.name) {
 				await updateUser({ name: nameInput });
 				toast.success("Name updated successfully");
 			}
@@ -92,7 +89,7 @@ export function UserInfo() {
 		setIsLoading(true);
 
 		try {
-			if (emailInput && emailInput !== session?.user?.email) {
+			if (emailInput && emailInput !== user?.email) {
 				// First, update the email with Better Auth
 				await changeEmail({
 					newEmail: emailInput,
@@ -100,8 +97,8 @@ export function UserInfo() {
 				});
 
 				// Then update the email in Stripe if the user has a stripeCustomerId
-				if (session?.user?.stripeCustomerId) {
-					await updateStripeEmail(session.user.stripeCustomerId, emailInput);
+				if (user?.stripeCustomerId) {
+					await updateStripeEmail(user.stripeCustomerId, emailInput);
 				}
 
 				toast.success(
@@ -119,12 +116,12 @@ export function UserInfo() {
 
 	// Logic for sending a verification email
 	const handleSendVerification = async () => {
-		if (!session?.user?.email) return;
+		if (!user?.email) return;
 
 		setIsSendingVerification(true);
 		try {
 			await sendVerificationEmail({
-				email: session.user.email,
+				email: user.email,
 				callbackURL: "/account",
 			});
 			toast.success("Verification email sent. Please check your inbox.");
@@ -136,8 +133,8 @@ export function UserInfo() {
 		}
 	};
 
-	// Render a static version as a fallback to avoid rendering issues during hydration
-	if (!mounted) {
+	// Show loading state while session is being fetched
+	if (session.isPending) {
 		return (
 			<Card>
 				<CardHeader>
@@ -174,7 +171,7 @@ export function UserInfo() {
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="space-y-2">
 				{/* Admin Badge - Only visible to admin users */}
 				{isAdmin && (
 					<div className="border-border bg-accent-6 mb-4 rounded-lg border p-4">
@@ -190,7 +187,7 @@ export function UserInfo() {
 				<div className="flex items-center justify-between">
 					<div>
 						<p className="text-muted-foreground text-sm font-medium">Name</p>
-						<p className="text-lg">{session?.user?.name || "Not set"}</p>
+						<p className="text-lg">{user?.name || "Not set"}</p>
 					</div>
 					<Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
 						<DialogTrigger asChild>
@@ -214,7 +211,7 @@ export function UserInfo() {
 										<Input
 											id="name"
 											value={nameInput}
-											placeholder={session?.user?.name || "Enter your name"}
+											placeholder={user?.name || "Enter your name"}
 											onChange={(e) => setNameInput(e.target.value)}
 											className="col-span-3"
 										/>
@@ -232,15 +229,15 @@ export function UserInfo() {
 				<div className="flex items-center justify-between">
 					<div>
 						<p className="text-muted-foreground text-sm font-medium">Email</p>
-						<p className="text-lg">{session?.user?.email}</p>
+						<p className="text-lg">{user?.email}</p>
 						<p
-							className={`mt-1 text-sm ${session?.user?.emailVerified ? "text-green-600" : "text-yellow-600"}`}
+							className={`mt-1 text-sm ${user?.emailVerified ? "text-green-600" : "text-yellow-600"}`}
 						>
-							{session?.user?.emailVerified
+							{user?.emailVerified
 								? "✓ Email verified"
 								: "⚠ Email not verified. Check your inbox for a verification email."}
 						</p>
-						{!session?.user?.emailVerified && (
+						{!user?.emailVerified && (
 							<Button
 								variant="link"
 								size="sm"
@@ -284,7 +281,7 @@ export function UserInfo() {
 											id="email"
 											type="email"
 											value={emailInput}
-											placeholder={session?.user?.email || "Enter your email"}
+											placeholder={user?.email || "Enter your email"}
 											onChange={(e) => setEmailInput(e.target.value)}
 											className="col-span-3"
 										/>
@@ -303,3 +300,23 @@ export function UserInfo() {
 		</Card>
 	);
 }
+
+/**
+ * UserInfo with QueryProvider wrapper
+ *
+ * Displays and allows editing of user personal information.
+ *
+ * @example
+ * ```astro
+ * <UserInfo client:load />
+ * ```
+ */
+export function UserInfo() {
+	return (
+		<QueryProvider showDevtools={false}>
+			<UserInfoContent />
+		</QueryProvider>
+	);
+}
+
+export default UserInfo;

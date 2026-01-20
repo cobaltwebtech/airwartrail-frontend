@@ -1,5 +1,5 @@
 ---
-import Pricing from "@/components/partials/Pricing";
+import { Pricing } from "@/components/partials/Pricing.tsx";
 import HeroSection from "@/components/sections/HeroSection.astro";
 import LatestEpisode from "@/components/sections/LatestEpisode.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -17,6 +17,6 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
   }}
 >
   <LatestEpisode />
-  <Pricing />
+  <Pricing client:load />
   <HeroSection />
 </BaseLayout>

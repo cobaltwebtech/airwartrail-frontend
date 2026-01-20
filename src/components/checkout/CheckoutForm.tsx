@@ -1,0 +1,363 @@
+import {
+	AddressElement,
+	PaymentElement,
+	useElements,
+	useStripe,
+} from "@stripe/react-stripe-js";
+import type { StripeAddressElementChangeEvent } from "@stripe/stripe-js";
+import {
+	AlertCircle,
+	CreditCard,
+	Loader2,
+	Lock,
+	MapPin,
+	ShieldCheck,
+} from "lucide-react";
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+
+interface CheckoutFormProps {
+	customerId: string;
+	onSuccess: () => void;
+	onCancel: () => void;
+}
+
+interface TaxInfo {
+	subtotal: number;
+	tax: number;
+	total: number;
+	currency: string;
+}
+
+export function CheckoutForm({
+	customerId,
+	onSuccess,
+	onCancel,
+}: CheckoutFormProps) {
+	const stripe = useStripe();
+	const elements = useElements();
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [isCalculatingTax, setIsCalculatingTax] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [taxInfo, setTaxInfo] = useState<TaxInfo | null>(null);
+	const [addressComplete, setAddressComplete] = useState(false);
+
+	// Format currency amount from cents
+	const formatAmount = (amount: number, currency: string) => {
+		return new Intl.NumberFormat("en-US", {
+			style: "currency",
+			currency: currency.toUpperCase(),
+		}).format(amount / 100);
+	};
+
+	// Calculate tax when address changes
+	const calculateTax = useCallback(
+		async (address: StripeAddressElementChangeEvent["value"]["address"]) => {
+			if (!address.postal_code || !address.country) {
+				return;
+			}
+
+			setIsCalculatingTax(true);
+			try {
+				const response = await fetch("/api/stripe/calculate-tax", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					credentials: "include",
+					body: JSON.stringify({
+						customerId,
+						address: {
+							line1: address.line1,
+							line2: address.line2,
+							city: address.city,
+							state: address.state,
+							postal_code: address.postal_code,
+							country: address.country,
+						},
+					}),
+				});
+
+				const data = (await response.json()) as TaxInfo & { error?: string };
+
+				if (!response.ok) {
+					console.error("Tax calculation error:", data.error);
+					// Don't show error to user, just use base price
+					setTaxInfo(null);
+					return;
+				}
+
+				setTaxInfo(data);
+			} catch (error) {
+				console.error("Error calculating tax:", error);
+				setTaxInfo(null);
+			} finally {
+				setIsCalculatingTax(false);
+			}
+		},
+		[customerId],
+	);
+
+	// Handle address change
+	const handleAddressChange = useCallback(
+		(event: StripeAddressElementChangeEvent) => {
+			setAddressComplete(event.complete);
+			if (event.complete) {
+				calculateTax(event.value.address);
+			} else {
+				setTaxInfo(null);
+			}
+		},
+		[calculateTax],
+	);
+
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
+
+		if (!stripe || !elements) {
+			return;
+		}
+
+		setIsProcessing(true);
+		setErrorMessage(null);
+
+		try {
+			// Confirm the SetupIntent to save the payment method
+			const { error: setupError, setupIntent } = await stripe.confirmSetup({
+				elements,
+				confirmParams: {
+					return_url: `${window.location.origin}/subscribe/success`,
+				},
+				redirect: "if_required",
+			});
+
+			if (setupError) {
+				setErrorMessage(
+					setupError.message ||
+						"An error occurred while processing your payment",
+				);
+				setIsProcessing(false);
+				return;
+			}
+
+			if (!setupIntent || setupIntent.status !== "succeeded") {
+				setErrorMessage("Payment setup was not completed. Please try again.");
+				setIsProcessing(false);
+				return;
+			}
+
+			// Get the payment method ID from the SetupIntent
+			const paymentMethodId = setupIntent.payment_method as string;
+
+			// Create the subscription using our API
+			const response = await fetch("/api/stripe/create-subscription", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				credentials: "include",
+				body: JSON.stringify({
+					paymentMethodId,
+					customerId,
+				}),
+			});
+
+			const result = (await response.json()) as {
+				status?: string;
+				error?: string;
+				clientSecret?: string;
+				subscriptionId?: string;
+			};
+
+			if (!response.ok) {
+				setErrorMessage(result.error || "Failed to create subscription");
+				setIsProcessing(false);
+				return;
+			}
+
+			// Handle 3D Secure authentication if required
+			if (result.status === "requires_action" && result.clientSecret) {
+				const { error: confirmError } = await stripe.confirmCardPayment(
+					result.clientSecret,
+				);
+
+				if (confirmError) {
+					setErrorMessage(
+						confirmError.message || "Payment authentication failed",
+					);
+					setIsProcessing(false);
+					return;
+				}
+			}
+
+			// Success!
+			onSuccess();
+		} catch (error) {
+			console.error("Checkout error:", error);
+			setErrorMessage(
+				error instanceof Error ? error.message : "An unexpected error occurred",
+			);
+		} finally {
+			setIsProcessing(false);
+		}
+	};
+
+	return (
+		<form onSubmit={handleSubmit} className="space-y-6">
+			{/* Billing Address */}
+			<Card>
+				<CardHeader className="flex items-center gap-2">
+					<MapPin className="size-4" />
+					<CardTitle>Billing Address</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<AddressElement
+						options={{
+							mode: "billing",
+							defaultValues: {
+								address: {
+									country: "US",
+								},
+							},
+						}}
+						onChange={handleAddressChange}
+					/>
+				</CardContent>
+			</Card>
+
+			{/* Payment Element */}
+			<Card>
+				<CardHeader className="flex items-center gap-2">
+					<CreditCard className="size-4" />
+					<CardTitle>Payment Details</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<PaymentElement
+						options={{
+							layout: "tabs",
+						}}
+					/>
+				</CardContent>
+			</Card>
+
+			{/* Order Summary with Tax */}
+			<Card>
+				<CardHeader>
+					<CardTitle>Order Summary</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between">
+						<span>Premium Plan (Monthly)</span>
+						<span>$9.99</span>
+					</div>
+
+					{isCalculatingTax && (
+						<div className="flex items-center justify-between text-muted-foreground">
+							<span>Calculating tax...</span>
+							<Loader2 className="size-4 animate-spin" />
+						</div>
+					)}
+
+					{taxInfo && !isCalculatingTax && (
+						<>
+							<div className="flex items-center justify-between text-muted-foreground">
+								<span>Subtotal</span>
+								<span>{formatAmount(taxInfo.subtotal, taxInfo.currency)}</span>
+							</div>
+							<div className="flex items-center justify-between text-muted-foreground">
+								<span>Sales Tax</span>
+								<span>{formatAmount(taxInfo.tax, taxInfo.currency)}</span>
+							</div>
+							<div className="border-t pt-2">
+								<div className="flex items-center justify-between font-semibold">
+									<span>Total</span>
+									<span>
+										{formatAmount(taxInfo.total, taxInfo.currency)}/mo
+									</span>
+								</div>
+							</div>
+						</>
+					)}
+
+					{!taxInfo && !isCalculatingTax && (
+						<div className="border-t pt-2">
+							<p className="flex items-center justify-between font-semibold">
+								<span>Total</span>
+								<span>$9.99/mo + tax</span>
+							</p>
+							<p className="mt-1 text-xs text-muted-foreground">
+								Enter your billing address to see final total with tax
+							</p>
+						</div>
+					)}
+				</CardContent>
+				<CardFooter className="flex-col items-start gap-2">
+					<p className="text-xs text-muted-foreground">
+						Your subscription will renew monthly. Cancel anytime.
+					</p>
+					<p className="flex gap-1 items-center text-xs text-muted-foreground">
+						<Lock className="size-3" />
+						<span>Your payment is processed securely by Stripe.</span>
+					</p>
+					{/* Error Message */}
+					{errorMessage && (
+						<div className="bg-destructive/50">
+							<AlertCircle className="mt-0.5 size-4 shrink-0" />
+							<span>{errorMessage}</span>
+						</div>
+					)}
+				</CardFooter>
+			</Card>
+
+			{/* Action Buttons */}
+			<div className="flex gap-4">
+				<Button
+					variant="outline"
+					onClick={onCancel}
+					disabled={isProcessing}
+					className="basis-1/4"
+					size="lg"
+				>
+					Cancel
+				</Button>
+				<Button
+					disabled={!stripe || !elements || isProcessing || !addressComplete}
+					className="flex-auto text-lg"
+					size="lg"
+				>
+					{isProcessing ? (
+						<>
+							<Loader2 className="size-6 animate-spin" />
+							Processing...
+						</>
+					) : (
+						<>
+							<ShieldCheck className="size-6" />
+							{taxInfo
+								? `Subscribe Now - ${formatAmount(taxInfo.total, taxInfo.currency)}/mo`
+								: "Subscribe Now"}
+						</>
+					)}
+				</Button>
+			</div>
+
+			{/* Terms */}
+			<p className="text-center text-xs text-muted-foreground">
+				By subscribing, you agree to our{" "}
+				<a href="/terms-of-service" className="underline hover:text-foreground">
+					Terms of Service
+				</a>{" "}
+				and{" "}
+				<a href="/privacy-policy" className="underline hover:text-foreground">
+					Privacy Policy
+				</a>
+				.
+			</p>
+		</form>
+	);
+}

@@ -8,7 +8,7 @@
 
 import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, VideoOff } from "lucide-react";
+import { Hourglass, Loader2, VideoOff } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,11 @@ import type {
 	VideoTagDetail,
 } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
-import { formatDescription, formatTimeAgo } from "@/lib/video-helpers";
+import {
+	formatDescription,
+	formatDuration,
+	formatTimeAgo,
+} from "@/lib/video-helpers";
 
 interface VideoPlayerDetailProps {
 	videoId: string;
@@ -41,6 +45,7 @@ type FullVideo = {
 	id: string;
 	playbackId: string;
 	title: string;
+	duration: number;
 	description?: string;
 	createdAt: string;
 	views?: number;
@@ -372,9 +377,12 @@ function VideoPlayerDetailContent({
 					<CardTitle>
 						<h1 className="text-3xl font-bold">{video.title}</h1>
 					</CardTitle>
-					<CardDescription className="text-xs">
-						<p>Uploaded</p>
-						<p>{formatTimeAgo(video.createdAt)}</p>
+					<CardDescription className="flex items-center gap-4 text-sm text-primary-foreground">
+						<div className="flex items-center gap-1 bg-primary px-2 py-1 rounded-md w-fit">
+							<Hourglass className="size-4" />
+							{formatDuration(video.duration)}
+						</div>
+						<p>Uploaded {formatTimeAgo(video.createdAt)}</p>
 					</CardDescription>
 					<CardAction>
 						<Badge>{video.views} views</Badge>

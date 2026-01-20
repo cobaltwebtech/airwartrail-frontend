@@ -155,196 +155,45 @@ export const createAuth = (env: Env) => {
 							},
 						};
 					},
+					// Lifecycle hooks - plugin handles DB updates automatically
+					onSubscriptionComplete: async ({ subscription, plan }) => {
+						console.log(
+							`Subscription ${subscription.id} completed for plan ${plan.name}`,
+						);
+					},
+					onSubscriptionUpdate: async ({ subscription }) => {
+						console.log(
+							`Subscription ${subscription.id} updated to status: ${subscription.status}`,
+						);
+					},
+					onSubscriptionCancel: async ({
+						subscription,
+						cancellationDetails,
+					}) => {
+						console.log(
+							`Subscription ${subscription.id} canceled:`,
+							cancellationDetails,
+						);
+					},
 				},
+				// Use onEvent only for events NOT handled by the plugin
 				onEvent: async (event) => {
-					try {
-						console.log("Processing Stripe webhook event:", event.type);
-						const db = createDrizzle(env.DB_AUTH);
+					console.log("Stripe webhook event:", event.type);
 
-						// Handle events from Stripe sent via webhook
-						if (event.type === "checkout.session.completed") {
-							const session = event.data.object;
-							console.log("Checkout session completed:", {
-								customerId: session.customer,
-								subscriptionId: session.subscription,
-								status: session.status,
-							});
-						} else if (event.type === "customer.subscription.created") {
-							const subscription = event.data.object as Stripe.Subscription;
-							console.log("Subscription created:", {
-								id: subscription.id,
-								status: subscription.status,
-								customerId: subscription.customer,
-								planId: subscription.items.data[0]?.price.id,
-								currentPeriodEnd: subscription.items.data[0]?.current_period_end
-									? new Date(
-											subscription.items.data[0].current_period_end * 1000,
-										)
-									: null,
-							});
-
-							// Update the subscription in the database
-							try {
-								// First, get the user ID from the Stripe customer
-								const customerResponse = await stripeClient.customers.retrieve(
-									subscription.customer as string,
-								);
-								const customer = customerResponse as Stripe.Customer;
-								const userId = customer.metadata?.userId;
-
-								if (!userId) {
-									console.error("No user ID found in Stripe customer metadata");
-									return;
-								}
-
-								// Use Drizzle syntax for INSERT with ON CONFLICT
-								await db
-									.insert(schema.subscription)
-									.values({
-										id: subscription.id,
-										plan: "premium",
-										status: subscription.status,
-										stripeCustomerId: subscription.customer as string,
-										stripeSubscriptionId: subscription.id,
-										referenceId: userId,
-										// Convert timestamps to Date objects
-										periodStart: subscription.items.data[0]
-											?.current_period_start
-											? new Date(
-													subscription.items.data[0].current_period_start *
-														1000,
-												)
-											: null,
-										periodEnd: subscription.items.data[0]?.current_period_end
-											? new Date(
-													subscription.items.data[0].current_period_end * 1000,
-												)
-											: null,
-										// Keep as boolean for schema compatibility
-										cancelAtPeriodEnd:
-											subscription.cancel_at_period_end || false,
-									})
-									.onConflictDoUpdate({
-										target: schema.subscription.id,
-										set: {
-											status: subscription.status,
-											periodStart: subscription.items.data[0]
-												?.current_period_start
-												? new Date(
-														subscription.items.data[0].current_period_start *
-															1000,
-													)
-												: null,
-											periodEnd: subscription.items.data[0]?.current_period_end
-												? new Date(
-														subscription.items.data[0].current_period_end *
-															1000,
-													)
-												: null,
-											cancelAtPeriodEnd:
-												subscription.cancel_at_period_end || false,
-										},
-									});
-								console.log("Subscription data updated in database");
-							} catch (error) {
-								console.error(
-									"Error updating subscription in database:",
-									error,
-								);
-							}
-						} else if (event.type === "customer.subscription.updated") {
-							const subscription = event.data.object as Stripe.Subscription;
-							console.log("Subscription updated:", {
-								id: subscription.id,
-								status: subscription.status,
-								customerId: subscription.customer,
-								cancelAtPeriodEnd: subscription.cancel_at_period_end,
-							});
-
-							try {
-								// Use Drizzle syntax for UPDATE
-								await db
-									.update(schema.subscription)
-									.set({
-										status: subscription.status,
-										periodStart: subscription.items.data[0]
-											?.current_period_start
-											? new Date(
-													subscription.items.data[0].current_period_start *
-														1000,
-												)
-											: null,
-										periodEnd: subscription.items.data[0]?.current_period_end
-											? new Date(
-													subscription.items.data[0].current_period_end * 1000,
-												)
-											: null,
-										cancelAtPeriodEnd:
-											subscription.cancel_at_period_end || false,
-									})
-									.where(
-										eq(
-											schema.subscription.stripeSubscriptionId,
-											subscription.id,
-										),
-									);
-								console.log("Subscription status updated in database");
-							} catch (error) {
-								console.error(
-									"Error updating subscription status in database:",
-									error,
-								);
-							}
-						} else if (event.type === "customer.subscription.deleted") {
-							const subscription = event.data.object as Stripe.Subscription;
-							console.log("Subscription deleted:", {
-								id: subscription.id,
-								customerId: subscription.customer,
-							});
-
-							try {
-								// Use Drizzle syntax for UPDATE
-								await db
-									.update(schema.subscription)
-									.set({
-										status: "canceled",
-										periodStart: subscription.items.data[0]
-											?.current_period_start
-											? new Date(
-													subscription.items.data[0].current_period_start *
-														1000,
-												)
-											: null,
-										periodEnd: subscription.items.data[0]?.current_period_end
-											? new Date(
-													subscription.items.data[0].current_period_end * 1000,
-												)
-											: null,
-									})
-									.where(
-										eq(
-											schema.subscription.stripeSubscriptionId,
-											subscription.id,
-										),
-									);
-								console.log("Subscription marked as canceled in database");
-							} catch (error) {
-								console.error(
-									"Error updating subscription status in database:",
-									error,
-								);
-							}
-						} else if (event.type === "checkout.session.expired") {
-							// Delete stale checkout session from database
+					// Handle additional events not covered by the plugin
+					switch (event.type) {
+						case "invoice.paid":
+							console.log("Invoice paid:", event.data.object.id);
+							break;
+						case "invoice.payment_failed":
+							console.log("Invoice payment failed:", event.data.object.id);
+							break;
+						case "checkout.session.expired": {
+							// Clean up stale incomplete subscriptions
 							const session = event.data.object as Stripe.Checkout.Session;
-							console.log("Checkout session expired:", {
-								customerId: session.customer,
-								status: session.status,
-								sessionId: session.client_reference_id,
-							});
-
+							console.log("Checkout session expired:", session.id);
+							const db = createDrizzle(env.DB_AUTH);
 							try {
-								// Use Drizzle syntax for DELETE
 								await db
 									.delete(schema.subscription)
 									.where(
@@ -356,23 +205,12 @@ export const createAuth = (env: Env) => {
 											eq(schema.subscription.status, "incomplete"),
 										),
 									);
-								console.log("Stale session deleted from database");
 							} catch (error) {
-								console.error(
-									"Error deleting stale session from database:",
-									error,
-								);
+								console.error("Error cleaning up expired session:", error);
 							}
+							break;
 						}
-					} catch (error) {
-						console.error(
-							"Error processing webhook within onEvent handler:",
-							error,
-						);
 					}
-
-					// Return undefined to indicate to Better Auth that the event was handled
-					return undefined;
 				},
 			}),
 		],

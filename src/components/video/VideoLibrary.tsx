@@ -27,6 +27,7 @@ import {
 	Tags,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Pricing } from "@/components/partials/Pricing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,8 @@ import type {
 	VideoTag,
 } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
-import { formatTimeAgo } from "@/lib/video-helpers";
+import { useSubStatus } from "@/lib/useSubStatus";
+import { formatDuration, formatTimeAgo } from "@/lib/video-helpers";
 
 interface VideoLibraryProps {
 	/** The library ID to fetch videos from */
@@ -109,14 +111,6 @@ function getStoredSettings(): VideoLibrarySettings {
 	};
 }
 
-// Helper functions
-const formatDuration = (seconds: number | null | undefined): string => {
-	if (!seconds) return "0:00";
-	const mins = Math.floor(seconds / 60);
-	const secs = Math.floor(seconds % 60);
-	return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
-
 const formatDate = (date: Date | string | null | undefined): string => {
 	if (!date) return "N/A";
 	const d = typeof date === "string" ? new Date(date) : date;
@@ -135,6 +129,9 @@ function VideoLibraryContent({
 	pageSize = DEFAULT_PAGE_SIZE,
 	initialViewMode,
 }: VideoLibraryProps) {
+	// Check session and subscription status
+	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
+
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(() => {
 		// Initialize from URL query params (using slugs)
@@ -534,6 +531,21 @@ function VideoLibraryContent({
 		getSortedRowModel: getSortedRowModel(),
 	});
 
+	// Show loading state during hydration or auth check
+	if (!mounted || authLoading) {
+		return (
+			<div className="text-muted-foreground flex items-center justify-center py-12">
+				<Loader2 className="mr-2 h-6 w-6 animate-spin" />
+				Loading...
+			</div>
+		);
+	}
+
+	// Gate content for users without active subscription
+	if (!session?.user || !isPremium) {
+		return <Pricing />;
+	}
+
 	if (error) {
 		return (
 			<div className="w-full mx-auto max-w-md flex flex-col items-center justify-center text-center text-destructive p-4">
@@ -641,7 +653,7 @@ function VideoLibraryContent({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
 			{/* Search and view mode controls */}
 			<div className="flex justify-between gap-2">
 				<Input
@@ -662,7 +674,7 @@ function VideoLibraryContent({
 									<SelectItem value="title">Title</SelectItem>
 								</SelectContent>
 							</Select>
-							<Button onClick={toggleSortDirection}>
+							<Button size="icon" onClick={toggleSortDirection}>
 								{sortDirection === "asc" ? <ArrowUp /> : <ArrowDown />}
 							</Button>
 						</>

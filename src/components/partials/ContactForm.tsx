@@ -1,8 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { contactFormSchema, type ContactFormValues } from "@/lib/schemas";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { type ContactFormValues, contactFormSchema } from "@/lib/schemas";
 
 export default function ContactForm() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,78 +63,80 @@ export default function ContactForm() {
 	}
 
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-				<FormField
-					control={form.control}
-					name="fullName"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>
-								Full Name<span className="font-bold text-red-500">*</span>
-							</FormLabel>
-							<FormControl>
-								<Input {...field} required />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+		<Card>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+					<FormField
+						control={form.control}
+						name="fullName"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>
+									Full Name<span className="font-bold text-red-500">*</span>
+								</FormLabel>
+								<FormControl>
+									<Input {...field} required />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				<FormField
-					control={form.control}
-					name="email"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>
-								Email Address<span className="font-bold text-red-500">*</span>
-							</FormLabel>
-							<FormControl>
-								<Input type="email" {...field} required />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+					<FormField
+						control={form.control}
+						name="email"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>
+									Email Address<span className="font-bold text-red-500">*</span>
+								</FormLabel>
+								<FormControl>
+									<Input type="email" {...field} required />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				<FormField
-					control={form.control}
-					name="phone"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>
-								Phone Number<span className="font-bold text-red-500">*</span>
-							</FormLabel>
-							<FormControl>
-								<Input type="tel" {...field} required />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+					<FormField
+						control={form.control}
+						name="phone"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>
+									Phone Number<span className="font-bold text-red-500">*</span>
+								</FormLabel>
+								<FormControl>
+									<Input type="tel" {...field} required />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				<FormField
-					control={form.control}
-					name="message"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Message (Optional)</FormLabel>
-							<FormControl>
-								<Textarea
-									className="min-h-[100px]"
-									{...field}
-									maxLength={500}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+					<FormField
+						control={form.control}
+						name="message"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Message (Optional)</FormLabel>
+								<FormControl>
+									<Textarea
+										className="min-h-[100px]"
+										{...field}
+										maxLength={500}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? "Sending..." : "Send Message"}
-				</Button>
-			</form>
-		</Form>
+					<Button type="submit" disabled={isSubmitting}>
+						{isSubmitting ? "Sending..." : "Send Message"}
+					</Button>
+				</form>
+			</Form>
+		</Card>
 	);
 }

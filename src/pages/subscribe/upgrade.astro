@@ -1,27 +1,24 @@
 ---
+import { PremiumPlanCard } from "@/components/partials/Pricing";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { SubscriptionCard } from "@/components/partials/UpgradeSubscription";
 ---
 
-<BaseLayout title="Choose a Plan | Air War Trail">
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="mb-8 text-center text-3xl font-bold">Choose a Plan</h1>
-    <div class="mx-auto mb-12 max-w-screen-md space-y-4 text-justify">
-      <p>
-        We are committed to bringing you the very best historical content. It
-        takes many hours of research, money, and time to produce this content.
-        Your support through subscribing helps us to do that.
-      </p>
-      <p>
-        Whether you are a history buff or just someone who loves learning about
-        the past, the Air War Trail is the perfect place for you to learn about
-        the amazing stories of World War 2.
-      </p>
-      <p>
-        We are excited to have you join us on this journey through the past.
-        Select a plan below to get started.
-      </p>
-    </div>
-    <SubscriptionCard client:load />
+<BaseLayout title="Upgrade Subscription | Air War Trail">
+  <h1 class="mb-8 text-center text-3xl font-bold">Subscribe to Premium Plan</h1>
+  <div class="mx-auto mb-12 max-w-3xl space-y-4 text-justify">
+    <p>
+      We are committed to bringing you the very best historical content. It
+      takes many hours of research, money, and time to produce this content.
+      Your support through subscribing helps us to do that.
+    </p>
+    <p>
+      Whether you are a history buff or just someone who loves learning about
+      the past, the Air War Trail is the perfect place for you to learn about
+      the amazing stories of World War 2.
+    </p>
+    <p>
+      We are excited to have you join us on this journey through the past.
+    </p>
   </div>
+  <PremiumPlanCard client:visible />
 </BaseLayout>

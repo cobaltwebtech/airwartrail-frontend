@@ -125,22 +125,22 @@ export function getDefaultThumbnailDimensions(aspectVideo = false): {
 // ============================================================================
 
 /**
- * Format duration from Mux (total seconds with decimal precision) to HH:MM:SS.S format
- * @param seconds - Duration in seconds (e.g., 23.857167)
- * @returns Formatted duration string (e.g., "00:00:23.9")
+ * Format duration from Mux (total seconds) to M:SS or H:MM:SS format
+ * @param seconds - Duration in seconds (e.g., 64)
+ * @returns Formatted duration string (e.g., "1:04" for 64s, "1:04:00" for 3840s, "0:16" for 16s)
  */
 export function formatDuration(seconds: number): string {
-	if (!seconds || seconds < 0) return "00:00:00.0";
+	if (!seconds || seconds < 0) return "00:00";
 
 	const hrs = Math.floor(seconds / 3600);
 	const mins = Math.floor((seconds % 3600) / 60);
 	const secs = Math.floor(seconds % 60);
-	const tenths = Math.round((seconds % 1) * 10); // Round to 1 decimal place
 
-	// Handle case where rounding tenths results in 10
-	const adjustedTenths = tenths === 10 ? 0 : tenths;
+	if (hrs > 0) {
+		return `${hrs.toString()}:${mins.toString()}:${secs.toString().padStart(2, "0")}`;
+	}
 
-	return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${adjustedTenths}`;
+	return `${mins.toString()}:${secs.toString().padStart(2, "0")}`;
 }
 
 /**

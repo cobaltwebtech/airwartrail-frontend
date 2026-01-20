@@ -1,7 +1,9 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -29,16 +31,27 @@ import {
 import { passwordSchema } from "@/lib/schemas";
 import { PasswordInput } from "../ui/password";
 
-export function UserCredentials() {
+function UserCredentialsContent() {
+	const queryClient = useQueryClient();
 	const session = useSession();
 	const user = session.data?.user;
-	const status = session.isPending
-		? "loading"
-		: session.data
-			? "authenticated"
-			: "unauthenticated";
-	const [hasPassword, setHasPassword] = useState<boolean | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const isAuthenticated = !session.isPending && !!session.data;
+
+	// Query user accounts to check if they have a credential (password) account
+	const { data: hasPassword, isLoading: isCheckingPassword } = useQuery({
+		queryKey: ["user-accounts", user?.id],
+		queryFn: async () => {
+			const accounts = await client.listAccounts();
+			// Check if any account is of type 'credential'
+			return (
+				accounts.data?.some((account) => account.providerId === "credential") ??
+				false
+			);
+		},
+		enabled: isAuthenticated && !!user,
+		staleTime: 1000 * 60 * 60, // 1 hour
+	});
+
 	const [isChangingPassword, setIsChangingPassword] = useState(false);
 	const [passwordData, setPasswordData] = useState({
 		currentPassword: "",
@@ -48,29 +61,6 @@ export function UserCredentials() {
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [open, setOpen] = useState(false);
 	const [isSuccess, setIsSuccess] = useState(false);
-
-	useEffect(() => {
-		async function checkForCredentials() {
-			if (user) {
-				try {
-					const accounts = await client.listAccounts();
-					// Check if any account is of type 'credentials'
-					const hasCredentials =
-						accounts.data?.some(
-							(account) => account.provider === "credential",
-						) ?? false;
-					setHasPassword(hasCredentials);
-				} catch (error) {
-					console.error("Failed to check credentials:", error);
-					setHasPassword(false);
-				}
-			}
-		}
-
-		if (status === "authenticated") {
-			checkForCredentials();
-		}
-	}, [user, status]);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setPasswordData({
@@ -104,7 +94,7 @@ export function UserCredentials() {
 			return true;
 		} catch (error) {
 			if (error instanceof z.ZodError) {
-				setErrors({ newPassword: error.errors[0].message });
+				setErrors({ newPassword: error.issues[0].message });
 			} else if (error instanceof Error) {
 				setErrors({
 					currentPassword: error.message.includes("Current")
@@ -128,6 +118,11 @@ export function UserCredentials() {
 				revokeOtherSessions: true,
 			});
 
+			// Invalidate cache to reflect any changes in credential status
+			await queryClient.invalidateQueries({
+				queryKey: ["user-accounts", user?.id],
+			});
+
 			toast.success("Password changed successfully");
 			setOpen(false);
 			setPasswordData({
@@ -140,7 +135,6 @@ export function UserCredentials() {
 			toast.error("Failed to change password. Please try again.");
 		} finally {
 			setIsChangingPassword(false);
-			setIsLoading(true);
 		}
 	};
 
@@ -160,7 +154,7 @@ export function UserCredentials() {
 		}
 	};
 
-	if (status === "loading" || hasPassword === null) {
+	if (session.isPending || isCheckingPassword || hasPassword === undefined) {
 		return (
 			<Card>
 				<CardHeader>
@@ -214,7 +208,7 @@ export function UserCredentials() {
 										autoComplete="current-password"
 										value={passwordData.currentPassword}
 										onChange={handleInputChange}
-										disabled={isLoading}
+										disabled={isChangingPassword}
 									/>
 									{errors.currentPassword && (
 										<p className="text-sm text-red-500">
@@ -231,7 +225,7 @@ export function UserCredentials() {
 										autoComplete="new-password"
 										value={passwordData.newPassword}
 										onChange={handleInputChange}
-										disabled={isLoading}
+										disabled={isChangingPassword}
 									/>
 									{errors.newPassword && (
 										<p className="text-sm text-red-500">{errors.newPassword}</p>
@@ -246,7 +240,7 @@ export function UserCredentials() {
 										autoComplete="new-password"
 										value={passwordData.confirmPassword}
 										onChange={handleInputChange}
-										disabled={isLoading}
+										disabled={isChangingPassword}
 									/>
 									{errors.confirmPassword && (
 										<p className="text-sm text-red-500">
@@ -313,3 +307,23 @@ export function UserCredentials() {
 		</Card>
 	);
 }
+
+/**
+ * UserCredentials with QueryProvider wrapper
+ *
+ * Handles checking if user has a password set and allows updating or setting a password.
+ *
+ * @example
+ * ```astro
+ * <UserCredentials client:load />
+ * ```
+ */
+export function UserCredentials() {
+	return (
+		<QueryProvider>
+			<UserCredentialsContent />
+		</QueryProvider>
+	);
+}
+
+export default UserCredentials;

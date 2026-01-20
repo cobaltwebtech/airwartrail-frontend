@@ -1,0 +1,9 @@
+---
+import { CheckoutProcess } from "@/components/checkout/CheckoutProcess";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Checkout | Air War Trail">
+  <h1 class="mb-8 text-center text-3xl font-bold">Checkout</h1>
+  <CheckoutProcess client:load />
+</BaseLayout>

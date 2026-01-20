@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { subscription, useSession } from "@/lib/auth-client";
 
 export function useSubStatus() {
+	const [mounted, setMounted] = useState(false);
 	const { data: session, isPending: sessionLoading } = useSession();
+
+	// Track client-side mount for hydration safety
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const {
 		data: isPremium = false,
@@ -24,8 +31,12 @@ export function useSubStatus() {
 			return !!activeSubscription;
 		},
 		enabled: !!session?.user, // Only run when user is authenticated
-		staleTime: 1000 * 60 * 60, // Cache for 1 hour
+		staleTime: 1000 * 60 * 5, // Cache for 5 minutes (matches BillingInfo)
+		gcTime: 1000 * 60 * 10, // Garbage collect after 10 minutes
 		retry: 1, // Retry once on failure
+		refetchOnWindowFocus: true, // Refetch when user returns to tab
+		refetchOnMount: true, // Always refetch when component mounts
+		refetchOnReconnect: true, // Refetch when network reconnects
 	});
 
 	if (error) {
@@ -36,5 +47,6 @@ export function useSubStatus() {
 		session,
 		isPremium,
 		loading: sessionLoading || subLoading,
+		mounted,
 	};
 }
