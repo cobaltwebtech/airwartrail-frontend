@@ -9,7 +9,7 @@
 import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import MuxPlayer from "@mux/mux-player-react";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Hourglass, Play } from "lucide-react";
+import { Hourglass, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +56,12 @@ type TypedTrpcClient = {
 					thumbnailPlaybackId: string | null;
 				}
 			>;
+		};
+		getThumbnail: {
+			query: (input: { videoId: string; libraryId: string }) => Promise<{
+				customThumbnailUrl: string | null;
+				customThumbnailTime: number | null;
+			}>;
 		};
 		generateSignedTokens: {
 			query: (input: {
@@ -141,22 +147,48 @@ function PlaylistVideoPlayerContent({
 
 	const currentVideo = playableVideos[currentVideoIndex];
 
+	// Fetch custom thumbnail data for current video
+	const { data: thumbnailData } = useQuery({
+		queryKey: ["mux", "getThumbnail", currentVideo?.id, libraryId],
+		queryFn: () =>
+			client.mux.getThumbnail.query({
+				videoId: currentVideo?.id || "",
+				libraryId,
+			}),
+		enabled: Boolean(currentVideo?.id) && Boolean(libraryId),
+	});
+
+	// Determine thumbnail configuration based on priority:
+	// 1. customThumbnailUrl from database
+	// 2. customThumbnailTime from database
+	// 3. Default to 5 seconds
+	const customThumbnailUrl = thumbnailData?.customThumbnailUrl;
+	const customThumbnailTime = thumbnailData?.customThumbnailTime;
+	const effectiveThumbnailTime =
+		customThumbnailTime !== null && customThumbnailTime !== undefined
+			? customThumbnailTime
+			: 5;
+
 	// Fetch signed tokens for current video if needed
+	// Include thumbnail time in the token for signed videos
 	const { data: tokens, isLoading: tokensLoading } = useQuery({
 		queryKey: [
 			"mux",
 			"generateSignedTokens",
 			currentVideo?.muxPlaybackId,
 			libraryId,
+			effectiveThumbnailTime,
 		],
 		queryFn: () =>
 			client.mux.generateSignedTokens.query({
 				playbackId: currentVideo?.muxPlaybackId || "",
 				libraryId,
 				expiresIn: 3600,
-				thumbnailParams: {
-					time: 5,
-				},
+				// For signed videos, embed the thumbnail time in the JWT
+				thumbnailParams:
+					effectiveThumbnailTime !== undefined
+						? { time: effectiveThumbnailTime }
+						: undefined,
 			}),
 		enabled:
 			currentVideo?.playbackPolicy === "signed" &&
@@ -267,7 +299,7 @@ function PlaylistVideoPlayerContent({
 	);
 
 	return (
-		<section className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+		<section className="w-full grid gap-4 lg:grid-cols-[2fr_1fr]">
 			{/* Main Video Player */}
 			<div className="space-y-4">
 				<Card className="pt-0">
@@ -277,8 +309,15 @@ function PlaylistVideoPlayerContent({
 						title={currentVideo.customTitle || currentVideo.title}
 						accentColor="#ffd02d"
 						className="w-full aspect-video rounded-lg overflow-hidden"
+						// Custom thumbnail takes priority over generated thumbnails
+						poster={customThumbnailUrl ?? undefined}
+						// Only use thumbnailTime if no custom thumbnail and video is not signed
 						thumbnailTime={
-							currentVideo.playbackPolicy === "signed" ? undefined : 5
+							!customThumbnailUrl &&
+							currentVideo.playbackPolicy !== "signed" &&
+							effectiveThumbnailTime !== undefined
+								? effectiveThumbnailTime
+								: undefined
 						}
 						tokens={
 							currentVideo.playbackPolicy === "signed" && tokens
@@ -381,7 +420,7 @@ function PlaylistVideoPlayerContent({
 											aspectVideo
 											policy={video.playbackPolicy ?? "public"}
 											libraryId={libraryId}
-											time={5}
+											videoId={video.id}
 										/>
 										{/* Duration badge */}
 										<div className="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.5 text-xs text-white">
@@ -428,39 +467,41 @@ function PlaylistVideoPlayerContent({
 
 function PlaylistPlayerSkeleton() {
 	return (
-		<section className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-			<div className="space-y-4">
-				<Card className="pt-0">
-					<Skeleton className="w-full aspect-video rounded-lg" />
-					<CardHeader>
-						<Skeleton className="h-8 w-3/4" />
-						<Skeleton className="h-4 w-1/2" />
-					</CardHeader>
-					<CardContent>
-						<Skeleton className="h-4 w-full" />
-						<Skeleton className="h-4 w-full mt-2" />
-					</CardContent>
-				</Card>
-			</div>
-			<Card>
+		<section className="w-full grid gap-4 lg:grid-cols-[2fr_1fr]">
+			<Card className="pt-0">
+				<Skeleton className="w-full aspect-video rounded-lg" />
 				<CardHeader>
-					<Skeleton className="h-6 w-3/4" />
-					<Skeleton className="h-4 w-full mt-2" />
+					<Skeleton className="h-8 w-3/4" />
+					<Skeleton className="h-4 w-1/2" />
 				</CardHeader>
 				<CardContent>
-					<div className="space-y-4">
-						{Array.from({ length: 5 }, (_, i) => `skeleton-${i}`).map((key) => (
-							<div key={key} className="flex gap-3">
-								<Skeleton className="w-32 aspect-video rounded" />
-								<div className="flex-1">
-									<Skeleton className="h-4 w-full" />
-									<Skeleton className="h-4 w-2/3 mt-2" />
-								</div>
-							</div>
-						))}
-					</div>
+					<Skeleton className="h-4 w-full" />
+					<Skeleton className="h-4 w-full mt-2" />
 				</CardContent>
 			</Card>
+			<aside>
+				<Card>
+					<CardHeader>
+						<Skeleton className="h-6 w-3/4" />
+						<Skeleton className="h-4 w-full mt-2" />
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-4">
+							{Array.from({ length: 5 }, (_, i) => `skeleton-${i}`).map(
+								(key) => (
+									<div key={key} className="flex gap-3">
+										<Skeleton className="w-32 aspect-video rounded" />
+										<div className="flex-1">
+											<Skeleton className="h-4 w-full" />
+											<Skeleton className="h-4 w-2/3 mt-2" />
+										</div>
+									</div>
+								),
+							)}
+						</div>
+					</CardContent>
+				</Card>
+			</aside>
 		</section>
 	);
 }

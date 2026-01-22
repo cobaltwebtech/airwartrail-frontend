@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
+import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
 		<ol
 			data-slot="breadcrumb-list"
 			className={cn(
-				"text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+				"text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm wrap-break-word sm:gap-2.5",
 				className,
 			)}
 			{...props}
@@ -51,6 +51,7 @@ function BreadcrumbLink({
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
 	return (
+		// biome-ignore lint: ignore warning about non-interactive element with role link
 		<span
 			data-slot="breadcrumb-page"
 			role="link"

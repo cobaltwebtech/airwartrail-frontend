@@ -35,6 +35,7 @@ export type {
 	Playlist,
 	PlaylistCategory,
 	PlaylistVideo,
+	SearchVideoResult,
 	SearchVideosByTagsInput,
 	SetVideoTagsInput,
 	SignedTokens,

@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
+import type { Session } from "better-auth";
 import {
-	Loader2,
 	CircleUserRound,
+	Loader2,
 	LogOut,
 	SquareUserRound,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useSession, signOut, revokeSessions } from "@/lib/auth-client";
-import type { Session } from "better-auth";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { revokeSessions, signOut, useSession } from "@/lib/auth-client";
 
 interface AuthButtonsProps {
 	sessionData: Session | null;

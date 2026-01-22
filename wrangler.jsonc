@@ -38,8 +38,8 @@
 		}
 	],
 	"vars": {
-		"BETTER_AUTH_URL": "https://www.airwartrail.com",
+		"BETTER_AUTH_URL": "https://airwartrail.cobaltweb.dev", // Update this when going to production
 		"UMAMI_ID": "6e001137-4b73-407b-9422-27c1f4bfcb24",
-		"TURNSTILE_PUBLIC_KEY": "3x00000000000000000000FF"
+		"TURNSTILE_PUBLIC_KEY": "0x4AAAAAABigvVfdn9-L_sZY"
 	}
 }

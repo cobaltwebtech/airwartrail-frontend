@@ -51,22 +51,18 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-  <Breadcrumb className="mb-8 mr-auto">
+  <Breadcrumb className="mb-8">
     <BreadcrumbList>
       <BreadcrumbItem>
         <BreadcrumbLink href="/">Home</BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
+        <BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="/streaming/film-series">Film Series</BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem>
-        <BreadcrumbLink href={`/streaming/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
+        <BreadcrumbLink href={`/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>

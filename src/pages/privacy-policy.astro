@@ -1,9 +1,12 @@
 ---
 export const prerender = true;
 
+import { Content } from "@/content/policies/privacy-policy.md";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Privacy Policy | Air War Trail">
-  <div>Privacy Policy goes here</div>
+  <div class="container prose dark:prose-invert prose-sm mx-auto py-12 px-4">
+    <Content />
+  </div>
 </BaseLayout>

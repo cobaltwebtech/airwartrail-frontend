@@ -1,5 +1,5 @@
 ---
-
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { RelatedVideos } from "@/components/video/RelatedVideos";
 import { VideoPlayerDetail } from "@/components/video/VideoPlayerDetail";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -28,19 +28,21 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-		{!videoId || !libraryId ? (
-			<div class="rounded-lg border bg-muted/30 p-6 text-center">
-				<p class="text-lg font-semibold">Video not found</p>
-				<p class="text-sm text-muted-foreground mt-2">
-					A video and library identifier are required to load this page.
-				</p>
-			</div>
-		) : (
-				<VideoPlayerDetail
-					client:load
-					videoId={videoId}
-					libraryId={libraryId}
-				/>
-				<RelatedVideos client:load videoId={videoId} libraryId={libraryId} />
-		)}
+	<Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+	<VideoPlayerDetail
+		client:load
+		videoId={videoId}
+		libraryId={libraryId}
+	/>
+	<RelatedVideos client:load videoId={videoId} libraryId={libraryId} />
 </BaseLayout>

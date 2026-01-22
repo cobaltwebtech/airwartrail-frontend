@@ -121,11 +121,7 @@ export default function ContactForm() {
 							<FormItem>
 								<FormLabel>Message (Optional)</FormLabel>
 								<FormControl>
-									<Textarea
-										className="min-h-[100px]"
-										{...field}
-										maxLength={500}
-									/>
+									<Textarea className="min-h-25" {...field} maxLength={500} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

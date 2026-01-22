@@ -9,8 +9,8 @@ interface FooterItem {
 const footerItems: Array<FooterItem> = [
 	{ title: "About", url: "/about" },
 	{ title: "Contact", url: "/contact" },
-	{ title: "Privacy Policy", url: "/privacy-policy" },
 	{ title: "Terms of Service", url: "/terms-of-service" },
+	{ title: "Privacy Policy", url: "/privacy-policy" },
 ];
 
 const Footer = () => {

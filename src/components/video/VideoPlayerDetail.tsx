@@ -71,6 +71,12 @@ type TypedTrpcClient = {
 		getVideoTags: {
 			query: (input: GetVideoTagsInput) => Promise<VideoTagDetail[]>;
 		};
+		getThumbnail: {
+			query: (input: { videoId: string; libraryId: string }) => Promise<{
+				customThumbnailUrl: string | null;
+				customThumbnailTime: number | null;
+			}>;
+		};
 		generateSignedTokens: {
 			query: (input: {
 				playbackId: string;
@@ -94,8 +100,6 @@ function VideoPlayerDetailContent({
 	const setPlayerRef = (node: unknown) => {
 		playerRef.current = node as MuxPlayerRefAttributes | null;
 	};
-	const playerThumbnailTime =
-		typeof thumbnailTime === "number" ? thumbnailTime : 5;
 	// Fetch video by internal ID (preferred API)
 	const {
 		data: video,
@@ -107,23 +111,45 @@ function VideoPlayerDetailContent({
 		enabled: Boolean(videoId),
 	});
 
-	// Conditionally fetch signed tokens
+	// Fetch custom thumbnail data from database (custom URL and time)
+	const { data: thumbnailData } = useQuery({
+		queryKey: ["mux", "getThumbnail", videoId, libraryId],
+		queryFn: () => client.mux.getThumbnail.query({ videoId, libraryId }),
+		enabled: Boolean(videoId) && Boolean(libraryId),
+	});
+
+	// Determine thumbnail configuration based on priority:
+	// 1. customThumbnailUrl from database
+	// 2. customThumbnailTime from database
+	// 3. thumbnailTime prop
+	// 4. Default to 5 seconds
+	const customThumbnailUrl = thumbnailData?.customThumbnailUrl;
+	const customThumbnailTime = thumbnailData?.customThumbnailTime;
+	const effectiveThumbnailTime =
+		customThumbnailTime !== null && customThumbnailTime !== undefined
+			? customThumbnailTime
+			: (thumbnailTime ?? 5);
+
+	// Fetch tokens for signed videos
+	// Include thumbnail time in the token if set (for signed videos)
 	const { data: tokens, isLoading: tokensLoading } = useQuery({
 		queryKey: [
 			"mux",
 			"generateSignedTokens",
 			video?.playbackId,
 			libraryId,
-			playerThumbnailTime,
+			effectiveThumbnailTime,
 		],
 		queryFn: () =>
 			client.mux.generateSignedTokens.query({
 				playbackId: video?.playbackId || "",
 				libraryId,
 				expiresIn: 3600,
-				thumbnailParams: {
-					time: playerThumbnailTime,
-				},
+				// For signed videos, embed the thumbnail time in the JWT
+				thumbnailParams:
+					effectiveThumbnailTime !== undefined
+						? { time: effectiveThumbnailTime }
+						: undefined,
 			}),
 		enabled: video?.policy === "signed" && Boolean(video?.playbackId),
 	});
@@ -197,15 +223,19 @@ function VideoPlayerDetailContent({
 
 	if (videoLoading) {
 		return (
-			<section className="w-full grid md:grid-cols-[2fr_1fr] gap-4">
+			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
-					<Skeleton className="w-full aspect-video rounded-lg overflow-hidden" />
-					<CardContent className="flex items-center justify-center gap-2">
-						<Loader2 className="animate-spin" />
-					</CardContent>
+					<div className="relative">
+						<Skeleton className="w-full aspect-video" />
+						<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2">
+							<Loader2 className="size-8 animate-spin" />
+							<span>Loading Video...</span>
+						</div>
+					</div>
+					<CardContent className="h-17.5 w-full" />
 				</Card>
 				<aside className="space-y-4">
-					<Skeleton className="size-full rounded-lg" />
+					<Skeleton className="size-full" />
 				</aside>
 			</section>
 		);
@@ -213,13 +243,11 @@ function VideoPlayerDetailContent({
 
 	if (videoError || !video?.playbackId) {
 		return (
-			<div className="mx-auto w-fit">
+			<div className="mx-auto my-8 w-fit">
 				<Card className="bg-destructive">
 					<CardHeader className="flex flex-col items-center gap-2">
 						<VideoOff className="size-8" />
-						<CardTitle className="text-lg font-bold">
-							Error Loading Video
-						</CardTitle>
+						<CardTitle className="text-lg font-bold">Video Not Found</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<a href="/streaming">
@@ -233,15 +261,19 @@ function VideoPlayerDetailContent({
 
 	if (video.policy === "signed" && tokensLoading) {
 		return (
-			<section className="w-full grid md:grid-cols-[2fr_1fr] gap-4">
+			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
-					<Skeleton className="w-full aspect-video rounded-lg overflow-hidden" />
-					<CardContent className="flex items-center justify-center gap-2">
-						<Loader2 className="animate-spin" />
-					</CardContent>
+					<div className="relative">
+						<Skeleton className="w-full aspect-video" />
+						<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2">
+							<Loader2 className="size-8 animate-spin" />
+							<span>Loading Video...</span>
+						</div>
+					</div>
+					<CardContent className="h-17.5 w-full" />
 				</Card>
 				<aside className="space-y-4">
-					<Skeleton className="size-full rounded-lg" />
+					<Skeleton className="size-full" />
 				</aside>
 			</section>
 		);
@@ -301,7 +333,10 @@ function VideoPlayerDetailContent({
 						<CardTitle>
 							<h3 className="text-lg font-semibold">Tags</h3>
 						</CardTitle>
-						<CardDescription>Categories or genre of the video.</CardDescription>
+						<CardDescription className="text-xs">
+							Categories or genre of the video. Click on a tag to see other
+							films with the same tag.
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<Skeleton className="h-8 w-full" />
@@ -317,7 +352,6 @@ function VideoPlayerDetailContent({
 						<CardTitle>
 							<h3 className="text-lg font-semibold">Tags</h3>
 						</CardTitle>
-						<CardDescription>Categories or genre of the video.</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-destructive">Failed to load tags</p>
@@ -335,7 +369,10 @@ function VideoPlayerDetailContent({
 					<CardTitle>
 						<h3 className="text-lg font-semibold">Tags</h3>
 					</CardTitle>
-					<CardDescription>Categories or genre of the video.</CardDescription>
+					<CardDescription className="text-xs">
+						Categories or genre of the video. Click on a tag to see other films
+						with the same tag.
+					</CardDescription>
 				</CardHeader>
 				<CardContent className="flex flex-wrap gap-2">
 					{tags.map((tag) => (
@@ -351,7 +388,7 @@ function VideoPlayerDetailContent({
 	}
 
 	return (
-		<section className="mb-8 grid md:grid-cols-[3fr_1fr] gap-4">
+		<section className="w-full mb-8 grid md:grid-cols-[3fr_1fr] gap-4">
 			<Card className="pt-0">
 				<MuxPlayer
 					ref={setPlayerRef}
@@ -360,8 +397,15 @@ function VideoPlayerDetailContent({
 					accentColor="#ea580c"
 					className="w-full aspect-video rounded-lg overflow-hidden"
 					streamType="on-demand"
+					// Custom thumbnail takes priority over thumbnailTime
+					poster={customThumbnailUrl ?? undefined}
+					// Only use thumbnailTime if no custom thumbnail, not signed, and time is defined
 					thumbnailTime={
-						video.policy === "signed" ? undefined : playerThumbnailTime
+						!customThumbnailUrl &&
+						video.policy !== "signed" &&
+						effectiveThumbnailTime !== undefined
+							? effectiveThumbnailTime
+							: undefined
 					}
 					tokens={
 						video.policy === "signed" && tokens
@@ -395,11 +439,15 @@ function VideoPlayerDetailContent({
 				</CardContent>
 			</Card>
 
-			<aside className="space-y-4">
-				<ChaptersNav />
-				<VideoTags />
-				<Card className="p-4">Add additional info here later on</Card>
-			</aside>
+			{(showChaptersSection ||
+				tagsLoading ||
+				tagsError ||
+				(videoTags?.length ?? 0) > 0) && (
+				<aside className="space-y-4">
+					<ChaptersNav />
+					<VideoTags />
+				</aside>
+			)}
 		</section>
 	);
 }

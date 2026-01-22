@@ -41,22 +41,16 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-	<div class="container mx-auto">
-    <Breadcrumb className="mb-8">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/streaming/film-series">Film Series</BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-		<PlaylistDetail client:load slug={slug} libraryId={videoLibraryId} />
-	</div>
+	<Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+	<PlaylistDetail client:load slug={slug} libraryId={videoLibraryId} />
 </BaseLayout>

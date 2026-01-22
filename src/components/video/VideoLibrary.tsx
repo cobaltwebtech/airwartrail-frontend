@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/table";
 import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type {
+	SearchVideoResult,
 	SearchVideosByTagsInput,
 	Video,
 	VideoStatus,
@@ -248,19 +249,6 @@ function VideoLibraryContent({
 		queryFn: async ({ pageParam = 0 }) => {
 			// If tags are selected, use searchVideosByTags
 			if (selectedTagIds.length > 0) {
-				type SearchVideoResult = {
-					id: string;
-					title: string;
-					description?: string;
-					muxPlaybackId: string | null;
-					playbackPolicy: "public" | "signed";
-					duration: number;
-					createdAt: string;
-					tagCount?: number;
-					views?: number;
-					isPublished?: boolean;
-					status?: string;
-				};
 				type SearchVideosClient = {
 					mux: {
 						searchVideosByTags: {
@@ -304,6 +292,8 @@ function VideoLibraryContent({
 						publishedAt: null,
 						views: result.views ?? 0,
 						viewCountSyncedAt: null,
+						customThumbnailUrl: null,
+						customThumbnailTime: null,
 						createdAt: result.createdAt,
 						updatedAt: result.createdAt,
 					}),
@@ -433,9 +423,9 @@ function VideoLibraryContent({
 								className="size-full object-cover rounded-md"
 								width={160}
 								height={90}
-								thumbnailTime={5}
 								policy={row.original.policy ?? undefined}
 								libraryId={libraryId}
+								videoId={row.original.id}
 							/>
 						</a>
 					</div>
@@ -534,10 +524,17 @@ function VideoLibraryContent({
 	// Show loading state during hydration or auth check
 	if (!mounted || authLoading) {
 		return (
-			<div className="text-muted-foreground flex items-center justify-center py-12">
-				<Loader2 className="mr-2 h-6 w-6 animate-spin" />
-				Loading...
-			</div>
+			<section className="w-full space-y-6">
+				<Skeleton className="h-9 w-96" />
+				<Skeleton className="h-38.5 w-full" />
+				<div className="relative h-70 w-full mx-auto">
+					<Skeleton className="size-full absolute inset-0" />
+					<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2">
+						<Loader2 className="size-8 animate-spin" />
+						<span>Loading Videos...</span>
+					</div>
+				</div>
+			</section>
 		);
 	}
 
@@ -653,7 +650,7 @@ function VideoLibraryContent({
 	};
 
 	return (
-		<div className="space-y-6">
+		<section className="w-full space-y-6">
 			{/* Search and view mode controls */}
 			<div className="flex justify-between gap-2">
 				<Input
@@ -772,28 +769,27 @@ function VideoLibraryContent({
 								key={video.id}
 								className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
 							>
-								<div className="relative">
-									<VideoThumbnail
-										playbackId={video.playbackId}
-										alt={video.title}
-										className="aspect-video w-full object-cover"
-										aspectVideo
-										thumbnailTime={5}
-										policy={video.policy ?? undefined}
-										libraryId={libraryId}
-									/>
-									<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer">
-										<a
-											href={buildVideoUrl(video.id)}
-											className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground"
-										>
-											<Play className="size-6" />
-										</a>
+								<a href={buildVideoUrl(video.id)}>
+									<div className="relative">
+										<VideoThumbnail
+											playbackId={video.playbackId}
+											alt={video.title}
+											className="aspect-video w-full object-cover"
+											aspectVideo
+											policy={video.policy ?? undefined}
+											libraryId={libraryId}
+											videoId={video.id}
+										/>
+										<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+											<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+												<Play className="size-6" />
+											</div>
+										</div>
+										<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+											{formatDuration(video.duration)}
+										</div>
 									</div>
-									<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
-										{formatDuration(video.duration)}
-									</div>
-								</div>
+								</a>
 								<CardHeader className="p-4 flex items-center justify-between">
 									<a
 										href={buildVideoUrl(video.id)}
@@ -840,7 +836,7 @@ function VideoLibraryContent({
 					</p>
 				</div>
 			)}
-		</div>
+		</section>
 	);
 }
 

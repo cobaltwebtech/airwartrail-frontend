@@ -31,6 +31,8 @@ export interface Video {
 	publishedAt: string | null;
 	views: number;
 	viewCountSyncedAt: string | null;
+	customThumbnailUrl: string | null;
+	customThumbnailTime: number | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -339,6 +341,21 @@ export interface SearchVideosByTagsInput {
 	matchMode?: "any" | "all";
 	limit?: number;
 	offset?: number;
+}
+
+/** Response type for searchVideosByTags API */
+export interface SearchVideoResult {
+	id: string;
+	title: string;
+	description?: string;
+	muxPlaybackId: string | null;
+	playbackPolicy: PlaybackPolicy;
+	duration: number;
+	createdAt: string;
+	tagCount?: number;
+	views?: number;
+	isPublished?: boolean;
+	status?: string;
 }
 
 // ============================================================================

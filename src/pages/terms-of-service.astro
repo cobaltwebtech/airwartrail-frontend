@@ -1,9 +1,13 @@
 ---
+
 export const prerender = true;
 
+import { Content } from "@/content/policies/terms-of-service.md";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Terms of Service |  Trail">
-  <div>TOS goes here</div>
+<BaseLayout title="Terms of Service | Air War Trail">
+  <div class="container prose dark:prose-invert prose-sm mx-auto py-12 px-4">
+    <Content />
+  </div>
 </BaseLayout>

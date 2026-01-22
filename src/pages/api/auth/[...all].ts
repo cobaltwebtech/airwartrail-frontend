@@ -19,12 +19,12 @@ export const ALL: APIRoute = async (ctx) => {
 		const response = await auth.handler(ctx.request);
 
 		// If the auth is good then set the session data using Astro Sessions
-		if (response && response.ok && ctx.session) {
+		if (response?.ok && ctx.session) {
 			const authData = (await response.clone().json()) as {
 				user?: { id: string };
 				session?: { token: string };
 			};
-			if (authData && authData.user && authData.session?.token) {
+			if (authData?.user && authData?.session?.token) {
 				await ctx.session.set("session", {
 					userId: authData.user?.id,
 					token: authData.session?.token,

@@ -1,21 +1,21 @@
+import { CheckCircle2, CircleX, Loader2, Mail } from "lucide-react";
 import type React from "react";
-import { useState, useEffect } from "react";
-import { signIn } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
-	CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password";
-import { toast } from "sonner";
-import { Loader2, Mail, CheckCircle2, CircleX } from "lucide-react";
+import { signIn } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 export function LoginForm({
 	className,
@@ -56,10 +56,10 @@ export function LoginForm({
 		try {
 			const response = await signIn.magicLink({
 				email,
-				callbackURL: "/",
+				callbackURL: "/streaming",
 			});
 
-			if (response && response.error) {
+			if (response?.error) {
 				const errorMagicLink =
 					response.error.message ||
 					"Email address does not exist. Please sign up first.";
@@ -99,13 +99,13 @@ export function LoginForm({
 			const response = await signIn.email({
 				email,
 				password,
-				callbackURL: "/",
+				callbackURL: "/streaming",
 				rememberMe: true,
 			});
 
 			if (response && !response.error) {
 				toast.success("Login successful!");
-				window.location.href = "/";
+				window.location.href = "/streaming";
 				return;
 			}
 

@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function BackToTop() {
 	const [isVisible, setIsVisible] = useState(false);
 
 	// Function to toggle button visibility based on scroll position
-	const toggleBackToTopButton = () => {
+	const toggleBackToTopButton = useCallback(() => {
 		if (window.scrollY > 200) {
 			setIsVisible(true);
 		} else {
 			setIsVisible(false);
 		}
-	};
+	}, []);
 
 	// Function to scroll to top
 	const scrollToTop = () => {
@@ -30,7 +30,7 @@ export default function BackToTop() {
 		return () => {
 			window.removeEventListener("scroll", toggleBackToTopButton);
 		};
-	}, []);
+	}, [toggleBackToTopButton]);
 
 	return (
 		<Button

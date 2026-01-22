@@ -9,17 +9,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Film, Loader2, Play } from "lucide-react";
 import { useMemo } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { Badge } from "@/components/ui/badge";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpcClient } from "@/lib/trpc";
-import { formatTimeAgo } from "@/lib/video-helpers";
 import { VideoThumbnail } from "./VideoThumbnail";
 
 interface RelatedVideosProps {
@@ -37,8 +29,6 @@ type Video = {
 	playbackId: string | null;
 	policy: "public" | "signed";
 	duration: number | null;
-	views: number;
-	createdAt: string;
 };
 
 type VideoTag = {
@@ -53,8 +43,6 @@ type SearchVideoResult = {
 	muxPlaybackId: string | null;
 	playbackPolicy: "public" | "signed";
 	duration: number;
-	views?: number;
-	createdAt: string;
 };
 
 type TypedTrpcClient = {
@@ -136,8 +124,6 @@ function RelatedVideosContent({
 					playbackId: r.muxPlaybackId,
 					policy: r.playbackPolicy,
 					duration: r.duration,
-					views: r.views ?? 0,
-					createdAt: r.createdAt,
 				}),
 			);
 		},
@@ -164,8 +150,6 @@ function RelatedVideosContent({
 					playbackId: r.playbackId,
 					policy: r.policy,
 					duration: r.duration,
-					views: r.views ?? 0,
-					createdAt: r.createdAt,
 				}),
 			);
 		},
@@ -249,28 +233,27 @@ function RelatedVideosContent({
 						key={video.id}
 						className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
 					>
-						<div className="relative">
-							<VideoThumbnail
-								playbackId={video.playbackId}
-								alt={video.title}
-								className="aspect-video w-full object-cover"
-								aspectVideo
-								thumbnailTime={5}
-								policy={video.policy ?? undefined}
-								libraryId={libraryId}
-							/>
-							<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer">
-								<a
-									href={buildVideoUrl(video.id)}
-									className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground"
-								>
-									<Play className="size-6" />
-								</a>
+						<a href={buildVideoUrl(video.id)}>
+							<div className="relative">
+								<VideoThumbnail
+									playbackId={video.playbackId}
+									alt={video.title}
+									className="aspect-video w-full object-cover"
+									aspectVideo
+									policy={video.policy ?? undefined}
+									libraryId={libraryId}
+									videoId={video.id}
+								/>
+								<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+									<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+										<Play className="size-6" />
+									</div>
+								</div>
+								<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+									{formatDuration(video.duration)}
+								</div>
 							</div>
-							<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
-								{formatDuration(video.duration)}
-							</div>
-						</div>
+						</a>
 						<CardHeader className="p-4 flex items-center justify-between">
 							<a
 								href={buildVideoUrl(video.id)}
@@ -280,15 +263,7 @@ function RelatedVideosContent({
 									{video.title}
 								</h4>
 							</a>
-							<CardDescription>
-								<Badge variant="secondary">
-									{video.views?.toLocaleString() ?? 0} views
-								</Badge>
-							</CardDescription>
 						</CardHeader>
-						<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-							Uploaded {formatTimeAgo(video.createdAt)}
-						</CardFooter>
 					</Card>
 				))}
 			</div>

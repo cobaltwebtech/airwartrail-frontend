@@ -1,6 +1,5 @@
 ---
 import { PlaylistLibrary } from "@/components/playlist/PlaylistLibrary";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const videoLibraryId = import.meta.env.AWT_VIDEO_LIBRARY_ID;
@@ -8,8 +7,8 @@ const pageTitle = "Film Series | Air War Trail";
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "@id": "https://www.airwartrail.com/streaming/film-series/",
-  url: "https://www.airwartrail.com/streaming/film-series/",
+  "@id": "https://www.airwartrail.com/film-series/",
+  url: "https://www.airwartrail.com/film-series/",
   name: "Film Series | Air War Trail",
   description:
     "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
@@ -25,22 +24,9 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-  <div class="container mx-auto">
-    <Breadcrumb className="mb-8">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-    <h1 class="text-center text-3xl font-bold">
-      Film Series
-    </h1>
-    <p class="mb-8 text-center text-lg font-semibold">View our curated collection of films by playlists.</p>
-    <PlaylistLibrary client:load libraryId={videoLibraryId} />
-  </div>
+  <h1 class="text-center text-3xl font-bold">
+    Film Series
+  </h1>
+  <p class="mb-8 text-center text-lg font-semibold">View our curated collection of films by playlists.</p>
+  <PlaylistLibrary client:load libraryId={videoLibraryId} />
 </BaseLayout>

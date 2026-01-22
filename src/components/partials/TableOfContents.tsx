@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
 
 type Heading = {
 	depth: number;
@@ -46,8 +46,8 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 				</a>
 				{heading.subheadings.length > 0 && (
 					<ul>
-						{heading.subheadings.map((subheading, index) => (
-							<HeadingItem key={index} heading={subheading} />
+						{heading.subheadings.map((subheading) => (
+							<HeadingItem key={subheading.slug} heading={subheading} />
 						))}
 					</ul>
 				)}
@@ -58,9 +58,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 	return (
 		<nav className="max-w-max">
 			<p className="mb-3 text-center text-xl">Jump to Section</p>
-			<ul className="flex flex-col gap-1 [text-wrap:balance]">
-				{toc.map((heading, index) => (
-					<HeadingItem key={index} heading={heading} />
+			<ul className="flex flex-col gap-1 text-balance">
+				{toc.map((heading) => (
+					<HeadingItem key={heading.slug} heading={heading} />
 				))}
 			</ul>
 		</nav>

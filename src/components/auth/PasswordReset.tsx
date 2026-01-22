@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { resetPassword } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
-import { passwordSchema } from "@/lib/schemas";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
-	CardFooter,
 } from "@/components/ui/card";
-import { PasswordInput } from "@/components/ui/password";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password";
+import { resetPassword } from "@/lib/auth-client";
+import { passwordSchema } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 export function PasswordReset({
 	className,
@@ -30,7 +30,7 @@ export function PasswordReset({
 	useEffect(() => {
 		// Clear any error messages when passwords change
 		if (errorMessage) setErrorMessage("");
-	}, [newPassword, confirmPassword, errorMessage]);
+	}, [errorMessage]);
 
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
@@ -52,7 +52,7 @@ export function PasswordReset({
 			passwordSchema.parse({ password: newPassword });
 		} catch (error) {
 			if (error instanceof z.ZodError) {
-				const errorMessage = error.errors[0].message;
+				const errorMessage = error.issues[0].message;
 				setErrorMessage(errorMessage);
 				toast.error(errorMessage);
 				return;

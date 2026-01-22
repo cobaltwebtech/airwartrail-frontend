@@ -24,10 +24,8 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-  <div class="container mx-auto">
-    <h1 class="mb-8 text-center text-3xl font-bold">
-      Streaming Library
-    </h1>
-    <VideoLibrary client:load libraryId={videoLibraryId} />
-  </div>
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    Streaming Library
+  </h1>
+  <VideoLibrary client:load libraryId={videoLibraryId} />
 </BaseLayout>

@@ -234,7 +234,7 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 		() => [
 			{
 				accessorKey: "thumbnail",
-				header: "",
+				header: () => <p className="text-center font-semibold">Thumbnail</p>,
 				enableSorting: false,
 				cell: ({ row }) => (
 					<div className="max-w-25 mx-auto">
@@ -251,60 +251,89 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 				),
 			},
 			{
-				accessorKey: "title",
+				accessorKey: "sortOrder",
 				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Title
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
+					<div className="flex justify-center">
+						<Button
+							variant="ghost"
+							onClick={() =>
+								column.toggleSorting(column.getIsSorted() === "asc")
+							}
+						>
+							Play Order
+							<ArrowUpDown className="size-4" />
+						</Button>
+					</div>
 				),
 				cell: ({ row }) => (
-					<a
-						href={buildVideoUrl(row.original.id)}
-						className="font-semibold text-foreground hover:underline"
-					>
-						{row.original.customTitle || row.original.title}
+					<p className="text-center text-muted-foreground font-medium">
+						{row.original.sortOrder + 1}
+					</p>
+				),
+			},
+			{
+				accessorKey: "title",
+				header: ({ column }) => (
+					<div className="flex justify-center">
+						<Button
+							variant="ghost"
+							onClick={() =>
+								column.toggleSorting(column.getIsSorted() === "asc")
+							}
+						>
+							Title
+							<ArrowUpDown className="size-4" />
+						</Button>
+					</div>
+				),
+				cell: ({ row }) => (
+					<a href={buildVideoUrl(row.original.id)} className="hover:underline">
+						<p className="text-center font-semibold text-foreground">
+							{row.original.customTitle || row.original.title}
+						</p>
 					</a>
 				),
 			},
 			{
 				accessorKey: "duration",
 				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Duration
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
+					<div className="flex justify-center">
+						<Button
+							variant="ghost"
+							onClick={() =>
+								column.toggleSorting(column.getIsSorted() === "asc")
+							}
+						>
+							Duration
+							<ArrowUpDown className="size-4" />
+						</Button>
+					</div>
 				),
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
+					<p className="text-center text-muted-foreground">
 						{formatDuration(row.original.duration ?? 0)}
-					</span>
+					</p>
 				),
 			},
 			{
 				accessorKey: "createdAt",
 				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Uploaded
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
+					<div className="flex justify-center">
+						<Button
+							variant="ghost"
+							onClick={() =>
+								column.toggleSorting(column.getIsSorted() === "asc")
+							}
+						>
+							Uploaded
+							<ArrowUpDown className="size-4" />
+						</Button>
+					</div>
 				),
 				cell: ({ row }) => (
-					<span className="text-muted-foreground text-sm">
+					<p className="text-center text-muted-foreground">
 						{formatTimeAgo(row.original.createdAt)}
-					</span>
+					</p>
 				),
 			},
 		],
@@ -360,18 +389,15 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 	}
 
 	return (
-		<div className="space-y-6">
+		<section className="w-full space-y-6">
 			{/* Playlist header */}
 			<div className="space-y-2">
-				<div className="flex items-center gap-2">
-					<Badge variant="outline" className="capitalize">
-						{playlist.category.replace("-", " ")}
-					</Badge>
+				<div className="flex justify-between items-center">
+					<h1 className="text-3xl font-bold">{playlist.name}</h1>
 					<Badge variant="secondary">
 						{playlist.videoCount} {playlist.videoCount === 1 ? "film" : "films"}
 					</Badge>
 				</div>
-				<h1 className="text-3xl font-bold">{playlist.name}</h1>
 				{playlist.description && (
 					<p className="text-muted-foreground">{playlist.description}</p>
 				)}
@@ -485,28 +511,27 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 							key={video.id}
 							className="gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
 						>
-							<div className="relative">
-								<VideoThumbnail
-									playbackId={video.muxPlaybackId}
-									alt={video.customTitle || video.title}
-									className="aspect-video w-full object-cover"
-									aspectVideo
-									thumbnailTime={5}
-									policy={video.playbackPolicy ?? "public"}
-									libraryId={libraryId}
-								/>
-								<div className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-									<a
-										href={buildVideoUrl(video.id)}
-										className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground"
-									>
-										<Play className="size-6" />
-									</a>
+							<a href={buildVideoUrl(video.id)}>
+								<div className="relative">
+									<VideoThumbnail
+										playbackId={video.muxPlaybackId}
+										alt={video.title}
+										className="aspect-video w-full object-cover"
+										aspectVideo
+										policy={video.playbackPolicy ?? undefined}
+										libraryId={libraryId}
+										videoId={video.id}
+									/>
+									<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+										<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+											<Play className="size-6" />
+										</div>
+									</div>
+									<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+										{formatDuration(video.duration ?? 0)}
+									</div>
 								</div>
-								<div className="absolute bottom-2 right-2 rounded bg-black/70 p-1 text-xs text-white">
-									{formatDuration(video.duration ?? 0)}
-								</div>
-							</div>
+							</a>
 							<CardHeader className="flex items-center justify-between p-4">
 								<a
 									href={buildVideoUrl(video.id)}
@@ -538,13 +563,13 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 					</p>
 				</div>
 			)}
-		</div>
+		</section>
 	);
 }
 
 function PlaylistDetailSkeleton() {
 	return (
-		<div className="space-y-6">
+		<section className="w-full space-y-6">
 			{/* Header skeleton */}
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
@@ -581,7 +606,7 @@ function PlaylistDetailSkeleton() {
 					</Card>
 				))}
 			</div>
-		</div>
+		</section>
 	);
 }
 

@@ -1,7 +1,8 @@
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 interface SlideProps {
+	id: string;
 	title?: string;
 	description?: string;
 	image: string;
@@ -30,13 +31,13 @@ export function SlideShow({ slides }: SlideShowProps) {
 			modules={[Autoplay, Pagination, Navigation]}
 			className="w-full"
 		>
-			{slides.map((slide, index) => (
-				<SwiperSlide key={index}>
+			{slides.map((slide) => (
+				<SwiperSlide key={slide.id}>
 					<div className="space-y-4 px-4 py-8 md:px-8 lg:px-12">
 						<div className="flex items-center justify-center px-6 sm:p-0">
 							<img
 								src={slide.image}
-								className="max-h-[400px] w-auto rounded-md object-contain"
+								className="max-h-100 w-auto rounded-md object-contain"
 								alt={slide.alt}
 							/>
 						</div>
