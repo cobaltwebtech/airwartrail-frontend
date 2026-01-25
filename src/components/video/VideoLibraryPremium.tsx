@@ -393,7 +393,7 @@ function VideoLibraryContent({
 	};
 
 	const buildVideoUrl = useCallback(
-		(videoId: string) => `/watch/library_${libraryId}/${videoId}`,
+		(videoId: string) => `/watch/library_${libraryId}/premium_${videoId}`,
 		[libraryId],
 	);
 
@@ -559,7 +559,7 @@ function VideoLibraryContent({
 				<Card>
 					<CardHeader>
 						<h3 className="text-lg font-semibold">Tags</h3>
-						<CardDescription>
+						<CardDescription className="text-xs">
 							Browse videos by category or genre.
 						</CardDescription>
 					</CardHeader>
@@ -575,7 +575,7 @@ function VideoLibraryContent({
 				<Card>
 					<CardHeader>
 						<h3 className="text-lg font-semibold">Tags</h3>
-						<CardDescription>
+						<CardDescription className="text-xs">
 							Browse videos by category or genre.
 						</CardDescription>
 					</CardHeader>
@@ -593,7 +593,7 @@ function VideoLibraryContent({
 				<Card>
 					<CardHeader>
 						<h3 className="text-lg font-semibold">Tags</h3>
-						<CardDescription>
+						<CardDescription className="text-xs">
 							Browse videos by category or genre.
 						</CardDescription>
 					</CardHeader>
@@ -611,7 +611,7 @@ function VideoLibraryContent({
 						<Tags className="size-8" />
 						<h3 className="text-lg font-semibold">Tags</h3>
 					</div>
-					<CardDescription>
+					<CardDescription className="text-xs">
 						Browse videos by category or genre. Filter videos by selecting tags
 						below. You may select multiple tags.
 					</CardDescription>
@@ -848,7 +848,7 @@ function VideoLibraryContent({
  * <VideoLibrary client:load libraryId="your-library-id" pageSize={20} />
  * ```
  */
-export function VideoLibrary(props: VideoLibraryProps) {
+export function VideoLibraryPremium(props: VideoLibraryProps) {
 	return (
 		<QueryProvider>
 			<VideoLibraryContent {...props} />
@@ -856,4 +856,4 @@ export function VideoLibrary(props: VideoLibraryProps) {
 	);
 }
 
-export default VideoLibrary;
+export default VideoLibraryPremium;

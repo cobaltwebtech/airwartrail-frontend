@@ -82,7 +82,7 @@ function VideoEmbedContent({
 			client.mux.generateSignedTokens.query({
 				playbackId: video?.playbackId || "",
 				libraryId,
-				expiresIn: 3600,
+				expiresIn: 3600, // Tokens valid for 1 hour
 				thumbnailParams: {
 					time: playerThumbnailTime,
 				},

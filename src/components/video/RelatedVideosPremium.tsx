@@ -29,6 +29,7 @@ type Video = {
 	playbackId: string | null;
 	policy: "public" | "signed";
 	duration: number | null;
+	isPublished: boolean;
 };
 
 type VideoTag = {
@@ -43,6 +44,7 @@ type SearchVideoResult = {
 	muxPlaybackId: string | null;
 	playbackPolicy: "public" | "signed";
 	duration: number;
+	isPublished: boolean;
 };
 
 type TypedTrpcClient = {
@@ -124,6 +126,7 @@ function RelatedVideosContent({
 					playbackId: r.muxPlaybackId,
 					policy: r.playbackPolicy,
 					duration: r.duration,
+					isPublished: r.isPublished,
 				}),
 			);
 		},
@@ -150,6 +153,7 @@ function RelatedVideosContent({
 					playbackId: r.playbackId,
 					policy: r.policy,
 					duration: r.duration,
+					isPublished: r.isPublished,
 				}),
 			);
 		},
@@ -168,9 +172,9 @@ function RelatedVideosContent({
 			videos = recentVideos;
 		}
 
-		// Exclude the current video and limit to MAX_RELATED_VIDEOS
+		// Exclude the current video, filter out unpublished videos, and limit to MAX_RELATED_VIDEOS
 		return videos
-			.filter((video) => video.id !== videoId)
+			.filter((video) => video.id !== videoId && video.isPublished)
 			.slice(0, MAX_RELATED_VIDEOS);
 	}, [hasTagIds, tagRelatedVideos, recentVideos, videoId]);
 
@@ -180,7 +184,8 @@ function RelatedVideosContent({
 		(!hasTagIds && isLoadingRecentVideos);
 	const hasError = tagVideosError || recentVideosError;
 
-	const buildVideoUrl = (id: string) => `/watch/library_${libraryId}/${id}`;
+	const buildVideoUrl = (id: string) =>
+		`/watch/library_${libraryId}/premium_${id}`;
 
 	if (isLoading) {
 		return (
@@ -213,7 +218,7 @@ function RelatedVideosContent({
 	if (relatedVideos.length === 0) {
 		return (
 			<div className="space-y-4">
-				<h3 className="text-lg font-semibold">Related Videos</h3>
+				<h3 className="text-lg font-semibold text-center">Related Videos</h3>
 				<div className="flex flex-col items-center justify-center py-8 text-center">
 					<Film className="text-muted-foreground mb-2 h-8 w-8" />
 					<p className="text-sm text-muted-foreground">
@@ -283,7 +288,7 @@ function RelatedVideosContent({
  * />
  * ```
  */
-export function RelatedVideos(props: RelatedVideosProps) {
+export function RelatedVideosPremium(props: RelatedVideosProps) {
 	return (
 		<QueryProvider>
 			<RelatedVideosContent {...props} />
@@ -291,4 +296,4 @@ export function RelatedVideos(props: RelatedVideosProps) {
 	);
 }
 
-export default RelatedVideos;
+export default RelatedVideosPremium;

@@ -1,0 +1,31 @@
+---
+import { VideoLibraryPremium } from "@/components/video/VideoLibraryPremium";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+const pageTitle = "Streaming Library | Air War Trail";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://www.airwartrail.com/streaming/",
+  url: "https://www.airwartrail.com/streaming/",
+  name: "Streaming Library | Air War Trail",
+  description:
+    "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
+  isPartOf: {
+    "@type": "WebSite",
+    url: "https://www.airwartrail.com/",
+    name: "Air War Trail",
+    description:
+      "The documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. The mission of Air War Trail is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+  },
+  inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    Streaming Library
+  </h1>
+  <VideoLibraryPremium client:load libraryId={videoLibraryId} />
+</BaseLayout>

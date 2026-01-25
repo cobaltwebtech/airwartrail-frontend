@@ -1,8 +1,8 @@
 ---
-import { VideoLibrary } from "@/components/video/VideoLibrary";
+import { VideoLibraryBasic } from "@/components/video/VideoLibraryBasic";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const videoLibraryId = import.meta.env.AWT_VIDEO_LIBRARY_ID;
+const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
 const pageTitle = "Streaming Library | Air War Trail";
 const structuredData = {
   "@context": "https://schema.org",
@@ -25,7 +25,7 @@ const structuredData = {
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
   <h1 class="mb-8 text-center text-3xl font-bold">
-    Streaming Library
+    Trailers & Upcoming Films
   </h1>
-  <VideoLibrary client:load libraryId={videoLibraryId} />
+  <VideoLibraryBasic client:load libraryId={videoLibraryId} />
 </BaseLayout>

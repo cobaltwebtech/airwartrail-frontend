@@ -1,0 +1,54 @@
+---
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { RelatedVideosBasic } from "@/components/video/RelatedVideosBasic";
+import { VideoPlayerBasic } from "@/components/video/VideoPlayerBasic";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Extract parameters from the URL
+const videoId = Astro.params.videoId ?? "";
+const libraryId = Astro.params.libraryId ?? "";
+
+// Protect premium library from public access
+const premiumLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+if (libraryId === premiumLibraryId) {
+	return Astro.redirect("/subscribe");
+}
+const pageUrl = Astro.url.href;
+const pageTitle = "Streaming | Air War Trail";
+
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "WebPage",
+	"@id": pageUrl,
+	url: pageUrl,
+	name: pageTitle,
+	description:
+		"Watch streaming content from Air War Trail. Detailed view for a single video with related information and resources.",
+	isPartOf: {
+		"@type": "WebSite",
+		url: "https://www.airwartrail.com/",
+		name: "Air War Trail",
+	},
+	inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+	<Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+	<VideoPlayerBasic
+		client:load
+		videoId={videoId}
+		libraryId={libraryId}
+	/>
+	<RelatedVideosBasic client:load videoId={videoId} libraryId={libraryId} />
+</BaseLayout>

@@ -183,7 +183,7 @@ function PlaylistVideoPlayerContent({
 			client.mux.generateSignedTokens.query({
 				playbackId: currentVideo?.muxPlaybackId || "",
 				libraryId,
-				expiresIn: 3600,
+				expiresIn: 10800, // 3 hours
 				// For signed videos, embed the thumbnail time in the JWT
 				thumbnailParams:
 					effectiveThumbnailTime !== undefined

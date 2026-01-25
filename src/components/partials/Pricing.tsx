@@ -24,6 +24,49 @@ export function Pricing() {
 				</div>
 
 				<div className="grid gap-4 lg:grid-cols-3 lg:gap-8">
+					{/* Free Plan */}
+					<Card className="flex h-full flex-col lg:col-span-1">
+						<CardHeader>
+							<CardTitle className="text-2xl">Basic</CardTitle>
+							<CardDescription>Get started with our entry plan</CardDescription>
+						</CardHeader>
+						<CardContent className="grow">
+							<p className="mb-6 text-3xl font-bold">
+								$0
+								<span className="text-base font-normal text-gray-500">
+									&nbsp;/month
+								</span>
+							</p>
+							<ul className="space-y-3">
+								<li className="flex flex-row items-center gap-2">
+									<Check className="size-6 basis-1/12 text-green-500" />
+									<span className="basis-11/12">
+										Bi-weekly release of episodes and other content
+									</span>
+								</li>
+								<li className="flex flex-row items-center gap-2">
+									<Check className="size-6 basis-1/12 text-green-500" />
+									<span className="basis-11/12">
+										Sneak previews of documentary films
+									</span>
+								</li>
+								<li className="flex flex-row items-center gap-2">
+									<Check className="size-6 basis-1/12 text-green-500" />
+									<span className="basis-11/12">
+										Sneak previews of interviews of WWII individuals
+									</span>
+								</li>
+							</ul>
+						</CardContent>
+						<CardFooter>
+							<a href="/signup" className="w-full">
+								<Button className="w-full" variant="secondary">
+									Get Started
+								</Button>
+							</a>
+						</CardFooter>
+					</Card>
+
 					{/* Premium Plan */}
 					<Card className="border-primary flex h-full flex-col border-2 lg:col-span-2">
 						<CardHeader>
@@ -75,49 +118,6 @@ export function Pricing() {
 									<span className="text-lg font-bold">
 										Subscribe to Premium
 									</span>
-								</Button>
-							</a>
-						</CardFooter>
-					</Card>
-
-					{/* Free Plan */}
-					<Card className="flex h-full flex-col lg:col-span-1">
-						<CardHeader>
-							<CardTitle className="text-2xl">Basic</CardTitle>
-							<CardDescription>Get started with our entry plan</CardDescription>
-						</CardHeader>
-						<CardContent className="grow">
-							<p className="mb-6 text-3xl font-bold">
-								$0
-								<span className="text-base font-normal text-gray-500">
-									&nbsp;/month
-								</span>
-							</p>
-							<ul className="space-y-3">
-								<li className="flex flex-row items-center gap-2">
-									<Check className="size-6 basis-1/12 text-green-500" />
-									<span className="basis-11/12">
-										Bi-weekly release of episodes and other content
-									</span>
-								</li>
-								<li className="flex flex-row items-center gap-2">
-									<Check className="size-6 basis-1/12 text-green-500" />
-									<span className="basis-11/12">
-										Sneak previews of documentary films
-									</span>
-								</li>
-								<li className="flex flex-row items-center gap-2">
-									<Check className="size-6 basis-1/12 text-green-500" />
-									<span className="basis-11/12">
-										Sneak previews of interviews of WWII individuals
-									</span>
-								</li>
-							</ul>
-						</CardContent>
-						<CardFooter>
-							<a href="/signup" className="w-full">
-								<Button className="w-full" variant="secondary">
-									Get Started
 								</Button>
 							</a>
 						</CardFooter>

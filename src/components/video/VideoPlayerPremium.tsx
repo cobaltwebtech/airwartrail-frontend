@@ -10,6 +10,7 @@ import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import { useQuery } from "@tanstack/react-query";
 import { Hourglass, Loader2, VideoOff } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
+import { Pricing } from "@/components/partials/Pricing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import type {
 	VideoTagDetail,
 } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
+import { useSubStatus } from "@/lib/useSubStatus";
 import {
 	formatDescription,
 	formatDuration,
@@ -52,6 +54,7 @@ type FullVideo = {
 	policy: "public" | "signed";
 	aspectRatio?: string;
 	tags?: string[];
+	isPublished: boolean;
 };
 
 type TypedTrpcClient = {
@@ -95,6 +98,8 @@ function VideoPlayerDetailContent({
 	libraryId,
 	thumbnailTime = 5,
 }: VideoPlayerDetailProps) {
+	// Check session and subscription status
+	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
 	const setPlayerRef = (node: unknown) => {
@@ -144,7 +149,7 @@ function VideoPlayerDetailContent({
 			client.mux.generateSignedTokens.query({
 				playbackId: video?.playbackId || "",
 				libraryId,
-				expiresIn: 3600,
+				expiresIn: 10800, // 3 hours
 				// For signed videos, embed the thumbnail time in the JWT
 				thumbnailParams:
 					effectiveThumbnailTime !== undefined
@@ -221,6 +226,32 @@ function VideoPlayerDetailContent({
 		};
 	}, [video?.playbackId, addChaptersToPlayer]);
 
+	// Show loading state during hydration or auth check
+	if (!mounted || authLoading) {
+		return (
+			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
+				<Card className="pt-0">
+					<div className="relative">
+						<Skeleton className="w-full aspect-video" />
+						<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2">
+							<Loader2 className="size-8 animate-spin" />
+							<span>Loading Video...</span>
+						</div>
+					</div>
+					<CardContent className="h-17.5 w-full" />
+				</Card>
+				<aside className="space-y-4">
+					<Skeleton className="size-full" />
+				</aside>
+			</section>
+		);
+	}
+
+	// Gate content for users without active subscription
+	if (!session?.user || !isPremium) {
+		return <Pricing />;
+	}
+
 	if (videoLoading) {
 		return (
 			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
@@ -259,7 +290,30 @@ function VideoPlayerDetailContent({
 		);
 	}
 
-	if (video.policy === "signed" && tokensLoading) {
+	if (!video?.isPublished) {
+		return (
+			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
+				<Card className="pt-0">
+					<div className="relative">
+						<Skeleton className="w-full aspect-video" />
+						<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4">
+							<VideoOff className="size-8 text-destructive" />
+							<p className="text-lg font-bold">Video Not Available</p>
+							<Button size="lg" asChild>
+								<a href="/">Go Back Home</a>
+							</Button>
+						</div>
+					</div>
+					<CardContent className="h-17.5 w-full" />
+				</Card>
+				<aside className="space-y-4">
+					<Skeleton className="size-full" />
+				</aside>
+			</section>
+		);
+	}
+
+	if (video?.policy === "signed" && tokensLoading) {
 		return (
 			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
@@ -464,7 +518,7 @@ function VideoPlayerDetailContent({
  * />
  * ```
  */
-export function VideoPlayerDetail(props: VideoPlayerDetailProps) {
+export function VideoPlayerPremium(props: VideoPlayerDetailProps) {
 	return (
 		<QueryProvider>
 			<VideoPlayerDetailContent {...props} />
@@ -472,4 +526,4 @@ export function VideoPlayerDetail(props: VideoPlayerDetailProps) {
 	);
 }
 
-export default VideoPlayerDetail;
+export default VideoPlayerPremium;

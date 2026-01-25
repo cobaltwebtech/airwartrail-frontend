@@ -1,5 +1,5 @@
 ---
-import { SlideShow } from "@/components/partials/SlideShow";
+
 
 import slide1 from "@/assets/static/slideshow/452bg0078-topaz-face.avif";
 import slide2 from "@/assets/static/slideshow/aero-club-topaz-face.avif";
@@ -9,6 +9,7 @@ import slide5 from "@/assets/static/slideshow/IMG_8276-topaz.avif";
 import slide6 from "@/assets/static/slideshow/IMG_8381-topaz.avif";
 import slide7 from "@/assets/static/slideshow/IMG_8397-topaz.avif";
 import slide8 from "@/assets/static/slideshow/norris_crewi-topaz.avif";
+import { SlideShow } from "@/components/partials/SlideShow";
 
 // Define slides array here
 const slides = [
@@ -79,8 +80,11 @@ const slides = [
     </p>
   </div>
 
-  <div class="relative mx-auto mt-12 max-w-screen-lg">
-    <div class="bg-card w-full rounded-lg">
+  <SlideShow slides={slides} client:visible />
+
+
+  <!-- <div class="relative mx-auto mt-12 max-w-5xl">
+    <div class="w-full">
       <SlideShow slides={slides} client:visible />
     </div>
 
@@ -95,5 +99,5 @@ const slides = [
     >
       <div class="size-48 rounded-full bg-white dark:bg-stone-900"></div>
     </div>
-  </div>
+  </div> -->
 </div>
