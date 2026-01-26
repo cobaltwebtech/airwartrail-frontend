@@ -38,6 +38,8 @@
 		}
 	],
 	"vars": {
+		"AWT_BASIC_LIBRARY_ID": "pnr6CRTe",
+		"AWT_PREMIUM_LIBRARY_ID": "WM2OkZia",
 		"BETTER_AUTH_URL": "https://airwartrail.cobaltweb.dev", // Update this when going to production
 		"UMAMI_ID": "6e001137-4b73-407b-9422-27c1f4bfcb24",
 		"TURNSTILE_PUBLIC_KEY": "0x4AAAAAABigvVfdn9-L_sZY"
