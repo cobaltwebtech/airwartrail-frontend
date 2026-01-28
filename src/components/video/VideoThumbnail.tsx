@@ -169,7 +169,7 @@ export function VideoThumbnail({
 	if (!playbackId || hasError) {
 		return (
 			<div
-				className={`flex items-center justify-center bg-muted ${containerClass}`}
+				className={`w-90 flex items-center justify-center bg-muted ${containerClass}`}
 			>
 				{fallbackIcon ?? <Film className="size-6 text-muted-foreground" />}
 			</div>

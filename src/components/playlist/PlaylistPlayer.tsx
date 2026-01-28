@@ -4,13 +4,15 @@
  * A YouTube-style playlist player that plays videos sequentially without page navigation.
  * Displays the current video with a sidebar showing all playlist videos.
  * Supports auto-advance, manual selection, and signed token handling.
+ * Works for both free and premium content with optional subscription gating.
  */
 
 import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import MuxPlayer from "@mux/mux-player-react";
 import { useQuery } from "@tanstack/react-query";
-import { Hourglass, Play } from "lucide-react";
+import { Hourglass, Loader2, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Pricing } from "@/components/partials/Pricing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type { Playlist, PlaylistVideo, SignedTokens } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
+import { useSubStatus } from "@/lib/useSubStatus";
 import { cn } from "@/lib/utils";
 import { formatTimeAgo } from "@/lib/video-helpers";
 
@@ -40,6 +43,8 @@ interface PlaylistVideoPlayerProps {
 	libraryId: string;
 	/** Optional: Start at a specific video index */
 	startIndex?: number;
+	/** Whether this playlist requires a subscription to view */
+	requiresSub: boolean;
 }
 
 type TypedTrpcClient = {
@@ -97,12 +102,16 @@ function PlaylistVideoPlayerContent({
 	playlist: providedPlaylist,
 	libraryId,
 	startIndex = 0,
+	requiresSub = false,
 }: PlaylistVideoPlayerProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
 	const setPlayerRef = (node: unknown) => {
 		playerRef.current = node as MuxPlayerRefAttributes | null;
 	};
+
+	// Check session and subscription status only if this is premium content
+	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
 
 	// Read video index from URL query parameter on mount
 	const getInitialIndex = () => {
@@ -169,6 +178,9 @@ function PlaylistVideoPlayerContent({
 			? customThumbnailTime
 			: 5;
 
+	// Token expiration varies by subscription tier
+	const tokenExpiresIn = requiresSub ? 10800 : 3600; // 3 hours vs 1 hour
+
 	// Fetch signed tokens for current video if needed
 	// Include thumbnail time in the token for signed videos
 	const { data: tokens, isLoading: tokensLoading } = useQuery({
@@ -178,12 +190,13 @@ function PlaylistVideoPlayerContent({
 			currentVideo?.muxPlaybackId,
 			libraryId,
 			effectiveThumbnailTime,
+			tokenExpiresIn,
 		],
 		queryFn: () =>
 			client.mux.generateSignedTokens.query({
 				playbackId: currentVideo?.muxPlaybackId || "",
 				libraryId,
-				expiresIn: 10800, // 3 hours
+				expiresIn: tokenExpiresIn,
 				// For signed videos, embed the thumbnail time in the JWT
 				thumbnailParams:
 					effectiveThumbnailTime !== undefined
@@ -234,6 +247,20 @@ function PlaylistVideoPlayerContent({
 			window.history.replaceState({}, "", url);
 		}
 	}, []);
+
+	// Show loading state during hydration or auth check (only for premium content)
+	if (requiresSub && (!mounted || authLoading)) {
+		return (
+			<div className="flex items-center justify-center py-12">
+				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+			</div>
+		);
+	}
+
+	// Gate content for users without active subscription (only for premium content)
+	if (requiresSub && (!session?.user || !isPremium)) {
+		return <Pricing />;
+	}
 
 	if (playlistLoading) {
 		return <PlaylistPlayerSkeleton />;
@@ -511,15 +538,25 @@ function PlaylistPlayerSkeleton() {
  *
  * @example
  * ```astro
- * <PlaylistVideoPlayer
+ * // For basic/free content
+ * <PlaylistPlayer
  *   client:load
  *   slug="playlist-slug"
  *   libraryId="your-library-id"
  *   startIndex={0}
  * />
+ *
+ * // For premium content
+ * <PlaylistPlayer
+ *   client:load
+ *   slug="premium-playlist"
+ *   libraryId="your-library-id"
+ *   startIndex={0}
+ *   requiresSub={true}
+ * />
  * ```
  */
-export function PlaylistVideoPlayer(props: PlaylistVideoPlayerProps) {
+export function PlaylistPlayer(props: PlaylistVideoPlayerProps) {
 	return (
 		<QueryProvider showDevtools={false}>
 			<PlaylistVideoPlayerContent {...props} />
@@ -527,4 +564,4 @@ export function PlaylistVideoPlayer(props: PlaylistVideoPlayerProps) {
 	);
 }
 
-export default PlaylistVideoPlayer;
+export default PlaylistPlayer;

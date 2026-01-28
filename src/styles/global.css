@@ -149,9 +149,7 @@
 	}
 
 	.embla-container {
-		@apply flex;
-		touch-action: pan-y pinch-zoom;
-		margin-left: calc(var(--slide-spacing) * -1);
+		@apply flex touch-pan-y touch-pinch-zoom;
 	}
 
 	.embla-slide {

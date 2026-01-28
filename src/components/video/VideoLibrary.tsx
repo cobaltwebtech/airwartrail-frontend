@@ -3,6 +3,8 @@
  *
  * A read-only, reusable component to display videos from a specific library in grid or table view.
  * Supports infinite scrolling for large video collections.
+ *
+ * Can optionally require a subscription to view the library.
  */
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
@@ -75,6 +77,8 @@ interface VideoLibraryProps {
 	pageSize?: number;
 	/** Optional initial view mode */
 	initialViewMode?: "grid" | "table";
+	/** Whether this library requires a subscription to view */
+	requiresSub: boolean;
 }
 
 type ViewMode = "grid" | "table";
@@ -129,9 +133,11 @@ function VideoLibraryContent({
 	libraryId,
 	pageSize = DEFAULT_PAGE_SIZE,
 	initialViewMode,
+	requiresSub,
 }: VideoLibraryProps) {
-	// Check session and subscription status
+	// Check session and subscription status only if required
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
+	const checkAuth = requiresSub;
 
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(() => {
@@ -393,8 +399,11 @@ function VideoLibraryContent({
 	};
 
 	const buildVideoUrl = useCallback(
-		(videoId: string) => `/watch/library_${libraryId}/premium_${videoId}`,
-		[libraryId],
+		(videoId: string) => {
+			const prefix = requiresSub ? "premium" : "basic";
+			return `/watch/library_${libraryId}/${prefix}_${videoId}`;
+		},
+		[libraryId, requiresSub],
 	);
 
 	const handleSortingChange = useCallback(
@@ -521,8 +530,8 @@ function VideoLibraryContent({
 		getSortedRowModel: getSortedRowModel(),
 	});
 
-	// Show loading state during hydration or auth check
-	if (!mounted || authLoading) {
+	// Show loading state during hydration or auth check (only if auth is required)
+	if (checkAuth && (!mounted || authLoading)) {
 		return (
 			<section className="w-full space-y-6">
 				<Skeleton className="h-9 w-96" />
@@ -538,8 +547,8 @@ function VideoLibraryContent({
 		);
 	}
 
-	// Gate content for users without active subscription
-	if (!session?.user || !isPremium) {
+	// Gate content for users without active subscription (only if auth is required)
+	if (checkAuth && (!session?.user || !isPremium)) {
 		return <Pricing />;
 	}
 
@@ -845,10 +854,11 @@ function VideoLibraryContent({
  *
  * @example
  * ```astro
- * <VideoLibrary client:load libraryId="your-library-id" pageSize={20} />
+ * <VideoLibrary client:load libraryId="your-library-id" requiresSub={true} pageSize={20} />
+ * <VideoLibrary client:load libraryId="your-library-id" requiresSub={false} pageSize={20} />
  * ```
  */
-export function VideoLibraryPremium(props: VideoLibraryProps) {
+export function VideoLibrary(props: VideoLibraryProps) {
 	return (
 		<QueryProvider>
 			<VideoLibraryContent {...props} />
@@ -856,4 +866,4 @@ export function VideoLibraryPremium(props: VideoLibraryProps) {
 	);
 }
 
-export default VideoLibraryPremium;
+export default VideoLibrary;

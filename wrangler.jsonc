@@ -1,7 +1,7 @@
 {  
   "name": "airwartrail-frontend",
 	"main": "./dist/_worker.js/index.js",
-	"compatibility_date": "2025-12-15",
+	"compatibility_date": "2026-01-20",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
@@ -32,7 +32,7 @@
 	],
 	"services": [
 		{
-			// Service Binding to the Airwartrail CMS Worker for direct access
+			// Service Binding to the Air War Trail CMS API Worker for direct access
 			"binding": "AWT_CMS",
 			"service": "airwartrail-cms"
 		}

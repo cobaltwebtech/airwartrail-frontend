@@ -56,7 +56,7 @@ export function LoginForm({
 		try {
 			const response = await signIn.magicLink({
 				email,
-				callbackURL: "/streaming",
+				callbackURL: "/",
 			});
 
 			if (response?.error) {
@@ -99,13 +99,13 @@ export function LoginForm({
 			const response = await signIn.email({
 				email,
 				password,
-				callbackURL: "/streaming",
+				callbackURL: "/",
 				rememberMe: true,
 			});
 
 			if (response && !response.error) {
 				toast.success("Login successful!");
-				window.location.href = "/streaming";
+				window.location.href = "/";
 				return;
 			}
 

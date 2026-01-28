@@ -1,15 +1,15 @@
 ---
-import { VideoLibraryPremium } from "@/components/video/VideoLibraryPremium";
+import { VideoLibrary } from "@/components/video/VideoLibrary";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
-const pageTitle = "Streaming Library | Air War Trail";
+const pageTitle = "Premium Content | Air War Trail";
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "@id": "https://www.airwartrail.com/streaming/",
-  url: "https://www.airwartrail.com/streaming/",
-  name: "Streaming Library | Air War Trail",
+  "@id": "https://www.airwartrail.com/streaming/premium/",
+  url: "https://www.airwartrail.com/streaming/premium/",
+  name: "Premium Content | Air War Trail",
   description:
     "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
   isPartOf: {
@@ -25,7 +25,7 @@ const structuredData = {
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
   <h1 class="mb-8 text-center text-3xl font-bold">
-    Streaming Library
+    Premium Content
   </h1>
-  <VideoLibraryPremium client:load libraryId={videoLibraryId} />
+  <VideoLibrary client:load requiresSub={true} libraryId={videoLibraryId} />
 </BaseLayout>

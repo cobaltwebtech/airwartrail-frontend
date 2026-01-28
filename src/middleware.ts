@@ -1,18 +1,48 @@
 import { defineMiddleware } from "astro:middleware";
+import {
+	type AuthState,
+	getAuthState,
+	type StoredSession,
+} from "@/lib/auth-check";
+
+// Default auth state for unauthenticated users
+const defaultAuthState: AuthState = {
+	isAuthenticated: false,
+	hasActiveSubscription: false,
+	user: null,
+	subscription: null,
+	subscriptionStatus: null,
+};
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	// Get the user's authentication session
-	const isAuthed = await context.session?.get("session");
+	// Get the user's authentication session from KV
+	const sessionData = (await context.session?.get(
+		"session",
+	)) as StoredSession | null;
+	const isAuthed = !!sessionData?.userId;
+
 	// Define the URL and path from the request
 	const url = new URL(context.request.url);
 	const path = url.pathname;
+
 	// Define public and private paths from the URL
 	const publicPaths = ["/signup", "/login"];
 	const isPublicPath = publicPaths.includes(path);
 	const isPrivatePath = path.startsWith("/account");
+	const premiumPaths = ["premium", "film-series"];
+	const isPremiumPath = premiumPaths.some((pattern) => path.includes(pattern));
+
 	// Inspect the URL and check for token errors or presence of token
 	const tokenError = url.searchParams.get("error");
 	const token = url.searchParams.get("token");
+
+	// Attach auth state to context.locals for all routes
+	// Only query D1 if user has a session (avoids unnecessary DB queries)
+	if (isAuthed && sessionData) {
+		context.locals.auth = await getAuthState(context, sessionData);
+	} else {
+		context.locals.auth = defaultAuthState;
+	}
 
 	// Redirect users based on authentication status
 	if (isPrivatePath && !isAuthed) {
@@ -41,6 +71,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 		// Token exists, proceed with the request
 		return next();
+	}
+
+	// Check premium content routes
+	if (isPremiumPath && !context.locals.auth.hasActiveSubscription) {
+		return context.redirect("/subscribe");
 	}
 
 	return next();

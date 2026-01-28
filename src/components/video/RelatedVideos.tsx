@@ -3,6 +3,7 @@
  *
  * Displays up to 4 related videos based on shared tags.
  * Falls back to most recently added videos if no tags match.
+ * Works for both free and premium content.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -21,6 +22,8 @@ interface RelatedVideosProps {
 	libraryId: string;
 	/** Tag IDs associated with the current video */
 	tagIds?: string[];
+	/** Whether these are premium videos */
+	isPremium: boolean;
 }
 
 type Video = {
@@ -87,6 +90,7 @@ function RelatedVideosContent({
 	videoId,
 	libraryId,
 	tagIds: externalTagIds,
+	isPremium = false,
 }: RelatedVideosProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 
@@ -184,8 +188,10 @@ function RelatedVideosContent({
 		(!hasTagIds && isLoadingRecentVideos);
 	const hasError = tagVideosError || recentVideosError;
 
-	const buildVideoUrl = (id: string) =>
-		`/watch/library_${libraryId}/premium_${id}`;
+	const buildVideoUrl = (id: string) => {
+		const prefix = isPremium ? "premium" : "basic";
+		return `/watch/library_${libraryId}/${prefix}_${id}`;
+	};
 
 	if (isLoading) {
 		return (
@@ -281,14 +287,23 @@ function RelatedVideosContent({
  *
  * @example
  * ```astro
+ * // For basic/free content
  * <RelatedVideos
  *   client:load
  *   videoId={videoId}
  *   libraryId={libraryId}
  * />
+ *
+ * // For premium content
+ * <RelatedVideos
+ *   client:load
+ *   videoId={videoId}
+ *   libraryId={libraryId}
+ *   isPremium={true}
+ * />
  * ```
  */
-export function RelatedVideosPremium(props: RelatedVideosProps) {
+export function RelatedVideos(props: RelatedVideosProps) {
 	return (
 		<QueryProvider>
 			<RelatedVideosContent {...props} />
@@ -296,4 +311,4 @@ export function RelatedVideosPremium(props: RelatedVideosProps) {
 	);
 }
 
-export default RelatedVideosPremium;
+export default RelatedVideos;

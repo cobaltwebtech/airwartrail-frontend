@@ -7,7 +7,7 @@ import { AstroFont } from "astro-font";
 import BackToTop from "@/components/partials/BackToTop";
 import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro";
 import Footer from "@/components/sections/Footer";
-import Navbar from "@/components/sections/Navbar.astro";
+import Navbar from "@/components/sections/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import Meta from "@/layouts/Meta.astro";
 import { siteMeta } from "@/lib/siteData";
@@ -130,7 +130,7 @@ const umamiId = import.meta.env.UMAMI_ID;
   </head>
 
   <body class="bg-background text-foreground flex min-h-svh flex-col">
-    <Navbar sessionData={sessionData} />
+    <Navbar sessionData={sessionData} client:load />
     <main
       class="mx-auto flex w-full max-w-screen-2xl flex-auto flex-col items-center justify-center space-y-8 p-8 lg:px-16 lg:space-y-12"
       transition:animate="fade"
