@@ -4,7 +4,6 @@
  * A read-only, reusable component to display playlists from a specific library.
  * Supports grid view with thumbnail previews and video counts.
  */
-
 import { useQuery } from "@tanstack/react-query";
 import { Film, Loader2, Play } from "lucide-react";
 import { Pricing } from "@/components/partials/Pricing";
@@ -24,7 +23,7 @@ import type { Playlist } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
 import { useSubStatus } from "@/lib/useSubStatus";
 
-interface PlaylistLibraryProps {
+interface PlaylistsListProps {
 	/** The library ID to fetch playlists from */
 	libraryId: string;
 }
@@ -37,7 +36,7 @@ type ListPlaylistsClient = {
 	};
 };
 
-function PlaylistLibraryContent({ libraryId }: PlaylistLibraryProps) {
+function PlaylistsListContent({ libraryId }: PlaylistsListProps) {
 	// Check session and subscription status
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
 
@@ -192,19 +191,19 @@ function PlaylistGridSkeleton() {
 }
 
 /**
- * PlaylistLibrary with QueryProvider wrapper
+ * PlaylistsList with QueryProvider wrapper
  *
  * @example
  * ```astro
- * <PlaylistLibrary client:load libraryId="your-library-id" />
+ * <PlaylistsList client:load libraryId="your-library-id" />
  * ```
  */
-export function PlaylistLibrary(props: PlaylistLibraryProps) {
+export function PlaylistsList(props: PlaylistsListProps) {
 	return (
 		<QueryProvider showDevtools={false}>
-			<PlaylistLibraryContent {...props} />
+			<PlaylistsListContent {...props} />
 		</QueryProvider>
 	);
 }
 
-export default PlaylistLibrary;
+export default PlaylistsList;

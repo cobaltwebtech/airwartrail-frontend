@@ -11,6 +11,7 @@ const footerItems: Array<FooterItem> = [
 	{ title: "Contact", url: "/contact" },
 	{ title: "Terms of Service", url: "/terms-of-service" },
 	{ title: "Privacy Policy", url: "/privacy-policy" },
+	{ title: "Subscribe", url: "/subscribe" },
 ];
 
 const Footer = () => {
@@ -25,11 +26,13 @@ const Footer = () => {
 	return (
 		<footer className="text-light bg-airwar-600 dark:bg-airwar-900 mx-auto w-full p-4 sm:px-6 lg:px-8">
 			{/* Grid */}
-			<div className="mx-auto grid max-w-5xl items-center gap-5 md:grid-cols-3">
+			<div className="mx-auto grid max-w-5xl items-center gap-5 md:grid-cols-[1fr_3fr_1fr]">
 				<div>
 					<p className="mb-2 text-xl font-bold">{siteMeta.title}</p>
 					<p className="mb-2 text-sm">
-						A subsidiary of Old Segundo Productions
+						A subsidiary of
+						<br />
+						Old Segundo Productions
 					</p>
 					<p className="mb-2 text-sm">
 						©<span id="current-year"></span> - All Rights Reserved

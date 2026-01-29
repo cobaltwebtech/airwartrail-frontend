@@ -1,7 +1,7 @@
 ---
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { RelatedVideosPremium } from "@/components/video/RelatedVideosPremium";
-import { VideoPlayerPremium } from "@/components/video/VideoPlayerPremium";
+import { RelatedVideos } from "@/components/video/RelatedVideos";
+import { VideoPlayer } from "@/components/video/VideoPlayer";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 // Extract parameters from the URL
@@ -35,14 +35,15 @@ const structuredData = {
 			</BreadcrumbItem>
 			<BreadcrumbSeparator />
 			<BreadcrumbItem>
-				<BreadcrumbLink href="/streaming">Streaming Library</BreadcrumbLink>
+				<BreadcrumbLink href="/streaming/premium">Premium Content</BreadcrumbLink>
 			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
-	<VideoPlayerPremium
+	<VideoPlayer
 		client:load
 		videoId={videoId}
 		libraryId={libraryId}
+		requiresSub={true}
 	/>
-	<RelatedVideosPremium client:load videoId={videoId} libraryId={libraryId} />
+	<RelatedVideos client:load isPremium={true} videoId={videoId} libraryId={libraryId} />
 </BaseLayout>

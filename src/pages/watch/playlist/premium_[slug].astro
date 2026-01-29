@@ -1,0 +1,76 @@
+---
+import { PlaylistPlayer } from "@/components/playlist/PlaylistPlayer";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const { slug } = Astro.params;
+
+if (!slug) {
+	return Astro.redirect("/film-series");
+}
+
+// Get the video index from query parameter (e.g., ?video=2)
+const videoParam = Astro.url.searchParams.get("video");
+const startIndex = videoParam ? parseInt(videoParam, 10) : 0;
+
+const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+
+// Format the page title from the slug
+const formatTitle = (slug: string) => {
+	return slug
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
+const pageTitle = `${formatTitle(slug)} | Playlist Player | Air War Trail`;
+
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "WebPage",
+	"@id": `https://www.airwartrail.com/watch/playlist/${slug}/`,
+	url: `https://www.airwartrail.com/watch/playlist/${slug}/`,
+	name: pageTitle,
+	description:
+		"Watch our curated playlist of World War II documentaries, interviews, and historical films from the East Anglia Air War Project.",
+	isPartOf: {
+		"@type": "WebSite",
+		url: "https://www.airwartrail.com/",
+		name: "Air War Trail",
+		description:
+			"The documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way.",
+	},
+	inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+  <Breadcrumb className="mb-8">
+    <BreadcrumbList>
+      <BreadcrumbItem>
+        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+      </BreadcrumbItem>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem>
+        <BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
+      </BreadcrumbItem>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem>
+        <BreadcrumbLink href={`/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
+      </BreadcrumbItem>
+    </BreadcrumbList>
+  </Breadcrumb>
+  <PlaylistPlayer
+    client:load
+		requiresSub={true}
+    slug={slug}
+    libraryId={videoLibraryId}
+    startIndex={startIndex}
+  />
+</BaseLayout>

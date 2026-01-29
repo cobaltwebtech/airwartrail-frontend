@@ -4,6 +4,8 @@
  * Fetches a video by internal ID (combines DB + Mux data) and renders it with
  * Mux Player. Includes signed token handling and skeleton states for loading
  * and error scenarios.
+ *
+ * Can optionally require a subscription to view the video.
  */
 
 import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
@@ -41,6 +43,8 @@ interface VideoPlayerDetailProps {
 	videoId: string;
 	libraryId: string;
 	thumbnailTime?: number;
+	/** Whether this video requires a subscription to view */
+	requiresSub: boolean;
 }
 
 type FullVideo = {
@@ -97,9 +101,15 @@ function VideoPlayerDetailContent({
 	videoId,
 	libraryId,
 	thumbnailTime = 5,
+	requiresSub,
 }: VideoPlayerDetailProps) {
-	// Check session and subscription status
+	// Check session and subscription status only if required
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
+	const checkAuth = requiresSub;
+
+	// Set token expiration time based on subscription requirement
+	const tokenExpiresIn = requiresSub ? 10800 : 3600; // 3 hours vs 1 hour
+
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
 	const setPlayerRef = (node: unknown) => {
@@ -144,12 +154,13 @@ function VideoPlayerDetailContent({
 			video?.playbackId,
 			libraryId,
 			effectiveThumbnailTime,
+			tokenExpiresIn,
 		],
 		queryFn: () =>
 			client.mux.generateSignedTokens.query({
 				playbackId: video?.playbackId || "",
 				libraryId,
-				expiresIn: 10800, // 3 hours
+				expiresIn: tokenExpiresIn,
 				// For signed videos, embed the thumbnail time in the JWT
 				thumbnailParams:
 					effectiveThumbnailTime !== undefined
@@ -226,8 +237,8 @@ function VideoPlayerDetailContent({
 		};
 	}, [video?.playbackId, addChaptersToPlayer]);
 
-	// Show loading state during hydration or auth check
-	if (!mounted || authLoading) {
+	// Show loading state during hydration or auth check (only if auth is required)
+	if (checkAuth && (!mounted || authLoading)) {
 		return (
 			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
@@ -247,8 +258,8 @@ function VideoPlayerDetailContent({
 		);
 	}
 
-	// Gate content for users without active subscription
-	if (!session?.user || !isPremium) {
+	// Gate content for users without active subscription (only if auth is required)
+	if (checkAuth && (!session?.user || !isPremium)) {
 		return <Pricing />;
 	}
 
@@ -507,18 +518,15 @@ function VideoPlayerDetailContent({
 }
 
 /**
- * VideoPlayerDetail with QueryProvider wrapper
+ * VideoPlayer with QueryProvider wrapper
  *
  * @example
  * ```astro
- * <VideoPlayerDetail
- *   client:load
- *   videoId={videoId}
- *   libraryId={libraryId}
- * />
+ * <VideoPlayer client:load videoId={videoId} libraryId={libraryId} requiresSub={true} />
+ * <VideoPlayer client:load videoId={videoId} libraryId={libraryId} requiresSub={false} />
  * ```
  */
-export function VideoPlayerPremium(props: VideoPlayerDetailProps) {
+export function VideoPlayer(props: VideoPlayerDetailProps) {
 	return (
 		<QueryProvider>
 			<VideoPlayerDetailContent {...props} />
@@ -526,4 +534,4 @@ export function VideoPlayerPremium(props: VideoPlayerDetailProps) {
 	);
 }
 
-export default VideoPlayerPremium;
+export default VideoPlayer;

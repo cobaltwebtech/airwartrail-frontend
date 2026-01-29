@@ -11,6 +11,9 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 	},
+	experimental: {
+		liveContentCollections: true,
+	},
 	markdown: {
 		drafts: true,
 	},

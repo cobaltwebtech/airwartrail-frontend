@@ -18,17 +18,17 @@ export function Pricing() {
 						Plan Pricing
 					</h3>
 					<p className="text-accent-foreground mt-4 text-lg">
-						Help us continue our mission to of preserving World War II history
-						by subscribing now!
+						Help us continue our mission of preserving World War II history by
+						subscribing now!
 					</p>
 				</div>
 
 				<div className="grid gap-4 lg:grid-cols-3 lg:gap-8">
-					{/* Free Plan */}
+					{/* Basic Plan */}
 					<Card className="flex h-full flex-col lg:col-span-1">
 						<CardHeader>
 							<CardTitle className="text-2xl">Basic</CardTitle>
-							<CardDescription>Get started with our entry plan</CardDescription>
+							<CardDescription>Get started with our free plan</CardDescription>
 						</CardHeader>
 						<CardContent className="grow">
 							<p className="mb-6 text-3xl font-bold">
@@ -41,7 +41,7 @@ export function Pricing() {
 								<li className="flex flex-row items-center gap-2">
 									<Check className="size-6 basis-1/12 text-green-500" />
 									<span className="basis-11/12">
-										Bi-weekly release of episodes and other content
+										Access to a selection of free content
 									</span>
 								</li>
 								<li className="flex flex-row items-center gap-2">
@@ -78,9 +78,10 @@ export function Pricing() {
 						<CardContent className="grow">
 							<p className="mb-6 text-3xl font-bold">
 								$9
-								<sup className="superscript text-base">.99</sup>
-								<span className="text-base font-normal text-gray-500">
-									&nbsp; /month (taxes not included)
+								<sup className="text-base">.99</sup>
+								<span className="font-normal text-gray-500">
+									&nbsp; /month{" "}
+									<span className="text-xs">(taxes not included)</span>
 								</span>
 							</p>
 							<ul className="space-y-3">
@@ -106,7 +107,7 @@ export function Pricing() {
 								<li className="flex flex-row items-center gap-2">
 									<Check className="size-6 basis-1/12 text-green-500" />
 									<span className="basis-11/12">
-										Access to episodes and content early before everyone else
+										Early access to new films and content before everyone else
 									</span>
 								</li>
 							</ul>
@@ -141,9 +142,10 @@ export function PremiumPlanCard() {
 				<CardContent className="grow">
 					<p className="mb-6 text-3xl font-bold">
 						$9
-						<sup className="superscript text-base">.99</sup>
-						<span className="text-base font-normal text-gray-500">
-							&nbsp; /month (taxes not included)
+						<sup className="text-base">.99</sup>
+						<span className="font-normal text-gray-500">
+							&nbsp; /month{" "}
+							<span className="text-xs">(taxes not included)</span>
 						</span>
 					</p>
 					<ul className="space-y-3">
@@ -169,7 +171,7 @@ export function PremiumPlanCard() {
 						<li className="flex flex-row items-center gap-2">
 							<Check className="size-6 basis-1/12 text-green-500" />
 							<span className="basis-11/12">
-								Access to episodes and content early before everyone else
+								Early access to new films and content before everyone else
 							</span>
 						</li>
 					</ul>

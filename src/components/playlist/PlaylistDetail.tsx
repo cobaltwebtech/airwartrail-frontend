@@ -3,29 +3,20 @@
  *
  * Displays a single playlist with all its videos in grid or table view.
  * Supports sorting, searching, and view mode preferences.
+ * Works for both free and premium content with optional subscription gating.
  */
 
 import { useQuery } from "@tanstack/react-query";
+import useEmblaCarousel from "embla-carousel-react";
 import {
-	type ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	getSortedRowModel,
-	type SortingState,
-	useReactTable,
-} from "@tanstack/react-table";
-import {
-	ArrowDown,
-	ArrowUp,
-	ArrowUpDown,
+	CircleArrowLeft,
+	CircleArrowRight,
 	Film,
-	Grid3X3,
-	List,
 	Loader2,
 	OctagonX,
 	Play,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Pricing } from "@/components/partials/Pricing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Badge } from "@/components/ui/badge";
@@ -36,23 +27,12 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type { Playlist, PlaylistVideo } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
@@ -64,43 +44,9 @@ interface PlaylistDetailProps {
 	slug: string;
 	/** The library ID */
 	libraryId: string;
+	/** Whether this playlist requires a subscription to view */
+	requiresSub: boolean;
 }
-
-type ViewMode = "grid" | "table";
-
-const STORAGE_KEY = "playlistDetail-settings";
-
-interface PlaylistDetailSettings {
-	viewMode: ViewMode;
-	sortCriteria: string;
-	sortDirection: string;
-	tableSorting: SortingState;
-}
-
-function getStoredSettings(): PlaylistDetailSettings {
-	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			const parsed = JSON.parse(stored);
-			return {
-				viewMode: parsed.viewMode ?? "grid",
-				sortCriteria: parsed.sortCriteria ?? "order",
-				sortDirection: parsed.sortDirection ?? "asc",
-				tableSorting: parsed.tableSorting ?? [],
-			};
-		}
-	} catch {
-		// Ignore parse errors
-	}
-	return {
-		viewMode: "grid",
-		sortCriteria: "order",
-		sortDirection: "asc",
-		tableSorting: [],
-	};
-}
-
-const initialSettings = getStoredSettings();
 
 type GetPlaylistClient = {
 	mux: {
@@ -120,23 +66,17 @@ type GetPlaylistClient = {
 	};
 };
 
-function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
-	// Check session and subscription status
+function PlaylistDetailContent({
+	slug,
+	libraryId,
+	requiresSub,
+}: PlaylistDetailProps) {
+	// Check session and subscription status only if this is premium content
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
-
-	const [searchTerm, setSearchTerm] = useState("");
-	const [sortCriteria, setSortCriteria] = useState(
-		initialSettings.sortCriteria,
-	);
-	const [sortDirection, setSortDirection] = useState(
-		initialSettings.sortDirection,
-	);
-	const [viewMode, setViewMode] = useState<ViewMode>(initialSettings.viewMode);
-	const [tableSorting, setTableSorting] = useState<SortingState>(
-		initialSettings.tableSorting,
-	);
-
-	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const [emblaRef, emblaApi] = useEmblaCarousel({
+		loop: true,
+		dragFree: true,
+	});
 
 	// Fetch playlist with videos
 	const {
@@ -155,204 +95,44 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 		},
 	});
 
-	// Persist settings to localStorage with debouncing
-	useEffect(() => {
-		if (saveTimeoutRef.current) {
-			clearTimeout(saveTimeoutRef.current);
-		}
-
-		saveTimeoutRef.current = setTimeout(() => {
-			const settings: PlaylistDetailSettings = {
-				viewMode,
-				sortCriteria,
-				sortDirection,
-				tableSorting,
-			};
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-		}, 300);
-
-		return () => {
-			if (saveTimeoutRef.current) {
-				clearTimeout(saveTimeoutRef.current);
-			}
-		};
-	}, [viewMode, sortCriteria, sortDirection, tableSorting]);
+	const goToPrev = () => {
+		emblaApi?.goToPrev();
+	};
+	const goToNext = () => {
+		emblaApi?.goToNext();
+	};
 
 	// Filter and sort videos
 	const filteredVideos = useMemo(() => {
-		const videos = playlist?.videos ?? [];
+		// clone array so sort is pure
+		const videos = Array.from(playlist?.videos ?? []);
 		return videos
 			.filter((video) => video.isPublished === true)
 			.filter((video) => video.status === "ready")
-			.filter((video) => {
-				const title = video.customTitle || video.title;
-				return title.toLowerCase().includes(searchTerm.toLowerCase());
-			})
 			.sort((a, b) => {
-				const multiplier = sortDirection === "asc" ? 1 : -1;
-				if (sortCriteria === "order") {
-					return (a.sortOrder - b.sortOrder) * multiplier;
-				}
-				if (sortCriteria === "title") {
-					const titleA = a.customTitle || a.title;
-					const titleB = b.customTitle || b.title;
-					return titleA.localeCompare(titleB) * multiplier;
-				}
-				return 0;
+				const aOrder = typeof a.sortOrder === "number" ? a.sortOrder : 0;
+				const bOrder = typeof b.sortOrder === "number" ? b.sortOrder : 0;
+				return aOrder - bOrder;
 			});
-	}, [playlist?.videos, searchTerm, sortCriteria, sortDirection]);
-
-	const toggleSortDirection = () => {
-		setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-	};
+	}, [playlist?.videos]);
 
 	const buildVideoUrl = useCallback(
 		(videoId: string) => {
+			const prefix = requiresSub ? "premium" : "basic";
 			// Find the index of this video in the filtered list
 			const videoIndex = filteredVideos.findIndex((v) => v.id === videoId);
 			// If found in playlist, link to playlist player with video index
 			if (videoIndex >= 0 && slug) {
-				return `/watch/playlist/${slug}?sort_order=${videoIndex}`;
+				return `/watch/playlist/${prefix}_${slug}?sort_order=${videoIndex}`;
 			}
 			// Fallback to individual video player
-			return `/watch/library_${libraryId}/${videoId}`;
+			return `/watch/library_${libraryId}/${prefix}_${videoId}`;
 		},
-		[libraryId, slug, filteredVideos],
+		[libraryId, slug, filteredVideos, requiresSub],
 	);
 
-	const handleSortingChange = useCallback(
-		(updater: SortingState | ((old: SortingState) => SortingState)) => {
-			setTableSorting((old) => {
-				return typeof updater === "function" ? updater(old) : updater;
-			});
-		},
-		[],
-	);
-
-	// Table columns definition
-	const columns = useMemo<ColumnDef<PlaylistVideo>[]>(
-		() => [
-			{
-				accessorKey: "thumbnail",
-				header: () => <p className="text-center font-semibold">Thumbnail</p>,
-				enableSorting: false,
-				cell: ({ row }) => (
-					<div className="max-w-25 mx-auto">
-						<VideoThumbnail
-							playbackId={row.original.muxPlaybackId}
-							alt={row.original.customTitle || row.original.title}
-							className="aspect-video w-full rounded object-cover"
-							aspectVideo
-							policy={row.original.playbackPolicy ?? "public"}
-							libraryId={libraryId}
-							time={5}
-						/>
-					</div>
-				),
-			},
-			{
-				accessorKey: "sortOrder",
-				header: ({ column }) => (
-					<div className="flex justify-center">
-						<Button
-							variant="ghost"
-							onClick={() =>
-								column.toggleSorting(column.getIsSorted() === "asc")
-							}
-						>
-							Play Order
-							<ArrowUpDown className="size-4" />
-						</Button>
-					</div>
-				),
-				cell: ({ row }) => (
-					<p className="text-center text-muted-foreground font-medium">
-						{row.original.sortOrder + 1}
-					</p>
-				),
-			},
-			{
-				accessorKey: "title",
-				header: ({ column }) => (
-					<div className="flex justify-center">
-						<Button
-							variant="ghost"
-							onClick={() =>
-								column.toggleSorting(column.getIsSorted() === "asc")
-							}
-						>
-							Title
-							<ArrowUpDown className="size-4" />
-						</Button>
-					</div>
-				),
-				cell: ({ row }) => (
-					<a href={buildVideoUrl(row.original.id)} className="hover:underline">
-						<p className="text-center font-semibold text-foreground">
-							{row.original.customTitle || row.original.title}
-						</p>
-					</a>
-				),
-			},
-			{
-				accessorKey: "duration",
-				header: ({ column }) => (
-					<div className="flex justify-center">
-						<Button
-							variant="ghost"
-							onClick={() =>
-								column.toggleSorting(column.getIsSorted() === "asc")
-							}
-						>
-							Duration
-							<ArrowUpDown className="size-4" />
-						</Button>
-					</div>
-				),
-				cell: ({ row }) => (
-					<p className="text-center text-muted-foreground">
-						{formatDuration(row.original.duration ?? 0)}
-					</p>
-				),
-			},
-			{
-				accessorKey: "createdAt",
-				header: ({ column }) => (
-					<div className="flex justify-center">
-						<Button
-							variant="ghost"
-							onClick={() =>
-								column.toggleSorting(column.getIsSorted() === "asc")
-							}
-						>
-							Uploaded
-							<ArrowUpDown className="size-4" />
-						</Button>
-					</div>
-				),
-				cell: ({ row }) => (
-					<p className="text-center text-muted-foreground">
-						{formatTimeAgo(row.original.createdAt)}
-					</p>
-				),
-			},
-		],
-		[buildVideoUrl, libraryId],
-	);
-
-	const table = useReactTable({
-		data: filteredVideos,
-		columns,
-		state: {
-			sorting: tableSorting,
-		},
-		onSortingChange: handleSortingChange,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-	});
-
-	// Show loading state during hydration or auth check
-	if (!mounted || authLoading) {
+	// Show loading state during hydration or auth check (only for premium content)
+	if (requiresSub && (!mounted || authLoading)) {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -360,8 +140,8 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 		);
 	}
 
-	// Gate content for users without active subscription
-	if (!session?.user || !isPremium) {
+	// Gate content for users without active subscription (only for premium content)
+	if (requiresSub && (!session?.user || !isPremium)) {
 		return <Pricing />;
 	}
 
@@ -382,7 +162,7 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 	if (!playlist || !playlist.isPublished) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-4 py-16">
-				<Film className="h-16 w-16 text-muted-foreground" />
+				<Film className="size-16 text-muted-foreground" />
 				<p className="text-lg text-muted-foreground">Playlist not found.</p>
 			</div>
 		);
@@ -402,156 +182,93 @@ function PlaylistDetailContent({ slug, libraryId }: PlaylistDetailProps) {
 					<p className="text-muted-foreground">{playlist.description}</p>
 				)}
 			</div>
-
-			{/* Controls */}
-			<div className="flex justify-between gap-2">
-				<Input
-					placeholder="Search videos..."
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
-					className="max-w-sm"
-				/>
-				<div className="flex gap-x-2">
-					{viewMode === "grid" && (
-						<>
-							<Select value={sortCriteria} onValueChange={setSortCriteria}>
-								<SelectTrigger className="max-w-sm">
-									<SelectValue placeholder="Sort by" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="order">Playlist Order</SelectItem>
-									<SelectItem value="title">Title</SelectItem>
-								</SelectContent>
-							</Select>
-							<Button size="icon" onClick={toggleSortDirection}>
-								{sortDirection === "asc" ? <ArrowUp /> : <ArrowDown />}
-							</Button>
-						</>
-					)}
-					<div className="flex rounded-md border">
-						<Button
-							variant={viewMode === "grid" ? "secondary" : "ghost"}
-							size="icon"
-							onClick={() => setViewMode("grid")}
-							className="rounded-r-none"
-						>
-							<Grid3X3 className="h-4 w-4" />
-							<span className="sr-only">Grid view</span>
-						</Button>
-						<Button
-							variant={viewMode === "table" ? "secondary" : "ghost"}
-							size="icon"
-							onClick={() => setViewMode("table")}
-							className="rounded-l-none"
-						>
-							<List className="h-4 w-4" />
-							<span className="sr-only">Table view</span>
-						</Button>
-					</div>
-				</div>
-			</div>
-
-			{/* Table layout */}
-			{viewMode === "table" && (
-				<div className="rounded-t-lg border bg-card">
-					<Table>
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => (
-										<TableHead
-											key={header.id}
-											style={{ width: header.getSize() }}
-										>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									))}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow key={row.id}>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
-											</TableCell>
-										))}
-									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-24 text-center"
-									>
-										No videos found.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-			)}
-
-			{/* Grid layout */}
-			{viewMode === "grid" && (
-				<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-					{filteredVideos.map((video) => (
-						<Card
-							key={video.id}
-							className="gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
-						>
-							<a href={buildVideoUrl(video.id)}>
-								<div className="relative">
-									<VideoThumbnail
-										playbackId={video.muxPlaybackId}
-										alt={video.title}
-										className="aspect-video w-full object-cover"
-										aspectVideo
-										policy={video.playbackPolicy ?? undefined}
-										libraryId={libraryId}
-										videoId={video.id}
-									/>
-									<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-										<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-											<Play className="size-6" />
-										</div>
-									</div>
-									<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
-										{formatDuration(video.duration ?? 0)}
-									</div>
-								</div>
-							</a>
-							<CardHeader className="flex items-center justify-between p-4">
-								<a
-									href={buildVideoUrl(video.id)}
-									className="text-left hover:text-accent-foreground"
+			{/* Playlist videos wrapped in Embla carousel */}
+			{filteredVideos.length > 0 && (
+				<div className="relative mx-6 my-8 embla-carousel">
+					{/* Left Control - Absolutely Positioned */}
+					<div className="absolute left-0 top-1/2 z-20 -translate-y-1/2 -translate-x-12">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="reversed"
+									size="icon"
+									onClick={goToPrev}
+									aria-label="Previous Film"
 								>
-									<h3 className="line-clamp-2 font-semibold">
-										{video.customTitle || video.title}
-									</h3>
-								</a>
-								{video.customDescription && (
-									<CardDescription className="mt-2 line-clamp-2">
-										{video.customDescription}
-									</CardDescription>
-								)}
-							</CardHeader>
-							<CardFooter className="p-4 pt-0 text-xs text-muted-foreground">
-								Uploaded {formatTimeAgo(video.createdAt)}
-							</CardFooter>
-						</Card>
-					))}
+									<CircleArrowLeft />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Previous Film</TooltipContent>
+						</Tooltip>
+					</div>
+
+					<div className="embla-viewport" ref={emblaRef}>
+						<div className="embla-container gap-4">
+							{filteredVideos.map((video) => (
+								<Card
+									key={video.id}
+									className="max-w-90 gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
+								>
+									<a href={buildVideoUrl(video.id)}>
+										<div className="relative">
+											<VideoThumbnail
+												playbackId={video.muxPlaybackId}
+												alt={video.title}
+												className="aspect-video w-full object-cover"
+												aspectVideo
+												policy={video.playbackPolicy ?? undefined}
+												libraryId={libraryId}
+												videoId={video.id}
+											/>
+											<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+												<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+													<Play className="size-6" />
+												</div>
+											</div>
+											<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+												{formatDuration(video.duration ?? 0)}
+											</div>
+										</div>
+									</a>
+									<CardHeader className="flex items-center justify-between p-4">
+										<a
+											href={buildVideoUrl(video.id)}
+											className="text-left hover:text-accent-foreground"
+										>
+											<h3 className="line-clamp-2 font-semibold">
+												{video.customTitle || video.title}
+											</h3>
+										</a>
+										{video.customDescription && (
+											<CardDescription className="mt-2 line-clamp-2">
+												{video.customDescription}
+											</CardDescription>
+										)}
+									</CardHeader>
+									<CardFooter className="flex justify-between p-4 pt-0 text-xs text-muted-foreground">
+										<span>Uploaded {formatTimeAgo(video.createdAt)}</span>
+									</CardFooter>
+								</Card>
+							))}
+						</div>
+					</div>
+
+					{/* Right Control - Absolutely Positioned */}
+					<div className="absolute right-0 top-1/2 z-20 -translate-y-1/2 translate-x-12">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="reversed"
+									size="icon"
+									onClick={goToNext}
+									aria-label="Next Film"
+								>
+									<CircleArrowRight />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Next Film</TooltipContent>
+						</Tooltip>
+					</div>
 				</div>
 			)}
 
@@ -615,7 +332,11 @@ function PlaylistDetailSkeleton() {
  *
  * @example
  * ```astro
+ * // For basic/free content
  * <PlaylistDetail client:load slug="playlist-slug" libraryId="your-library-id" />
+ *
+ * // For premium content
+ * <PlaylistDetail client:load slug="premium-playlist" libraryId="your-library-id" requiresSub={true} />
  * ```
  */
 export function PlaylistDetail(props: PlaylistDetailProps) {

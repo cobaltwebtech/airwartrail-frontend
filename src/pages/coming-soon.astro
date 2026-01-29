@@ -3,29 +3,13 @@ import { PlaylistDetail } from "@/components/playlist/PlaylistDetail";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const { slug } = Astro.params;
-
-if (!slug) {
-	return Astro.redirect("/film-series");
-}
-
-const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
-
-// Format the page title from the slug
-const formatTitle = (slug: string) => {
-	return slug
-		.split("-")
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(" ");
-};
-
-const pageTitle = `${formatTitle(slug)} | Film Series | Air War Trail`;
-
+const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
+const pageTitle = `Coming Soon | Air War Trail`;
 const structuredData = {
 	"@context": "https://schema.org",
 	"@type": "WebPage",
-	"@id": `https://www.airwartrail.com/film-series/${slug}/`,
-	url: `https://www.airwartrail.com/film-series/${slug}/`,
+	"@id": `https://www.airwartrail.com/coming-soon/`,
+	url: `https://www.airwartrail.com/coming-soon/`,
 	name: pageTitle,
 	description:
 		"Watch our curated collection of World War II documentaries, interviews, and historical films from the East Anglia Air War Project.",
@@ -47,10 +31,8 @@ const structuredData = {
 				<BreadcrumbLink href="/">Home</BreadcrumbLink>
 			</BreadcrumbItem>
 			<BreadcrumbSeparator />
-			<BreadcrumbItem>
-				<BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
-			</BreadcrumbItem>
+			<BreadcrumbItem>Coming Soon</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
-	<PlaylistDetail client:load requiresSub={true} slug={slug} libraryId={videoLibraryId} />
+	<PlaylistDetail client:load slug="coming-soon" libraryId={videoLibraryId} requiresSub={false} />
 </BaseLayout>

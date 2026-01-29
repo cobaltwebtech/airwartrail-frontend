@@ -1,5 +1,5 @@
 ---
-import { PlaylistVideoPlayer } from "@/components/playlist/PlaylistVideoPlayer";
+import { PlaylistPlayer } from "@/components/playlist/PlaylistPlayer";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -12,14 +12,14 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 const { slug } = Astro.params;
 
 if (!slug) {
-	return Astro.redirect("/streaming/film-series");
+	return Astro.redirect("/film-series");
 }
 
 // Get the video index from query parameter (e.g., ?video=2)
 const videoParam = Astro.url.searchParams.get("video");
 const startIndex = videoParam ? parseInt(videoParam, 10) : 0;
 
-const videoLibraryId = import.meta.env.AWT_VIDEO_LIBRARY_ID;
+const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
 
 // Format the page title from the slug
 const formatTitle = (slug: string) => {
@@ -58,16 +58,13 @@ const structuredData = {
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem>
-        <BreadcrumbLink href={`/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
+        <BreadcrumbLink href="/coming-soon">Back to Coming Soon</BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
-  <PlaylistVideoPlayer
+  <PlaylistPlayer
     client:load
+		requiresSub={false}
     slug={slug}
     libraryId={videoLibraryId}
     startIndex={startIndex}

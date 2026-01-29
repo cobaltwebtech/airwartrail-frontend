@@ -198,6 +198,59 @@ export interface TagStatistic {
 }
 
 // ============================================================================
+// Blog Post Types
+// ============================================================================
+
+export type PublishStatus = "draft" | "published" | "scheduled" | "archived";
+
+export interface Post {
+	id: string;
+	slug: string;
+	title: string;
+	shortDescription: string | null;
+	postContent: unknown;
+	featuredImageUrl: string | null;
+	featuredImageAlt: string | null;
+	publishStatus: PublishStatus;
+	publishedAt: string | null;
+	author: string;
+	authorId: string | null;
+	isFeatured: boolean;
+	readingTimeMinutes: number | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface GetPostInput {
+	id?: string;
+	slug?: string;
+}
+
+export interface ListPostsInput {
+	limit?: number;
+	page?: number;
+	status?: PublishStatus;
+	search?: string;
+	sortBy?: "createdAt" | "updatedAt" | "publishedAt" | "title";
+	sortOrder?: "asc" | "desc";
+	featuredOnly?: boolean;
+}
+
+export interface ListPostsPagination {
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
+	hasNext: boolean;
+	hasPrev: boolean;
+}
+
+export interface ListPostsOutput {
+	posts: Post[];
+	pagination: ListPostsPagination;
+}
+
+// ============================================================================
 // Upload Types
 // ============================================================================
 

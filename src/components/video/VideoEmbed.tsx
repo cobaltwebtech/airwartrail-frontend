@@ -103,7 +103,7 @@ function VideoEmbedContent({
 	if (videoError || !video?.playbackId) {
 		return (
 			<div
-				className={`flex flex-col items-center justify-center gap-2 p-8 bg-destructive/10 rounded-lg ${className}`}
+				className={`h-full flex flex-col items-center justify-center gap-2 p-8 bg-destructive/10 rounded-lg ${className}`}
 			>
 				<VideoOff className="size-8 text-destructive" />
 				<p className="text-sm text-destructive">Failed to load video</p>

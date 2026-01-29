@@ -1,8 +1,0 @@
----
-// This Astro component is used to wrap the React components for premium content
-import { PremiumDownload } from "@/components/episode/PremiumDownload";
-
-const { downloadUrl, ...props } = Astro.props;
----
-
-<PremiumDownload client:visible downloadUrl={downloadUrl} {...props} />
