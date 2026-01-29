@@ -1,8 +1,0 @@
----
-// This Astro component is used to wrap the React component for displaying YouTube video for a free user.
-import { YtVideoEveryone } from "@/components/episode/YtVideoEveryone";
-
-const { ytShareUrl, ...props } = Astro.props;
----
-
-<YtVideoEveryone client:visible ytShareUrl={ytShareUrl} {...props} />

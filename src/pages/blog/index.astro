@@ -1,0 +1,80 @@
+---
+
+import { getLiveCollection } from 'astro:content';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const { entries: posts, error } = await getLiveCollection('blog', { 
+  status: 'published',
+  sortBy: 'publishedAt',
+  sortOrder: 'desc',
+});
+
+if (error) {
+  console.error('Failed to load blog posts:', error.message);
+}
+
+const pageTitle = "Blog Posts | Air War Trail";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": "https://www.airwartrail.com/blog/",
+  url: "https://www.airwartrail.com/blog/",
+  name: "Blog Posts | Air War Trail",
+  description:
+    "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
+  isPartOf: {
+    "@type": "WebSite",
+    url: "https://www.airwartrail.com/",
+    name: "Air War Trail",
+    description:
+      "The documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. The mission of Air War Trail is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+  },
+  inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+  <Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/blog">Blog Posts</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+
+  <h1 class="text-4xl font-bold sm:text-5xl">Blog Posts</h1>
+
+  <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+    {posts?.map(post => (
+      <a href={`/blog/${post.data.slug}`}>
+        <Item variant="accent" role="listitem">
+          <ItemMedia variant="image" className="size-20">
+            <img
+              src={post.data.featuredImageUrl}
+              alt={post.data.featuredImageAlt || post.data.title}
+              width={80}
+              height={80}
+              class="object-cover"
+            />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle className="line-clamp-1">
+              {post.data.title}
+            </ItemTitle>
+            <ItemDescription>{post.data.shortDescription}</ItemDescription>
+          </ItemContent>
+          <ItemContent className="flex-none text-center">
+            <ItemDescription>{post.data.readingTimeMinutes} min read</ItemDescription>
+            <ItemDescription>Read Post &rarr;</ItemDescription>
+          </ItemContent>
+        </Item>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

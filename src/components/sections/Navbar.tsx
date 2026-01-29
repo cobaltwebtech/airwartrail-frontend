@@ -34,6 +34,7 @@ const publicNavItems: Array<NavItem> = [
 	{ title: "Subscribe Now", url: "/subscribe" },
 	{ title: "Free Content", url: "/streaming/basic" },
 	{ title: "Coming Soon", url: "/coming-soon" },
+	{ title: "Blog", url: "/blog" },
 	{ title: "About", url: "/about" },
 ];
 
@@ -42,6 +43,7 @@ const authenticatedNavItems: Array<NavItem> = [
 	{ title: "Premium Content", url: "/streaming/premium" },
 	{ title: "Film Series", url: "/film-series" },
 	{ title: "Coming Soon", url: "/coming-soon" },
+	{ title: "Blog", url: "/blog" },
 	{ title: "About", url: "/about" },
 ];
 

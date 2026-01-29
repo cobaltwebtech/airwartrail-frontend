@@ -58,6 +58,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type {
 	SearchVideoResult,
@@ -685,25 +690,35 @@ function VideoLibraryContent({
 							</Button>
 						</>
 					)}
-					<div className="flex rounded-md border">
-						<Button
-							variant={viewMode === "grid" ? "secondary" : "ghost"}
-							size="icon"
-							onClick={() => setViewMode("grid")}
-							className="rounded-r-none"
-						>
-							<Grid3X3 className="h-4 w-4" />
-							<span className="sr-only">Grid view</span>
-						</Button>
-						<Button
-							variant={viewMode === "table" ? "secondary" : "ghost"}
-							size="icon"
-							onClick={() => setViewMode("table")}
-							className="rounded-l-none"
-						>
-							<List className="h-4 w-4" />
-							<span className="sr-only">Table view</span>
-						</Button>
+					<div className="flex rounded-full border">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant={viewMode === "grid" ? "secondary" : "ghost"}
+									size="icon"
+									onClick={() => setViewMode("grid")}
+									className="rounded-r-none"
+								>
+									<Grid3X3 className="h-4 w-4" />
+									<span className="sr-only">Grid view</span>
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Grid View</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant={viewMode === "table" ? "secondary" : "ghost"}
+									size="icon"
+									onClick={() => setViewMode("table")}
+									className="rounded-l-none"
+								>
+									<List className="h-4 w-4" />
+									<span className="sr-only">Table view</span>
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Table View</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			</div>

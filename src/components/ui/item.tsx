@@ -35,8 +35,8 @@ const itemVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-card",
-				accent: "bg-primary",
+				default: "bg-card hover:bg-card/80",
+				accent: "bg-accent-6 hover:bg-accent-6/80",
 				outline: "border-border",
 				muted: "bg-muted/50",
 			},

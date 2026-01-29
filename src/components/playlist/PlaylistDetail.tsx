@@ -28,6 +28,11 @@ import {
 	CardHeader,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type { Playlist, PlaylistVideo } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
@@ -182,9 +187,19 @@ function PlaylistDetailContent({
 				<div className="relative mx-6 my-8 embla-carousel">
 					{/* Left Control - Absolutely Positioned */}
 					<div className="absolute left-0 top-1/2 z-20 -translate-y-1/2 -translate-x-12">
-						<Button variant="reversed" size="icon" onClick={goToPrev}>
-							<CircleArrowLeft />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="reversed"
+									size="icon"
+									onClick={goToPrev}
+									aria-label="Previous Film"
+								>
+									<CircleArrowLeft />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Previous Film</TooltipContent>
+						</Tooltip>
 					</div>
 
 					<div className="embla-viewport" ref={emblaRef}>
@@ -240,9 +255,19 @@ function PlaylistDetailContent({
 
 					{/* Right Control - Absolutely Positioned */}
 					<div className="absolute right-0 top-1/2 z-20 -translate-y-1/2 translate-x-12">
-						<Button variant="reversed" size="icon" onClick={goToNext}>
-							<CircleArrowRight />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="reversed"
+									size="icon"
+									onClick={goToNext}
+									aria-label="Next Film"
+								>
+									<CircleArrowRight />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Next Film</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			)}

@@ -2,6 +2,11 @@ import useEmblaCarousel from "embla-carousel-react";
 import { CircleArrowLeft, CircleArrowRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SlideProps {
 	id?: string;
@@ -51,8 +56,8 @@ export function SlideShow({ slides, delay = 4500 }: SlideShowProps) {
 	};
 
 	return (
-		<div className="mx-auto my-8 max-w-3xl embla-carousel">
-			<div className="embla-viewport" ref={emblaRef}>
+		<div className="mx-auto my-8 max-w-5xl embla-carousel">
+			<div className="embla-viewport bg-primary px-4 py-6" ref={emblaRef}>
 				<div className="embla-container">
 					{slides.map((slide, index) => (
 						<div key={slide.id || index} className="embla-slide">
@@ -67,12 +72,32 @@ export function SlideShow({ slides, delay = 4500 }: SlideShowProps) {
 			</div>
 			<div className="embla-controls">
 				<div className="embla-buttons">
-					<Button variant="reversed" size="icon" onClick={goToPrev}>
-						<CircleArrowLeft />
-					</Button>
-					<Button variant="reversed" size="icon" onClick={goToNext}>
-						<CircleArrowRight />
-					</Button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="reversed"
+								size="icon"
+								onClick={goToPrev}
+								aria-label="Previous Slide"
+							>
+								<CircleArrowLeft />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Previous Slide</TooltipContent>
+					</Tooltip>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="reversed"
+								size="icon"
+								onClick={goToNext}
+								aria-label="Next Slide"
+							>
+								<CircleArrowRight />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Next Slide</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 		</div>
