@@ -40,7 +40,7 @@ export function CheckoutProcess() {
 						If you do not have an account, please sign up first to subscribe to
 						the premium plan.
 					</CardDescription>
-					<a href="/signup">
+					<a href="/auth/signup">
 						<Button variant="secondary">Sign Up to Subscribe</Button>
 					</a>
 				</Card>
@@ -53,7 +53,7 @@ export function CheckoutProcess() {
 						If you have an account, please login first to upgrade to the premium
 						plan.
 					</CardDescription>
-					<a href="/login">
+					<a href="/auth/login">
 						<Button>Login to Upgrade</Button>
 					</a>
 				</Card>

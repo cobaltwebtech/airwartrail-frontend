@@ -6,7 +6,7 @@ export const siteMeta = {
 	description: "Air War Trail bringing stories of the past",
 	description_short: "Air War Trail video interviews",
 	url: "https://www.airwartrail.com/",
-	author: "Cobalt Web Technologies",
+	author: "Dr. Vernon Williams",
 };
 
 export const seoMeta = {
@@ -33,7 +33,7 @@ export const openGraph = {
 	locale: "en_US",
 	type: "website",
 	url: siteMeta.url,
-	title: `${siteMeta.title} - Airwar Trail bringing stories of the past`,
+	title: `${siteMeta.title} - Air War Trail bringing stories of the past`,
 	description: "Air War Trail is about World War II history and interviews.",
 	image: ogImageSrc,
 };

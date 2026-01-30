@@ -1,9 +1,10 @@
 ---
+
 export const prerender = true;
 
+import { CircleX } from "@lucide/astro";
 import { Button } from "@/components/ui/button";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { CircleX } from "@lucide/astro";
 ---
 
 <BaseLayout title="Login Error | Air War Trail">
@@ -19,7 +20,7 @@ import { CircleX } from "@lucide/astro";
         An error occurred resetting password. The login link is either invalid
         or expired.
       </p>
-      <a href="/login/forget-password">
+      <a href="/auth/forgot-password">
         <Button>Retry Login</Button>
       </a>
     </div>

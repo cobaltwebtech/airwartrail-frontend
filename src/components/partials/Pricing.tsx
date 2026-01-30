@@ -59,7 +59,7 @@ export function Pricing() {
 							</ul>
 						</CardContent>
 						<CardFooter>
-							<a href="/signup" className="w-full">
+							<a href="/auth/signup" className="w-full">
 								<Button className="w-full" variant="secondary">
 									Get Started
 								</Button>
@@ -113,7 +113,7 @@ export function Pricing() {
 							</ul>
 						</CardContent>
 						<CardFooter>
-							<a href="/signup" className="w-full">
+							<a href="/auth/signup" className="w-full">
 								<Button className="w-full" size="lg">
 									<UserPlus className="size-6" />
 									<span className="text-lg font-bold">

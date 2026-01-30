@@ -1,7 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircle2 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { signUp } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -19,11 +20,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, type SignupFormValues } from "@/lib/schemas";
 import { PasswordInput } from "@/components/ui/password";
-import { CheckCircle2 } from "lucide-react";
+import { signUp } from "@/lib/auth-client";
+import { type SignupFormValues, signupSchema } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 export function SignupForm({
 	className,
@@ -213,7 +213,7 @@ export function SignupForm({
 										<p className="text-center text-sm">
 											Already have an account?{" "}
 											<a
-												href="/login"
+												href="/auth/login"
 												className="text-accent-5 dark:text-accent-4 underline underline-offset-4"
 											>
 												Login Here

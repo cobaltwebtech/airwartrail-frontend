@@ -63,7 +63,7 @@ function UserInfoContent() {
 	// Function to update email in Stripe
 	const updateStripeEmail = async (customerId: string, email: string) => {
 		try {
-			const response = await fetch("/api/stripe/updateEmail", {
+			const response = await fetch("/api/stripe/update-email", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

@@ -110,7 +110,7 @@ export function PasswordReset({
 									<Button
 										variant="default"
 										onClick={() => {
-											window.location.href = "/login";
+											window.location.href = "/auth/login";
 										}}
 									>
 										Return to Login
@@ -168,8 +168,8 @@ export function PasswordReset({
 						<CardFooter className="flex justify-center">
 							<div className="text-center text-sm">
 								Remember your password?{" "}
-								<a href="/login" className="underline underline-offset-4">
-									Back to login
+								<a href="/auth/login" className="underline underline-offset-4">
+									Back to Login
 								</a>
 							</div>
 						</CardFooter>

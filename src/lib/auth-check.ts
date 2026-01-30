@@ -267,8 +267,8 @@ export async function checkAuthOnly(
  */
 export function redirectToLogin(returnUrl?: string): Response {
 	const url = returnUrl
-		? `/login?returnUrl=${encodeURIComponent(returnUrl)}`
-		: "/login";
+		? `/auth/login?returnUrl=${encodeURIComponent(returnUrl)}`
+		: "/auth/login";
 
 	return new Response(null, {
 		status: 302,

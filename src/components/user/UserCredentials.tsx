@@ -144,7 +144,7 @@ function UserCredentialsContent() {
 		try {
 			await requestPasswordReset({
 				email: user.email,
-				redirectTo: "/login/reset-password",
+				redirectTo: "/auth/reset-password",
 			});
 			setIsSuccess(true);
 			toast.success("Check your email for a link to set your password");

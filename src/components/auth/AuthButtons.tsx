@@ -74,7 +74,7 @@ export function AuthButtons({ sessionData }: AuthButtonsProps) {
 				</DropdownMenu>
 			) : (
 				<div className="flex flex-row gap-x-2 lg:gap-x-4">
-					<a href="/login">
+					<a href="/auth/login">
 						<Button className="h-9 px-1 text-xs sm:px-4 sm:text-lg">
 							Login
 						</Button>

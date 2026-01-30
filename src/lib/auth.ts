@@ -57,7 +57,7 @@ export const createAuth = (env: Env) => {
 			sendResetPassword: async ({ user, url }) => {
 				try {
 					await resend.emails.send({
-						from: "Air War Trail <auth@airwartrail.com>",
+						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Password Reset",
 						react: await PasswordReset({
@@ -75,7 +75,7 @@ export const createAuth = (env: Env) => {
 			sendVerificationEmail: async ({ user, url }) => {
 				try {
 					await resend.emails.send({
-						from: "Air War Trail <auth@airwartrail.com>",
+						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Verify Your Email Address",
 						react: await VerifyEmail({
@@ -95,7 +95,7 @@ export const createAuth = (env: Env) => {
 				sendChangeEmailVerification: async ({ user, newEmail, url }) => {
 					try {
 						await resend.emails.send({
-							from: "Air War Trail <auth@airwartrail.com>",
+							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: user.email,
 							subject: "Confirm Email Change",
 							react: await ConfirmChange({
@@ -119,7 +119,7 @@ export const createAuth = (env: Env) => {
 					try {
 						console.log("Attempting to send magic link email to:", email);
 						await resend.emails.send({
-							from: "Air War Trail <auth@airwartrail.com>",
+							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: email,
 							subject: "Login to Air War Trail",
 							react: await MagicLink({

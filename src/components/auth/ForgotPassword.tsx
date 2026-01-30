@@ -39,7 +39,7 @@ export function ForgotPassword({
 		try {
 			await requestPasswordReset({
 				email,
-				redirectTo: "/login/reset-password",
+				redirectTo: "/auth/reset-password",
 			});
 			setIsSuccess(true);
 			toast.success("Password reset link sent to your email!");
@@ -131,8 +131,8 @@ export function ForgotPassword({
 						<CardFooter className="flex justify-center">
 							<div className="text-center text-sm">
 								Remember your password?{" "}
-								<a href="/login" className="underline underline-offset-4">
-									Back to login
+								<a href="/auth/login" className="underline underline-offset-4">
+									Back to Login
 								</a>
 							</div>
 						</CardFooter>

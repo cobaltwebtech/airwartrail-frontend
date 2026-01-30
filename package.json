@@ -1,7 +1,7 @@
 {
   "name": "airwartrail-frontend",
   "type": "module",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -24,6 +24,7 @@
     "@better-auth/stripe": "^1.4.18",
     "@hookform/resolvers": "^5.2.2",
     "@lucide/astro": "^0.562.0",
+    "@marsidev/react-turnstile": "^1.4.1",
     "@mux/mux-player-react": "^3.10.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

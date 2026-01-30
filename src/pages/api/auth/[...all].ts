@@ -25,7 +25,7 @@ export const ALL: APIRoute = async (ctx) => {
 				session?: { token: string };
 			};
 			if (authData?.user && authData?.session?.token) {
-				await ctx.session.set("session", {
+				ctx.session.set("session", {
 					userId: authData.user?.id,
 					token: authData.session?.token,
 				});

@@ -1,9 +1,10 @@
 ---
+
 export const prerender = true;
 
+import { CircleX } from "@lucide/astro";
 import { Button } from "@/components/ui/button";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { CircleX } from "@lucide/astro";
 ---
 
 <BaseLayout title="Verification Error | Air War Trail">
@@ -18,7 +19,7 @@ import { CircleX } from "@lucide/astro";
       <p class="text-muted-foreground">
         An error has occurred. The link is either invalid or expired.
       </p>
-      <a href="/login">
+      <a href="/auth/login">
         <Button>Go Back to Login</Button>
       </a>
     </div>
