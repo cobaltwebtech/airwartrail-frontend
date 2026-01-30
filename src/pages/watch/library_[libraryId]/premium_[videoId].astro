@@ -1,8 +1,13 @@
 ---
+import { Pricing } from "@/components/partials/Pricing";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { RelatedVideos } from "@/components/video/RelatedVideos";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
 // Extract parameters from the URL
 const videoId = Astro.params.videoId ?? "";
@@ -39,11 +44,15 @@ const structuredData = {
 			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
-	<VideoPlayer
-		client:load
-		videoId={videoId}
-		libraryId={libraryId}
-		requiresSub={true}
-	/>
-	<RelatedVideos client:load isPremium={true} videoId={videoId} libraryId={libraryId} />
+	{hasActiveSubscription ? (
+		<VideoPlayer
+			client:load
+			videoId={videoId}
+			libraryId={libraryId}
+			requiresSub={true}
+		/>
+		<RelatedVideos client:load isPremium={true} videoId={videoId} libraryId={libraryId} />
+	) : (
+		<Pricing />
+	)}
 </BaseLayout>

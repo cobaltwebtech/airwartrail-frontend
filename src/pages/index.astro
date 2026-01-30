@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { VideoEmbed } from "@/components/video/VideoEmbed";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-// Auth state is populated by middleware
+// Check auth and subscription status via middleware
 const { hasActiveSubscription } =
 	Astro.locals.auth;
 

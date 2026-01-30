@@ -1,4 +1,6 @@
 ---
+
+import { Pricing } from "@/components/partials/Pricing";
 import { PlaylistPlayer } from "@/components/playlist/PlaylistPlayer";
 import {
 	Breadcrumb,
@@ -8,6 +10,10 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
 const { slug } = Astro.params;
 
@@ -66,11 +72,15 @@ const structuredData = {
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
-  <PlaylistPlayer
-    client:load
-		requiresSub={true}
-    slug={slug}
-    libraryId={videoLibraryId}
-    startIndex={startIndex}
-  />
+	{hasActiveSubscription ? (
+		<PlaylistPlayer
+			client:load
+			requiresSub={true}
+			slug={slug}
+			libraryId={videoLibraryId}
+			startIndex={startIndex}
+		/>
+	) : (
+		<Pricing />
+	)}
 </BaseLayout>

@@ -77,8 +77,9 @@ function BillingInfoContent() {
 	const hasActiveSubscription =
 		subscriptionData?.status === "active" ||
 		subscriptionData?.status === "trialing";
-	const subscriptionPlan = subscriptionData?.plan || "Free Tier";
-	const isFreeTier = !hasActiveSubscription || subscriptionPlan === "Free Tier";
+	const subscriptionPlan = subscriptionData?.plan || "Basic Plan";
+	const isBasicPlan =
+		!hasActiveSubscription || subscriptionPlan === "Basic Plan";
 
 	// Format the subscription period end date
 	const subscriptionEndDate = subscriptionData?.periodEnd
@@ -160,23 +161,34 @@ function BillingInfoContent() {
 							Current Plan
 						</p>
 						<p className="text-lg font-semibold">
-							{isFreeTier ? "Basic Plan" : "Premium"}
+							{isBasicPlan ? "Basic Plan" : "Premium"}
 						</p>
-						{!isFreeTier && subscriptionData?.periodEnd && (
+						{!isBasicPlan && subscriptionData?.periodEnd && (
 							<div className="text-muted-foreground mt-1 text-sm">
 								{subscriptionData.cancelAtPeriodEnd?.valueOf() ? (
-									<p>
-										Your subscription ends on {subscriptionEndDate}. If you
-										would like to renew your subscription click the button
-										below.
-									</p>
+									<>
+										<p>Subscription End Date</p>
+										<p className="mb-4 text-card-foreground text-lg font-semibold">
+											{subscriptionEndDate}
+										</p>
+										<p>
+											Your subscription is set to cancel and not renew. If you
+											would like to renew your subscription click the button
+											below.
+										</p>
+									</>
 								) : (
-									<p>
-										Your subscription is active and renews on{" "}
-										{subscriptionEndDate}. If you wish to cancel your
-										subscription or need to update your payment details click
-										the button below.
-									</p>
+									<>
+										<p>Renewal Date</p>
+										<p className="mb-4 text-card-foreground text-lg font-semibold">
+											{subscriptionEndDate}
+										</p>
+										<p>
+											Your subscription is active. If you wish to cancel your
+											subscription or need to update your payment details click
+											the button below.
+										</p>
+									</>
 								)}
 							</div>
 						)}
@@ -184,7 +196,7 @@ function BillingInfoContent() {
 				</div>
 			</CardContent>
 			<CardFooter className="flex flex-wrap justify-between gap-4">
-				{isFreeTier && (
+				{isBasicPlan && (
 					<Button
 						className="w-fit"
 						onClick={handleUpgrade}

@@ -7,11 +7,12 @@ interface FooterItem {
 }
 //Array for footer menu items
 const footerItems: Array<FooterItem> = [
-	{ title: "About", url: "/about" },
+	{ title: "Subscribe", url: "/subscribe" },
+	{ title: "Account", url: "/account" },
 	{ title: "Contact", url: "/contact" },
 	{ title: "Terms of Service", url: "/terms-of-service" },
 	{ title: "Privacy Policy", url: "/privacy-policy" },
-	{ title: "Subscribe", url: "/subscribe" },
+	{ title: "About", url: "/about" },
 ];
 
 const Footer = () => {
@@ -47,7 +48,7 @@ const Footer = () => {
 								className="flex items-center justify-start lg:justify-center"
 								href={url}
 							>
-								<span className="text-sm font-semibold text-nowrap">
+								<span className="text-xs font-semibold whitespace-nowrap">
 									{title}
 								</span>
 							</a>

@@ -1,10 +1,15 @@
 ---
+
+import { Pricing } from "@/components/partials/Pricing";
 import { PlaylistDetail } from "@/components/playlist/PlaylistDetail";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const { slug } = Astro.params;
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
+const { slug } = Astro.params;
 if (!slug) {
 	return Astro.redirect("/film-series");
 }
@@ -52,5 +57,9 @@ const structuredData = {
 			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
-	<PlaylistDetail client:load requiresSub={true} slug={slug} libraryId={videoLibraryId} />
+	{hasActiveSubscription ? (
+		<PlaylistDetail client:load requiresSub={true} slug={slug} libraryId={videoLibraryId} />
+	) : (
+		<Pricing />
+	)}
 </BaseLayout>

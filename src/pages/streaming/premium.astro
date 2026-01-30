@@ -1,6 +1,12 @@
 ---
+
+import { Pricing } from "@/components/partials/Pricing";
 import { VideoLibrary } from "@/components/video/VideoLibrary";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
 const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
 const pageTitle = "Premium Content | Air War Trail";
@@ -27,5 +33,9 @@ const structuredData = {
   <h1 class="mb-8 text-center text-3xl font-bold">
     Premium Content
   </h1>
-  <VideoLibrary client:load requiresSub={true} libraryId={videoLibraryId} />
+  {hasActiveSubscription ? (
+    <VideoLibrary client:load requiresSub={true} libraryId={videoLibraryId} />
+  ) : (
+    <Pricing />
+  )}
 </BaseLayout>

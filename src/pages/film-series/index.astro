@@ -1,6 +1,12 @@
 ---
+
+import { Pricing } from "@/components/partials/Pricing";
 import { PlaylistsList } from "@/components/playlist/PlaylistsList";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
 const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
 const pageTitle = "Film Series | Air War Trail";
@@ -28,5 +34,9 @@ const structuredData = {
     Film Series
   </h1>
   <p class="mb-8 text-center text-lg font-semibold">View our curated collection of films by playlists.</p>
-  <PlaylistsList client:load libraryId={videoLibraryId} />
+  {hasActiveSubscription ? (
+    <PlaylistsList client:load libraryId={videoLibraryId} />
+  ) : (
+    <Pricing />
+  )}
 </BaseLayout>
