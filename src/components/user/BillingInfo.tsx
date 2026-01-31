@@ -194,9 +194,8 @@ function BillingInfoContent() {
 						)}
 					</div>
 				</div>
-			</CardContent>
-			<CardFooter className="flex flex-wrap justify-between gap-4">
-				{isBasicPlan && (
+				<div className="mt-6 flex flex-wrap justify-between gap-4">
+									{isBasicPlan && (
 					<Button
 						className="w-fit"
 						onClick={handleUpgrade}
@@ -226,6 +225,13 @@ function BillingInfoContent() {
 					) : (
 						"Manage Subscription & Payment"
 					)}
+				</Button>
+				</div>
+			</CardContent>
+			<CardFooter className="flex-col items-start gap-2">
+				<p className="font-semibold">Need help or have questions?</p>
+				<Button asChild>
+					<a href="/contact">Contact Us</a>
 				</Button>
 			</CardFooter>
 		</Card>

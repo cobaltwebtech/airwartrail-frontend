@@ -177,36 +177,92 @@ export const createAuth = (env: Env) => {
 					},
 				},
 				// Use onEvent only for events NOT handled by the plugin
+				// Note: Subscription status updates are handled automatically by Better Auth
+				// via customer.subscription.* webhooks (onSubscriptionComplete, onSubscriptionUpdate, onSubscriptionCancel)
 				onEvent: async (event) => {
 					console.log("Stripe webhook event:", event.type);
 
 					// Handle additional events not covered by the plugin
 					switch (event.type) {
-						case "invoice.paid":
-							console.log("Invoice paid:", event.data.object.id);
+						// Invoice lifecycle events (for custom checkout with Stripe Elements)
+						case "invoice.created": {
+							const invoice = event.data.object as Stripe.Invoice;
+							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							console.log(
+								`Invoice created: ${invoice.id} for subscription ${subscriptionId}`,
+							);
 							break;
-						case "invoice.payment_failed":
-							console.log("Invoice payment failed:", event.data.object.id);
+						}
+						case "invoice.finalized": {
+							const invoice = event.data.object as Stripe.Invoice;
+							console.log(
+								`Invoice finalized: ${invoice.id}, amount: ${invoice.amount_due}`,
+							);
 							break;
+						}
+						case "invoice.paid": {
+							const invoice = event.data.object as Stripe.Invoice;
+							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							console.log(
+								`Invoice paid: ${invoice.id} for subscription ${subscriptionId}`,
+							);
+							// Note: Subscription status is updated by Better Auth via customer.subscription.updated
+							break;
+						}
+						case "invoice.payment_failed": {
+							const invoice = event.data.object as Stripe.Invoice;
+							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							console.error(
+								`Invoice payment failed: ${invoice.id} for subscription ${subscriptionId}`,
+							);
+							// Note: Subscription status (past_due) is updated by Better Auth via customer.subscription.updated
+							break;
+						}
+						case "invoice.payment_action_required": {
+							const invoice = event.data.object as Stripe.Invoice;
+							console.log(
+								`Invoice requires action (3D Secure): ${invoice.id}`,
+							);
+							break;
+						}
+
+						// Payment intent events (for tracking payment flow)
+						case "payment_intent.succeeded": {
+							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							console.log(`Payment intent succeeded: ${paymentIntent.id}`);
+							break;
+						}
+						case "payment_intent.payment_failed": {
+							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							console.error(
+								`Payment intent failed: ${paymentIntent.id}`,
+								paymentIntent.last_payment_error?.message,
+							);
+							break;
+						}
+
+						// Checkout session cleanup (safety net, less relevant with custom checkout)
 						case "checkout.session.expired": {
-							// Clean up stale incomplete subscriptions
 							const session = event.data.object as Stripe.Checkout.Session;
 							console.log("Checkout session expired:", session.id);
-							const db = createDrizzle(env.DB_AUTH);
-							try {
-								await db
-									.delete(schema.subscription)
-									.where(
-										and(
-											eq(
-												schema.subscription.referenceId,
-												session.client_reference_id || "",
+							// Clean up stale incomplete subscriptions if any
+							if (session.client_reference_id) {
+								const db = createDrizzle(env.DB_AUTH);
+								try {
+									await db
+										.delete(schema.subscription)
+										.where(
+											and(
+												eq(
+													schema.subscription.referenceId,
+													session.client_reference_id,
+												),
+												eq(schema.subscription.status, "incomplete"),
 											),
-											eq(schema.subscription.status, "incomplete"),
-										),
-									);
-							} catch (error) {
-								console.error("Error cleaning up expired session:", error);
+										);
+								} catch (error) {
+									console.error("Error cleaning up expired session:", error);
+								}
 							}
 							break;
 						}
