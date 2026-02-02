@@ -53,10 +53,9 @@ export const createAuth = (env: Env) => {
 		emailAndPassword: {
 			enabled: true,
 			requireEmailVerification: true,
-			autoSignIn: true,
 			sendResetPassword: async ({ user, url }) => {
 				try {
-					await resend.emails.send({
+					const { data } = await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Password Reset",
@@ -64,6 +63,7 @@ export const createAuth = (env: Env) => {
 							url: url,
 						}),
 					});
+					console.log("Password reset email sent, Resend email ID:", data?.id);
 				} catch (error) {
 					console.error("Error sending password reset:", error);
 					throw error;
@@ -71,10 +71,11 @@ export const createAuth = (env: Env) => {
 			},
 		},
 		emailVerification: {
-			expiresIn: 300, // Token expiration set to 5 minutes
+			expiresIn: 1800, // Token expiration set to 30 minutes
+			autoSignInAfterVerification: true,
 			sendVerificationEmail: async ({ user, url }) => {
 				try {
-					await resend.emails.send({
+					const { data } = await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Verify Your Email Address",
@@ -82,7 +83,7 @@ export const createAuth = (env: Env) => {
 							url: url,
 						}),
 					});
-					console.log("Verification email sent to:", user.email);
+					console.log("Verification email sent, Resend email ID:", data?.id);
 				} catch (error) {
 					console.error("Error sending email verification:", error);
 					throw error;
@@ -94,7 +95,7 @@ export const createAuth = (env: Env) => {
 				enabled: true,
 				sendChangeEmailVerification: async ({ user, newEmail, url }) => {
 					try {
-						await resend.emails.send({
+						const { data } = await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: user.email,
 							subject: "Confirm Email Change",
@@ -103,7 +104,10 @@ export const createAuth = (env: Env) => {
 								url: url,
 							}),
 						});
-						console.log("Email change verification sent to:", user.email);
+						console.log(
+							"Email change verification sent, Resend email ID:",
+							data?.id,
+						);
 					} catch (error) {
 						console.error("Error sending email change verification:", error);
 						throw error;
@@ -114,11 +118,11 @@ export const createAuth = (env: Env) => {
 		plugins: [
 			admin(),
 			magicLink({
+				// Token expiration default is 5 minutes
 				disableSignUp: true,
 				sendMagicLink: async ({ email, url }) => {
 					try {
-						console.log("Attempting to send magic link email to:", email);
-						await resend.emails.send({
+						const { data } = await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: email,
 							subject: "Login to Air War Trail",
@@ -126,7 +130,10 @@ export const createAuth = (env: Env) => {
 								url: url,
 							}),
 						});
-						console.log("Magic link email sent successfully");
+						console.log(
+							"Magic link email sent successfully, Resend email ID:",
+							data?.id,
+						);
 					} catch (error) {
 						console.error("Error sending magic link email:", error);
 						throw error;
@@ -187,7 +194,8 @@ export const createAuth = (env: Env) => {
 						// Invoice lifecycle events (for custom checkout with Stripe Elements)
 						case "invoice.created": {
 							const invoice = event.data.object as Stripe.Invoice;
-							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							const subscriptionId =
+								invoice.parent?.subscription_details?.subscription;
 							console.log(
 								`Invoice created: ${invoice.id} for subscription ${subscriptionId}`,
 							);
@@ -202,7 +210,8 @@ export const createAuth = (env: Env) => {
 						}
 						case "invoice.paid": {
 							const invoice = event.data.object as Stripe.Invoice;
-							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							const subscriptionId =
+								invoice.parent?.subscription_details?.subscription;
 							console.log(
 								`Invoice paid: ${invoice.id} for subscription ${subscriptionId}`,
 							);
@@ -211,7 +220,8 @@ export const createAuth = (env: Env) => {
 						}
 						case "invoice.payment_failed": {
 							const invoice = event.data.object as Stripe.Invoice;
-							const subscriptionId = invoice.parent?.subscription_details?.subscription;
+							const subscriptionId =
+								invoice.parent?.subscription_details?.subscription;
 							console.error(
 								`Invoice payment failed: ${invoice.id} for subscription ${subscriptionId}`,
 							);
@@ -220,9 +230,7 @@ export const createAuth = (env: Env) => {
 						}
 						case "invoice.payment_action_required": {
 							const invoice = event.data.object as Stripe.Invoice;
-							console.log(
-								`Invoice requires action (3D Secure): ${invoice.id}`,
-							);
+							console.log(`Invoice requires action (3D Secure): ${invoice.id}`);
 							break;
 						}
 

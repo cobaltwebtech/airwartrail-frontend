@@ -1,18 +1,18 @@
 import {
-	Tailwind,
-	Html,
-	Head,
-	Preview,
 	Body,
-	Heading,
+	Button,
+	Column,
 	Container,
-	Section,
+	Head,
+	Heading,
+	Html,
 	Img,
 	Link,
-	Text,
+	Preview,
 	Row,
-	Column,
-	Button,
+	Section,
+	Tailwind,
+	Text,
 } from "@react-email/components";
 import type * as React from "react";
 
@@ -35,7 +35,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 										<Img
 											alt="Air War Trail Logo"
 											height="150"
-											src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
+											src="https://assets.airwartrail.com/static/Airwar-Trail-Logo.png"
 										/>
 									</Link>
 									<Heading as="h1" className="text-4xl">
@@ -76,10 +76,6 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 									<Text className="text-center text-xl font-bold text-stone-900">
 										Please Verify Your Email Address
 									</Text>
-									<Text className="text-sm text-stone-700">
-										If you did not request this change, please ignore this
-										email.
-									</Text>
 									<Text className="text-base text-stone-700">
 										Click the link below to verify.
 									</Text>
@@ -90,7 +86,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 										Verify Email Address
 									</Button>
 									<Text className="text-base text-stone-700">
-										Link will expire in five minutes.
+										Link will expire in thirty minutes.
 									</Text>
 								</Column>
 							</Row>
@@ -101,7 +97,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 									<Img
 										alt="Air War Trail Logo"
 										width="80"
-										src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
+										src="https://assets.airwartrail.com/static/Airwar-Trail-Logo.png"
 										className="mx-auto w-[80px]"
 									/>
 								</Column>
@@ -112,7 +108,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 										<Img
 											alt="YouTube logo"
 											height="64"
-											src="https://airwartrail-assets.b-cdn.net/email-assets/youtube-dark-icon.png"
+											src="https://assets.airwartrail.com/static/YouTube-Logo-Dark.png"
 											width="64"
 											className="mx-auto"
 										/>

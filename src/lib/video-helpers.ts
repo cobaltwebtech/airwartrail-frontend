@@ -137,7 +137,7 @@ export function formatDuration(seconds: number): string {
 	const secs = Math.floor(seconds % 60);
 
 	if (hrs > 0) {
-		return `${hrs.toString()}:${mins.toString()}:${secs.toString().padStart(2, "0")}`;
+		return `${hrs.toString()}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 	}
 
 	return `${mins.toString()}:${secs.toString().padStart(2, "0")}`;

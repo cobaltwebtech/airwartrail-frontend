@@ -42,7 +42,7 @@ function UserInfoContent() {
 	const isAdmin = user?.role === "admin";
 
 	// Logic for updating the name
-	const handleNameSubmit = async (e: React.FormEvent) => {
+	const handleNameSubmit = async (e: React.SubmitEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 

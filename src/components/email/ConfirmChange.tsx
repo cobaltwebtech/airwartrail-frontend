@@ -1,18 +1,18 @@
 import {
-	Tailwind,
-	Html,
-	Head,
-	Preview,
 	Body,
-	Heading,
+	Button,
+	Column,
 	Container,
-	Section,
+	Head,
+	Heading,
+	Html,
 	Img,
 	Link,
-	Text,
+	Preview,
 	Row,
-	Column,
-	Button,
+	Section,
+	Tailwind,
+	Text,
 } from "@react-email/components";
 import type * as React from "react";
 
@@ -39,7 +39,7 @@ export const ConfirmChange: React.FC<ConfirmChangeProps> = ({
 										<Img
 											alt="Air War Trail Logo"
 											height="150"
-											src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
+											src="https://assets.airwartrail.com/static/Airwar-Trail-Logo.png"
 										/>
 									</Link>
 									<Heading as="h1" className="text-4xl">
@@ -111,7 +111,7 @@ export const ConfirmChange: React.FC<ConfirmChangeProps> = ({
 									<Img
 										alt="Air War Trail Logo"
 										width="80"
-										src="https://airwartrail-assets.b-cdn.net/email-assets/Airwar-Trail-Logo.png"
+										src="https://assets.airwartrail.com/static/Airwar-Trail-Logo.png"
 										className="mx-auto w-[80px]"
 									/>
 								</Column>
@@ -122,7 +122,7 @@ export const ConfirmChange: React.FC<ConfirmChangeProps> = ({
 										<Img
 											alt="YouTube logo"
 											height="64"
-											src="https://airwartrail-assets.b-cdn.net/email-assets/youtube-dark-icon.png"
+											src="https://assets.airwartrail.com/static/YouTube-Logo-Dark.png"
 											width="64"
 											className="mx-auto"
 										/>

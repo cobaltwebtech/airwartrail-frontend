@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard, Loader2, ShieldUser } from "lucide-react";
 import { useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Button } from "@/components/ui/button";
@@ -34,13 +34,16 @@ type Subscription = {
 
 function BillingInfoContent() {
 	const queryClient = useQueryClient();
-	const { data: session } = useSession();
+	const session = useSession();
 	const [isManagingPayment, setIsManagingPayment] = useState(false);
 	const [isUpgrading, setIsUpgrading] = useState(false);
 
+	// Check if user is admin
+	const isAdmin = session.data?.user?.role === "admin";
+
 	// Query subscription data
 	const { data: subscriptionData, isLoading: loading } = useQuery({
-		queryKey: ["subscription", session?.user?.id],
+		queryKey: ["subscription", session.data?.user?.id],
 		queryFn: async (): Promise<Subscription | null> => {
 			const { data: subscriptions } = await subscription.list();
 			const activeSubscription = subscriptions?.find(
@@ -48,7 +51,7 @@ function BillingInfoContent() {
 			);
 			return (activeSubscription as Subscription) || null;
 		},
-		enabled: !!session?.user,
+		enabled: !!session.data?.user,
 		staleTime: 1000 * 60 * 5, // 5 minutes
 		refetchOnWindowFocus: true, // Refetch when user returns to tab
 		refetchOnMount: true, // Always refetch when component mounts
@@ -64,7 +67,7 @@ function BillingInfoContent() {
 			});
 			// Invalidate cache after upgrade to reflect new status
 			await queryClient.invalidateQueries({
-				queryKey: ["subscription", session?.user?.id],
+				queryKey: ["subscription", session.data?.user?.id],
 			});
 		} catch (error) {
 			console.error("Error upgrading subscription:", error);
@@ -99,7 +102,7 @@ function BillingInfoContent() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					customerId: session?.user.stripeCustomerId,
+					customerId: session.data?.user?.stripeCustomerId,
 				}),
 			});
 
@@ -155,6 +158,20 @@ function BillingInfoContent() {
 				</div>
 			</CardHeader>
 			<CardContent>
+				{/* Admin Badge - Only visible to admin users */}
+				{isAdmin && (
+					<div className="border-border bg-accent-6 mb-4 rounded-lg border p-4">
+						<div className="flex items-center gap-2">
+							<ShieldUser className="text-destructive size-6" />
+							<p className="text-sm font-semibold">Administrator Account</p>
+						</div>
+						<p className="mt-1 text-xs">
+							Since you are an admin you do not have an active subscription plan
+							or payment account setup. You do have full access to all premium
+							features without a subscription.
+						</p>
+					</div>
+				)}
 				<div>
 					<div>
 						<p className="text-muted-foreground text-sm font-medium">
@@ -195,37 +212,37 @@ function BillingInfoContent() {
 					</div>
 				</div>
 				<div className="mt-6 flex flex-wrap justify-between gap-4">
-									{isBasicPlan && (
+					{isBasicPlan && (
+						<Button
+							className="w-fit"
+							onClick={handleUpgrade}
+							disabled={isUpgrading}
+						>
+							{isUpgrading ? (
+								<div className="flex items-center gap-2">
+									<Loader2 className="size-4 animate-spin" />
+									<span>Proceeding to payment...</span>
+								</div>
+							) : (
+								"Upgrade to Premium Plan"
+							)}
+						</Button>
+					)}
 					<Button
+						variant="secondary"
 						className="w-fit"
-						onClick={handleUpgrade}
-						disabled={isUpgrading}
+						onClick={handleManagePayment}
+						disabled={isManagingPayment}
 					>
-						{isUpgrading ? (
+						{isManagingPayment ? (
 							<div className="flex items-center gap-2">
 								<Loader2 className="size-4 animate-spin" />
-								<span>Proceeding to payment...</span>
+								<span>Loading Please Wait...</span>
 							</div>
 						) : (
-							"Upgrade to Premium Plan"
+							"Manage Subscription & Payment"
 						)}
 					</Button>
-				)}
-				<Button
-					variant="secondary"
-					className="w-fit"
-					onClick={handleManagePayment}
-					disabled={isManagingPayment}
-				>
-					{isManagingPayment ? (
-						<div className="flex items-center gap-2">
-							<Loader2 className="size-4 animate-spin" />
-							<span>Loading Please Wait...</span>
-						</div>
-					) : (
-						"Manage Subscription & Payment"
-					)}
-				</Button>
 				</div>
 			</CardContent>
 			<CardFooter className="flex-col items-start gap-2">

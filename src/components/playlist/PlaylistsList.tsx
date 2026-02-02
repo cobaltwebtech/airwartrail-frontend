@@ -169,20 +169,17 @@ function PlaylistCard({ playlist, libraryId }: PlaylistCardProps) {
 
 function PlaylistGridSkeleton() {
 	return (
-		<ItemGroup className="grid gap-8 sm:grid-cols-2">
+		<ItemGroup className="w-full grid gap-8 sm:grid-cols-2">
 			{Array.from({ length: 8 }).map((_, i) => (
 				// biome-ignore lint/suspicious/noArrayIndexKey: Skeleton items are static
-				<Item key={`skeleton-${i}`} variant="outline">
-					<ItemMedia className="overflow-hidden rounded-l-lg">
+				<Item key={`skeleton-${i}`} variant="outline" className="flex-nowrap">
+					<ItemMedia className="w-40 rounded-lg">
 						<Skeleton className="aspect-video w-full" />
 					</ItemMedia>
 					<ItemContent className="flex-1">
-						<Skeleton className="h-6 w-3/4" />
-						<Skeleton className="mt-2 h-4 w-full" />
-						<Skeleton className="mt-1 h-4 w-2/3" />
-					</ItemContent>
-					<ItemContent className="flex-none">
-						<Skeleton className="h-5 w-20" />
+						<Skeleton className="h-6 w-full" />
+						<Skeleton className="h-4 w-2/3" />
+						<Skeleton className="h-4 w-1/2" />
 					</ItemContent>
 				</Item>
 			))}
