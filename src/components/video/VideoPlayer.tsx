@@ -309,7 +309,7 @@ function VideoPlayerDetailContent({
 						<Skeleton className="w-full aspect-video" />
 						<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4">
 							<VideoOff className="size-8 text-destructive" />
-							<p className="text-lg font-bold">Video Not Available</p>
+							<p className="text-lg font-bold">Video Not Published</p>
 							<Button size="lg" asChild>
 								<a href="/">Go Back Home</a>
 							</Button>

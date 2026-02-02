@@ -74,8 +74,9 @@ function PlaylistDetailContent({
 	// Check session and subscription status only if this is premium content
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
 	const [emblaRef, emblaApi] = useEmblaCarousel({
-		loop: true,
-		dragFree: true,
+		// Embla options see https://www.embla-carousel.com/api/options/
+		align: "start",
+		skipSnaps: false,
 	});
 
 	// Fetch playlist with videos
@@ -207,7 +208,7 @@ function PlaylistDetailContent({
 							{filteredVideos.map((video) => (
 								<Card
 									key={video.id}
-									className="w-full max-w-90 gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
+									className="w-full max-w-90 min-w-90 gap-1 last:mr-4 overflow-hidden p-0 transition-colors hover:bg-background"
 								>
 									<a href={buildVideoUrl(video.id)}>
 										<div className="relative">
