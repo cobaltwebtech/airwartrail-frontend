@@ -1,5 +1,4 @@
 ---
-
 export const prerender = true;
 
 import { CircleX } from "@lucide/astro";
@@ -8,20 +7,18 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Login Error | Air War Trail">
-  <div class="container flex min-h-[80svh] items-center justify-center py-8">
-    <div class="flex flex-col items-center gap-4 text-center">
-      <div
-        class="flex size-16 flex-col items-center justify-center rounded-full bg-red-500 p-3"
-      >
-        <CircleX class="size-16 text-white" />
-      </div>
-      <h1 class="text-4xl font-bold">Login Error</h1>
-      <p class="text-muted-foreground">
-        An error occurred logging in. The link is either invalid or expired.
-      </p>
-      <a href="/auth/login">
-        <Button>Retry Login</Button>
-      </a>
-    </div>
+
+  <div
+    class="flex size-16 flex-col items-center justify-center rounded-full bg-red-500 p-3"
+  >
+    <CircleX class="size-16 text-white" />
   </div>
+  <h1 class="text-4xl font-bold">Login Error</h1>
+  <p class="text-muted-foreground">
+    An error occurred logging in. The link is either invalid or expired.
+  </p>
+  <a href="/auth/login">
+    <Button size="lg">Retry Login</Button>
+  </a>
+
 </BaseLayout>

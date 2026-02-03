@@ -4,7 +4,9 @@ import { createAuth } from "@/lib/auth";
 export const ALL: APIRoute = async (ctx) => {
 	try {
 		// Get the environment from the Astro context with proper error handling
-		const runtime = ctx.locals.runtime as { env: Env } | undefined;
+		const runtime = ctx.locals.runtime as
+			| { env: Env; ctx?: { waitUntil: (promise: Promise<unknown>) => void } }
+			| undefined;
 		if (!runtime) {
 			throw new Error("Runtime environment not available");
 		}
@@ -14,8 +16,11 @@ export const ALL: APIRoute = async (ctx) => {
 			throw new Error("Environment variables not available");
 		}
 
-		// Create the auth instance with the environment
-		const auth = createAuth(env);
+		// Get waitUntil from Cloudflare execution context for background tasks
+		const waitUntil = runtime.ctx?.waitUntil?.bind(runtime.ctx);
+
+		// Create the auth instance with the environment and waitUntil
+		const auth = createAuth(env, waitUntil);
 		const response = await auth.handler(ctx.request);
 
 		// If the auth is good then set the session data using Astro Sessions

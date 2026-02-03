@@ -137,6 +137,20 @@ function RelatedVideosContent({
 		enabled: hasTagIds,
 	});
 
+	// Filter tag-related videos (exclude current video and unpublished)
+	const filteredTagVideos = useMemo(() => {
+		if (!tagRelatedVideos) return [];
+		return tagRelatedVideos.filter(
+			(video) => video.id !== videoId && video.isPublished,
+		);
+	}, [tagRelatedVideos, videoId]);
+
+	// Determine if we need to fetch fallback videos
+	// Enable fallback if: no tags OR tag query finished but has insufficient results
+	const needsFallback =
+		!hasTagIds ||
+		(!isLoadingTagVideos && filteredTagVideos.length < MAX_RELATED_VIDEOS);
+
 	// Fetch recent videos as fallback
 	const {
 		data: recentVideos,
@@ -161,36 +175,38 @@ function RelatedVideosContent({
 				}),
 			);
 		},
-		enabled: !hasTagIds || (tagRelatedVideos?.length ?? 0) <= 1,
+		enabled: needsFallback,
 	});
 
 	// Determine which videos to display
 	const relatedVideos = useMemo(() => {
-		let videos: Video[] = [];
-
-		// Prefer tag-related videos if available
-		if (hasTagIds && tagRelatedVideos && tagRelatedVideos.length > 0) {
-			videos = tagRelatedVideos;
-		} else if (recentVideos && recentVideos.length > 0) {
-			// Fall back to recent videos
-			videos = recentVideos;
+		// If we have enough tag-related videos, use them
+		if (filteredTagVideos.length >= MAX_RELATED_VIDEOS) {
+			return filteredTagVideos.slice(0, MAX_RELATED_VIDEOS);
 		}
 
-		// Exclude the current video, filter out unpublished videos, and limit to MAX_RELATED_VIDEOS
-		return videos
-			.filter((video) => video.id !== videoId && video.isPublished)
-			.slice(0, MAX_RELATED_VIDEOS);
-	}, [hasTagIds, tagRelatedVideos, recentVideos, videoId]);
+		// Otherwise, supplement with recent videos (avoiding duplicates)
+		const tagVideoIds = new Set(filteredTagVideos.map((v) => v.id));
+		const filteredRecentVideos = (recentVideos ?? []).filter(
+			(video) =>
+				video.id !== videoId && video.isPublished && !tagVideoIds.has(video.id),
+		);
 
+		// Combine tag videos with recent videos
+		const combined = [...filteredTagVideos, ...filteredRecentVideos];
+		return combined.slice(0, MAX_RELATED_VIDEOS);
+	}, [filteredTagVideos, recentVideos, videoId]);
+
+	// Loading state: still loading if any required query is in progress
 	const isLoading =
 		isLoadingTags ||
 		isLoadingTagVideos ||
-		(!hasTagIds && isLoadingRecentVideos);
+		(needsFallback && isLoadingRecentVideos);
 	const hasError = tagVideosError || recentVideosError;
 
 	const buildVideoUrl = (id: string) => {
 		const prefix = isPremium ? "premium" : "basic";
-		return `/watch/library_${libraryId}/${prefix}_${id}`;
+		return `/watch/${prefix}/${libraryId}/video/${id}`;
 	};
 
 	if (isLoading) {
@@ -238,7 +254,7 @@ function RelatedVideosContent({
 	return (
 		<section className="mb-8 space-y-4 w-full">
 			<h3 className="text-lg font-semibold">Related Videos</h3>
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
 				{relatedVideos.map((video) => (
 					<Card
 						key={video.id}

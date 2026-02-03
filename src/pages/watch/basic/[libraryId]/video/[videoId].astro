@@ -8,7 +8,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 const videoId = Astro.params.videoId ?? "";
 const libraryId = Astro.params.libraryId ?? "";
 
-// Protect premium library from public access
+// Check if URL has been modified to access premium content and redirect if so
 const premiumLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
 if (libraryId === premiumLibraryId) {
 	return Astro.redirect("/subscribe");

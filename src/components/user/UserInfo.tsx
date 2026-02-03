@@ -84,7 +84,7 @@ function UserInfoContent() {
 	};
 
 	// Logic for updating the email
-	const handleEmailSubmit = async (e: React.FormEvent) => {
+	const handleEmailSubmit = async (e: React.SubmitEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 

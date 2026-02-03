@@ -24,12 +24,24 @@ export const createStripeClient = (env: Env) => {
 };
 
 // Create auth instance factory that accepts runtime environment
-export const createAuth = (env: Env) => {
+// waitUntil is optional for Cloudflare Workers to ensure emails complete
+export const createAuth = (
+	env: Env,
+	waitUntil?: (promise: Promise<unknown>) => void,
+) => {
 	// Initialize Stripe with runtime env
 	const stripeClient = createStripeClient(env);
 
 	// Initialize Resend for email service with runtime env
 	const resend = new Resend(env.RESEND_API_KEY);
+
+	// Helper to schedule background tasks
+	// Uses waitUntil on Cloudflare Workers, otherwise fire-and-forget
+	const scheduleEmail = (emailPromise: Promise<unknown>) => {
+		if (waitUntil) {
+			waitUntil(emailPromise);
+		}
+	};
 
 	return betterAuth({
 		secret: env.BETTER_AUTH_SECRET,
@@ -54,64 +66,70 @@ export const createAuth = (env: Env) => {
 			enabled: true,
 			requireEmailVerification: true,
 			sendResetPassword: async ({ user, url }) => {
-				try {
-					const { data } = await resend.emails.send({
+				// Fire and forget - use waitUntil on Cloudflare Workers to prevent timing attacks
+				const emailPromise = resend.emails
+					.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Password Reset",
-						react: await PasswordReset({
-							url: url,
-						}),
+						react: await PasswordReset({ url }),
+					})
+					.then(({ data }) => {
+						console.log(
+							"Password reset email sent, Resend email ID:",
+							data?.id,
+						);
+					})
+					.catch((error) => {
+						console.error("Error sending password reset:", error);
 					});
-					console.log("Password reset email sent, Resend email ID:", data?.id);
-				} catch (error) {
-					console.error("Error sending password reset:", error);
-					throw error;
-				}
+				scheduleEmail(emailPromise);
 			},
 		},
 		emailVerification: {
 			expiresIn: 1800, // Token expiration set to 30 minutes
+			sendOnSignUp: true,
 			autoSignInAfterVerification: true,
 			sendVerificationEmail: async ({ user, url }) => {
-				try {
-					const { data } = await resend.emails.send({
+				// Fire and forget - use waitUntil on Cloudflare Workers to prevent timing attacks
+				const emailPromise = resend.emails
+					.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
 						subject: "Verify Your Email Address",
-						react: await VerifyEmail({
-							url: url,
-						}),
+						react: await VerifyEmail({ url }),
+					})
+					.then(({ data }) => {
+						console.log("Verification email sent, Resend email ID:", data?.id);
+					})
+					.catch((error) => {
+						console.error("Error sending email verification:", error);
 					});
-					console.log("Verification email sent, Resend email ID:", data?.id);
-				} catch (error) {
-					console.error("Error sending email verification:", error);
-					throw error;
-				}
+				scheduleEmail(emailPromise);
 			},
 		},
 		user: {
 			changeEmail: {
 				enabled: true,
-				sendChangeEmailVerification: async ({ user, newEmail, url }) => {
-					try {
-						const { data } = await resend.emails.send({
+				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+					// Fire and forget - use waitUntil on Cloudflare Workers to prevent timing attacks
+					const emailPromise = resend.emails
+						.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: user.email,
 							subject: "Confirm Email Change",
-							react: await ConfirmChange({
-								newEmail: newEmail,
-								url: url,
-							}),
+							react: await ConfirmChange({ newEmail, url }),
+						})
+						.then(({ data }) => {
+							console.log(
+								"Email change confirmation sent, Resend email ID:",
+								data?.id,
+							);
+						})
+						.catch((error) => {
+							console.error("Error sending email change confirmation:", error);
 						});
-						console.log(
-							"Email change verification sent, Resend email ID:",
-							data?.id,
-						);
-					} catch (error) {
-						console.error("Error sending email change verification:", error);
-						throw error;
-					}
+					scheduleEmail(emailPromise);
 				},
 			},
 		},
@@ -121,23 +139,24 @@ export const createAuth = (env: Env) => {
 				// Token expiration default is 5 minutes
 				disableSignUp: true,
 				sendMagicLink: async ({ email, url }) => {
-					try {
-						const { data } = await resend.emails.send({
+					// Fire and forget - use waitUntil on Cloudflare Workers to prevent timing attacks
+					const emailPromise = resend.emails
+						.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: email,
 							subject: "Login to Air War Trail",
-							react: await MagicLink({
-								url: url,
-							}),
+							react: await MagicLink({ url }),
+						})
+						.then(({ data }) => {
+							console.log(
+								"Magic link email sent successfully, Resend email ID:",
+								data?.id,
+							);
+						})
+						.catch((error) => {
+							console.error("Error sending magic link email:", error);
 						});
-						console.log(
-							"Magic link email sent successfully, Resend email ID:",
-							data?.id,
-						);
-					} catch (error) {
-						console.error("Error sending magic link email:", error);
-						throw error;
-					}
+					scheduleEmail(emailPromise);
 				},
 			}),
 			stripe({

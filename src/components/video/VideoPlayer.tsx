@@ -108,13 +108,32 @@ function VideoPlayerDetailContent({
 	const checkAuth = requiresSub;
 
 	// Set token expiration time based on subscription requirement
-	const tokenExpiresIn = requiresSub ? 10800 : 3600; // 3 hours vs 1 hour
+	const tokenExpiresIn = requiresSub ? 10800 : 3600; // 3 hours (premium, longer videos) or 1 hour (basic, shorter videos)
 
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
 	const setPlayerRef = (node: unknown) => {
 		playerRef.current = node as MuxPlayerRefAttributes | null;
 	};
+
+	// Extract library prefix from URL by searching for 'basic' or 'premium' anywhere in path
+	const getLibraryPrefix = () => {
+		if (typeof window === "undefined") {
+			return "premium"; // During SSR we don't have access to the window so we default to 'premium' then during hydration the correct value will be used
+		}
+		const pathSegments = window.location.pathname.split("/").filter(Boolean);
+		// Search for 'premium' first, then 'basic', default to 'basic'
+		if (pathSegments.includes("premium")) {
+			return "premium";
+		}
+		if (pathSegments.includes("basic")) {
+			return "basic";
+		}
+		return "premium"; // default fallback to premium
+	};
+
+	const libraryPrefix = getLibraryPrefix();
+
 	// Fetch video by internal ID (preferred API)
 	const {
 		data: video,
@@ -441,7 +460,10 @@ function VideoPlayerDetailContent({
 				</CardHeader>
 				<CardContent className="flex flex-wrap gap-2">
 					{tags.map((tag) => (
-						<a key={tag.id} href={`/streaming?tags=${tag.slug}`}>
+						<a
+							key={tag.id}
+							href={`/streaming/${libraryPrefix}?tags=${tag.slug}`}
+						>
 							<Badge className="cursor-pointer hover:opacity-80 transition-opacity">
 								{tag.name}
 							</Badge>

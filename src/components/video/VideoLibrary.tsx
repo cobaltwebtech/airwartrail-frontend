@@ -406,7 +406,7 @@ function VideoLibraryContent({
 	const buildVideoUrl = useCallback(
 		(videoId: string) => {
 			const prefix = requiresSub ? "premium" : "basic";
-			return `/watch/library_${libraryId}/${prefix}_${videoId}`;
+			return `/watch/${prefix}/${libraryId}/video/${videoId}`;
 		},
 		[libraryId, requiresSub],
 	);

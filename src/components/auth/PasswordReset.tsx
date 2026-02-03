@@ -32,7 +32,7 @@ export function PasswordReset({
 		if (errorMessage) setErrorMessage("");
 	}, [errorMessage]);
 
-	const handleSubmit = async (event: React.FormEvent) => {
+	const handleSubmit = async (event: React.SubmitEvent) => {
 		event.preventDefault();
 
 		if (!newPassword || !confirmPassword) {
@@ -89,92 +89,86 @@ export function PasswordReset({
 	};
 
 	return (
-		<div className="flex min-h-[80svh] w-full items-center justify-center p-6 md:p-10">
-			<div className="w-full max-w-sm">
-				<div className={cn("flex flex-col gap-6", className)} {...props}>
-					<Card>
-						<CardHeader>
-							<CardTitle>Reset your password</CardTitle>
-							<CardDescription>Enter your new password below</CardDescription>
-						</CardHeader>
-						<CardContent>
-							{isSuccess ? (
-								<div className="flex flex-col items-center gap-4 py-4">
-									<CheckCircle2 className="h-12 w-12 text-green-500" />
-									<div className="text-center">
-										<p className="font-medium">Password Reset Complete</p>
-										<p className="text-muted-foreground text-sm">
-											Your password has been reset successfully.
-										</p>
+		<div className="w-full max-w-sm">
+			<div className={cn("flex flex-col gap-6", className)} {...props}>
+				<Card>
+					<CardHeader>
+						<CardTitle>Reset your password</CardTitle>
+						<CardDescription>Enter your new password below</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{isSuccess ? (
+							<div className="flex flex-col items-center gap-4 py-4">
+								<CheckCircle2 className="h-12 w-12 text-green-500" />
+								<div className="text-center">
+									<p className="font-medium">Password Reset Complete</p>
+									<p className="text-muted-foreground text-sm">
+										Your password has been reset successfully.
+									</p>
+								</div>
+								<Button
+									variant="default"
+									onClick={() => {
+										window.location.href = "/auth/login";
+									}}
+								>
+									Return to Login
+								</Button>
+							</div>
+						) : (
+							<form onSubmit={handleSubmit} noValidate>
+								<div className="flex flex-col gap-6">
+									<div className="grid gap-3">
+										<Label htmlFor="password">New Password</Label>
+										<PasswordInput
+											id="password"
+											value={newPassword}
+											onChange={(e) => setNewPassword(e.target.value)}
+											disabled={isLoading}
+											autoComplete="new-password"
+										/>
 									</div>
-									<Button
-										variant="default"
-										onClick={() => {
-											window.location.href = "/auth/login";
-										}}
-									>
-										Return to Login
+
+									<div className="grid gap-3">
+										<Label htmlFor="confirmPassword">Confirm Password</Label>
+										<PasswordInput
+											id="confirmPassword"
+											value={confirmPassword}
+											onChange={(e) => setConfirmPassword(e.target.value)}
+											disabled={isLoading}
+											autoComplete="new-password"
+										/>
+									</div>
+
+									{errorMessage && (
+										<div className="text-destructive text-sm">
+											{errorMessage}
+										</div>
+									)}
+
+									<Button type="submit" className="w-full" disabled={isLoading}>
+										{isLoading ? (
+											<>
+												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+												Resetting password...
+											</>
+										) : (
+											"Reset Password"
+										)}
 									</Button>
 								</div>
-							) : (
-								<form onSubmit={handleSubmit} noValidate>
-									<div className="flex flex-col gap-6">
-										<div className="grid gap-3">
-											<Label htmlFor="password">New Password</Label>
-											<PasswordInput
-												id="password"
-												value={newPassword}
-												onChange={(e) => setNewPassword(e.target.value)}
-												disabled={isLoading}
-												autoComplete="new-password"
-											/>
-										</div>
-
-										<div className="grid gap-3">
-											<Label htmlFor="confirmPassword">Confirm Password</Label>
-											<PasswordInput
-												id="confirmPassword"
-												value={confirmPassword}
-												onChange={(e) => setConfirmPassword(e.target.value)}
-												disabled={isLoading}
-												autoComplete="new-password"
-											/>
-										</div>
-
-										{errorMessage && (
-											<div className="text-destructive text-sm">
-												{errorMessage}
-											</div>
-										)}
-
-										<Button
-											type="submit"
-											className="w-full"
-											disabled={isLoading}
-										>
-											{isLoading ? (
-												<>
-													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-													Resetting password...
-												</>
-											) : (
-												"Reset Password"
-											)}
-										</Button>
-									</div>
-								</form>
-							)}
-						</CardContent>
-						<CardFooter className="flex justify-center">
-							<div className="text-center text-sm">
-								Remember your password?{" "}
-								<a href="/auth/login" className="underline underline-offset-4">
-									Back to Login
-								</a>
-							</div>
-						</CardFooter>
-					</Card>
-				</div>
+							</form>
+						)}
+					</CardContent>
+					<CardFooter className="flex justify-center">
+						<div className="text-center text-sm">
+							Remember your password?{" "}
+							<a href="/auth/login" className="underline underline-offset-4">
+								Back to Login
+							</a>
+						</div>
+					</CardFooter>
+				</Card>
 			</div>
 		</div>
 	);

@@ -116,7 +116,7 @@ export function CheckoutForm({
 		[calculateTax],
 	);
 
-	const handleSubmit = async (event: React.FormEvent) => {
+	const handleSubmit = async (event: React.SubmitEvent) => {
 		event.preventDefault();
 
 		if (!stripe || !elements) {

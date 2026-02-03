@@ -46,6 +46,8 @@ interface PlaylistDetailProps {
 	libraryId: string;
 	/** Whether this playlist requires a subscription to view */
 	requiresSub: boolean;
+	/** If true, hide completely when user doesn't have access (instead of showing Pricing) */
+	hidePlaylist?: boolean;
 }
 
 type GetPlaylistClient = {
@@ -70,6 +72,7 @@ function PlaylistDetailContent({
 	slug,
 	libraryId,
 	requiresSub,
+	hidePlaylist = false,
 }: PlaylistDetailProps) {
 	// Check session and subscription status only if this is premium content
 	const { session, isPremium, loading: authLoading, mounted } = useSubStatus();
@@ -94,6 +97,8 @@ function PlaylistDetailContent({
 				includeVideos: true,
 			});
 		},
+		// Only fetch premium content after auth check completes
+		enabled: requiresSub ? !authLoading : true,
 	});
 
 	const goToPrev = () => {
@@ -124,10 +129,10 @@ function PlaylistDetailContent({
 			const videoIndex = filteredVideos.findIndex((v) => v.id === videoId);
 			// If found in playlist, link to playlist player with video index
 			if (videoIndex >= 0 && slug) {
-				return `/watch/playlist/${prefix}_${slug}?sort_order=${videoIndex}`;
+				return `/watch/playlist/${prefix}/${slug}?sort_order=${videoIndex}`;
 			}
 			// Fallback to individual video player
-			return `/watch/library_${libraryId}/${prefix}_${videoId}`;
+			return `/watch/${prefix}/${libraryId}/video/${videoId}`;
 		},
 		[libraryId, slug, filteredVideos, requiresSub],
 	);
@@ -143,6 +148,11 @@ function PlaylistDetailContent({
 
 	// Gate content for users without active subscription (only for premium content)
 	if (requiresSub && (!session?.user || !isPremium)) {
+		// If hidePlaylist is true, render nothing (component was conditionally shown)
+		if (hidePlaylist) {
+			return null;
+		}
+		// Otherwise show pricing
 		return <Pricing />;
 	}
 
@@ -208,7 +218,7 @@ function PlaylistDetailContent({
 							{filteredVideos.map((video) => (
 								<Card
 									key={video.id}
-									className="w-full max-w-90 min-w-90 gap-1 last:mr-4 overflow-hidden p-0 transition-colors hover:bg-background"
+									className="w-full max-w-90 min-w-90 gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
 								>
 									<a href={buildVideoUrl(video.id)}>
 										<div className="relative">

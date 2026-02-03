@@ -1,6 +1,4 @@
 ---
-
-import { Pricing } from "@/components/partials/Pricing";
 import { PlaylistPlayer } from "@/components/playlist/PlaylistPlayer";
 import {
 	Breadcrumb,
@@ -11,21 +9,17 @@ import {
 } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-// Check auth and subscription status via middleware
-const { hasActiveSubscription } =
-	Astro.locals.auth;
-
 const { slug } = Astro.params;
 
 if (!slug) {
-	return Astro.redirect("/film-series");
+	return Astro.redirect("/404");
 }
 
 // Get the video index from query parameter (e.g., ?video=2)
 const videoParam = Astro.url.searchParams.get("video");
 const startIndex = videoParam ? parseInt(videoParam, 10) : 0;
 
-const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
 
 // Format the page title from the slug
 const formatTitle = (slug: string) => {
@@ -40,8 +34,8 @@ const pageTitle = `${formatTitle(slug)} | Playlist Player | Air War Trail`;
 const structuredData = {
 	"@context": "https://schema.org",
 	"@type": "WebPage",
-	"@id": `https://www.airwartrail.com/watch/playlist/${slug}/`,
-	url: `https://www.airwartrail.com/watch/playlist/${slug}/`,
+	"@id": `https://www.airwartrail.com/watch/playlist/basic/${slug}/`,
+	url: `https://www.airwartrail.com/watch/playlist/basic/${slug}/`,
 	name: pageTitle,
 	description:
 		"Watch our curated playlist of World War II documentaries, interviews, and historical films from the East Anglia Air War Project.",
@@ -64,23 +58,15 @@ const structuredData = {
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem>
-        <BreadcrumbLink href={`/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
+        <BreadcrumbLink href="/coming-soon">Back to Coming Soon</BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
-	{hasActiveSubscription ? (
-		<PlaylistPlayer
-			client:load
-			requiresSub={true}
-			slug={slug}
-			libraryId={videoLibraryId}
-			startIndex={startIndex}
-		/>
-	) : (
-		<Pricing />
-	)}
+  <PlaylistPlayer
+    client:load
+		requiresSub={false}
+    slug={slug}
+    libraryId={videoLibraryId}
+    startIndex={startIndex}
+  />
 </BaseLayout>
