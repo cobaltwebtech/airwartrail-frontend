@@ -10,7 +10,7 @@
 
 import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import { useQuery } from "@tanstack/react-query";
-import { Hourglass, Loader2, VideoOff } from "lucide-react";
+import { Hourglass, Loader2, OctagonX, VideoOff } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 import { Pricing } from "@/components/partials/Pricing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -303,6 +303,31 @@ function VideoPlayerDetailContent({
 	}
 
 	if (videoError || !video?.playbackId) {
+		// Check for rate limit error
+		const trpcError = videoError as {
+			meta?: {
+				responseJSON?: {
+					error?: { code?: string; message?: string };
+				};
+			};
+		};
+		const isRateLimitError =
+			trpcError?.meta?.responseJSON?.error?.code === "TOO_MANY_REQUESTS" ||
+			trpcError?.meta?.responseJSON?.error?.message?.includes("429");
+
+		if (isRateLimitError) {
+			return (
+				<div className="w-full mx-auto max-w-md flex flex-col items-center justify-center text-center text-destructive p-4 gap-2">
+					<OctagonX className="size-16" />
+					<h2 className="text-2xl font-bold">Error 429 - Too Many Requests</h2>
+					<p>
+						Rate limiting applied. Please wait at least one minute and then
+						refresh the page.
+					</p>
+				</div>
+			);
+		}
+
 		return (
 			<div className="mx-auto my-8 w-fit">
 				<Card className="bg-destructive">

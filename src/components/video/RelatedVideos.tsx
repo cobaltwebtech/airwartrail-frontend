@@ -228,7 +228,7 @@ function RelatedVideosContent({
 
 	if (hasError) {
 		return (
-			<div className="space-y-4">
+			<div className="space-y-4 my-8 text-center">
 				<h3 className="text-lg font-semibold">Related Videos</h3>
 				<p className="text-sm text-muted-foreground">
 					Unable to load related videos.
@@ -239,7 +239,7 @@ function RelatedVideosContent({
 
 	if (relatedVideos.length === 0) {
 		return (
-			<div className="space-y-4">
+			<div className="space-y-4 my-8 text-center">
 				<h3 className="text-lg font-semibold text-center">Related Videos</h3>
 				<div className="flex flex-col items-center justify-center py-8 text-center">
 					<Film className="text-muted-foreground mb-2 h-8 w-8" />

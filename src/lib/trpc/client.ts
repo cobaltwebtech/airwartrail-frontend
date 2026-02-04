@@ -18,8 +18,9 @@ import type { AppRouter } from "./types";
 export const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			// Data stays fresh for 5 minutes
-			staleTime: 1000 * 60 * 5,
+			staleTime: 1000 * 60 * 15, // Cache data for 15 minutes
+			gcTime: 1000 * 60 * 30, // Garbage collect unused data after 30 minutes
+			refetchOnWindowFocus: true, // Refetch on window focus for fresh data
 			// Retry failed requests up to 3 times
 			retry: (failureCount, error) => {
 				// Don't retry rate limit errors
@@ -34,8 +35,6 @@ export const queryClient = new QueryClient({
 				}
 				return failureCount < 3;
 			},
-			// Refetch on window focus for fresh data
-			refetchOnWindowFocus: true,
 		},
 		mutations: {
 			// Don't retry mutations by default

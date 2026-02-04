@@ -157,10 +157,35 @@ function PlaylistDetailContent({
 	}
 
 	if (error) {
+		// Check for rate limit error
+		const trpcError = error as {
+			meta?: {
+				responseJSON?: {
+					error?: { code?: string; message?: string };
+				};
+			};
+		};
+		const isRateLimitError =
+			trpcError?.meta?.responseJSON?.error?.code === "TOO_MANY_REQUESTS" ||
+			trpcError?.meta?.responseJSON?.error?.message?.includes("429");
+
+		if (isRateLimitError) {
+			return (
+				<div className="w-full mx-auto max-w-md flex flex-col items-center justify-center text-center text-destructive p-4 gap-2">
+					<OctagonX className="size-16" />
+					<h2 className="text-2xl font-bold">Error 429 - Too Many Requests</h2>
+					<p>
+						Rate limiting applied. Please wait at least one minute and then
+						refresh the page.
+					</p>
+				</div>
+			);
+		}
+
 		return (
-			<div className="mx-auto flex w-full max-w-md flex-col items-center justify-center p-4 text-center text-destructive">
-				<OctagonX className="size-12" />
-				<p>Error Loading Playlist</p>
+			<div className="w-full mx-auto max-w-md flex flex-col items-center justify-center text-center text-destructive p-4">
+				<OctagonX className="size-16" />
+				<h2 className="text-2xl font-bold">Error Loading Playlist</h2>
 				<p>Try refreshing the page.</p>
 			</div>
 		);
