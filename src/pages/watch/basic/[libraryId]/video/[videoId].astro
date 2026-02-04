@@ -8,13 +8,18 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 const videoId = Astro.params.videoId ?? "";
 const libraryId = Astro.params.libraryId ?? "";
 
+// Parse and decode video title from query string
+const encodedTitle = Astro.url.searchParams.get("title");
+const videoTitle = encodedTitle ? decodeURIComponent(encodedTitle) : "Basic Video";
+const pageTitle = `${videoTitle} | Air War Trail`;
+const pageUrl = Astro.url.href;
+
 // Check if URL has been modified to access premium content and redirect if so
+// Middleware is checking this but we add this extra security check in the route
 const premiumLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
 if (libraryId === premiumLibraryId) {
 	return Astro.redirect("/subscribe");
 }
-const pageUrl = Astro.url.href;
-const pageTitle = "Streaming | Air War Trail";
 
 const structuredData = {
 	"@context": "https://schema.org",
@@ -41,15 +46,21 @@ const structuredData = {
 			</BreadcrumbItem>
 			<BreadcrumbSeparator />
 			<BreadcrumbItem>
-				<BreadcrumbLink href="/streaming/basic">Back to Free Content</BreadcrumbLink>
+				<BreadcrumbLink href="/streaming/basic">Free Content</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				{videoTitle}
 			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
+
 	<VideoPlayer
 		client:load
 		videoId={videoId}
 		libraryId={libraryId}
 		requiresSub={false}
 	/>
+	
 	<RelatedVideos client:load isPremium={false} videoId={videoId} libraryId={libraryId} />
 </BaseLayout>

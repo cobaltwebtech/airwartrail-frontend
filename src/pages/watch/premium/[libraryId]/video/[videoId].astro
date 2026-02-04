@@ -13,7 +13,11 @@ const { hasActiveSubscription } =
 const videoId = Astro.params.videoId ?? "";
 const libraryId = Astro.params.libraryId ?? "";
 const pageUrl = Astro.url.href;
-const pageTitle = "Streaming | Air War Trail";
+
+// Parse and decode video title from query string
+const encodedTitle = Astro.url.searchParams.get("title");
+const videoTitle = encodedTitle ? decodeURIComponent(encodedTitle) : "Premium Video";
+const pageTitle = `${videoTitle} | Air War Trail`;
 
 const structuredData = {
 	"@context": "https://schema.org",
@@ -42,8 +46,13 @@ const structuredData = {
 			<BreadcrumbItem>
 				<BreadcrumbLink href="/streaming/premium">Premium Content</BreadcrumbLink>
 			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+				{videoTitle}
+			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
+
 	{hasActiveSubscription ? (
 		<VideoPlayer
 			client:load
@@ -51,6 +60,7 @@ const structuredData = {
 			libraryId={libraryId}
 			requiresSub={true}
 		/>
+		
 		<RelatedVideos client:load isPremium={true} videoId={videoId} libraryId={libraryId} />
 	) : (
 		<Pricing />

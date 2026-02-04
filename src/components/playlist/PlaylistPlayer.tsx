@@ -443,7 +443,7 @@ function PlaylistVideoPlayerContent({
 										<VideoThumbnail
 											playbackId={video.muxPlaybackId}
 											alt={video.customTitle || video.title}
-											className="size-full max-w-25 aspect-video object-cover"
+											className="w-full h-min max-w-25 aspect-video object-cover"
 											aspectVideo
 											policy={video.playbackPolicy ?? "public"}
 											libraryId={libraryId}

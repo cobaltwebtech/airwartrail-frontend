@@ -1,5 +1,4 @@
 ---
-
 import "@/styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import { join } from "node:path";
@@ -11,9 +10,6 @@ import Navbar from "@/components/sections/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import Meta from "@/layouts/Meta.astro";
 import { siteMeta } from "@/lib/siteData";
-
-// Get the session data from Astro session storage
-const sessionData = await Astro.session?.get("session");
 
 interface Props {
   title?: string;
@@ -130,7 +126,7 @@ const umamiId = import.meta.env.UMAMI_ID;
   </head>
 
   <body class="bg-background text-foreground flex min-h-svh flex-col">
-    <Navbar sessionData={sessionData} client:load />
+    <Navbar client:load />
     <main
       class="mx-auto flex w-full max-w-screen-2xl flex-auto flex-col items-center justify-center space-y-8 p-8 lg:px-16 lg:space-y-12"
       transition:animate="fade"

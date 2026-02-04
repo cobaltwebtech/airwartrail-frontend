@@ -218,7 +218,7 @@ function PlaylistDetailContent({
 							{filteredVideos.map((video) => (
 								<Card
 									key={video.id}
-									className="w-full max-w-90 min-w-90 gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
+									className="w-full max-w-90 min-w-50 md:min-w-60 xl:min-w-90 gap-1 overflow-hidden p-0 transition-colors hover:bg-background"
 								>
 									<a href={buildVideoUrl(video.id)}>
 										<div className="relative">

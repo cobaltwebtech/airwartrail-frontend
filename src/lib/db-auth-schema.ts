@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
@@ -87,3 +88,29 @@ export const subscription = sqliteTable("subscription", {
 	trialStart: integer("trial_start", { mode: "timestamp" }),
 	trialEnd: integer("trial_end", { mode: "timestamp" }),
 });
+
+// Drizzle relations for Better Auth experimental joins
+// These are query-layer only - no migration needed
+
+export const userRelations = relations(user, ({ many }) => ({
+	sessions: many(session),
+	accounts: many(account),
+	subscriptions: many(subscription),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+	user: one(user, { fields: [session.userId], references: [user.id] }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+	user: one(user, { fields: [account.userId], references: [user.id] }),
+}));
+
+// Note: referenceId intentionally has no FK constraint - Better Auth's Stripe
+// plugin requires this for resubscription rows after cancellation
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+	user: one(user, {
+		fields: [subscription.referenceId],
+		references: [user.id],
+	}),
+}));

@@ -46,8 +46,10 @@ export const createAuth = (
 	return betterAuth({
 		secret: env.BETTER_AUTH_SECRET,
 		baseURL: env.BETTER_AUTH_URL,
+		experimental: { joins: true },
 		database: drizzleAdapter(createDrizzle(env.DB_AUTH), {
 			provider: "sqlite",
+			schema,
 		}),
 		session: {
 			expiresIn: 60 * 60 * 24 * 7, // Session expires in 7 days

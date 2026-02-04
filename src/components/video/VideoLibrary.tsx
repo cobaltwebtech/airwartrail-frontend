@@ -404,9 +404,9 @@ function VideoLibraryContent({
 	};
 
 	const buildVideoUrl = useCallback(
-		(videoId: string) => {
+		(videoId: string, title: string) => {
 			const prefix = requiresSub ? "premium" : "basic";
-			return `/watch/${prefix}/${libraryId}/video/${videoId}`;
+			return `/watch/${prefix}/${libraryId}/video/${videoId}?title=${encodeURIComponent(title)}`;
 		},
 		[libraryId, requiresSub],
 	);
@@ -430,7 +430,7 @@ function VideoLibraryContent({
 				enableSorting: false,
 				cell: ({ row }) => (
 					<div className="max-w-25 mx-auto">
-						<a href={buildVideoUrl(row.original.id)} className="">
+						<a href={buildVideoUrl(row.original.id, row.original.title)}>
 							<VideoThumbnail
 								playbackId={row.original.playbackId}
 								alt={row.original.title}
@@ -459,7 +459,7 @@ function VideoLibraryContent({
 				),
 				cell: ({ row }) => (
 					<a
-						href={buildVideoUrl(row.original.id)}
+						href={buildVideoUrl(row.original.id, row.original.title)}
 						className="font-semibold text-foreground hover:underline"
 					>
 						{row.original.title}
@@ -666,7 +666,7 @@ function VideoLibraryContent({
 	return (
 		<section className="w-full space-y-6">
 			{/* Search and view mode controls */}
-			<div className="flex justify-between gap-2">
+			<div className="flex flex-wrap justify-between gap-2">
 				<Input
 					placeholder="Search videos..."
 					value={searchTerm}
@@ -787,13 +787,13 @@ function VideoLibraryContent({
 			{/* Grid layout for videos */}
 			{!isLoading && viewMode === "grid" && (
 				<>
-					<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 						{filteredVideos.map((video) => (
 							<Card
 								key={video.id}
 								className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
 							>
-								<a href={buildVideoUrl(video.id)}>
+								<a href={buildVideoUrl(video.id, video.title)}>
 									<div className="relative">
 										<VideoThumbnail
 											playbackId={video.playbackId}
@@ -816,7 +816,7 @@ function VideoLibraryContent({
 								</a>
 								<CardHeader className="p-4 flex items-center justify-between">
 									<a
-										href={buildVideoUrl(video.id)}
+										href={buildVideoUrl(video.id, video.title)}
 										className="text-left hover:text-accent-foreground"
 									>
 										<h3 className="font-semibold line-clamp-2">

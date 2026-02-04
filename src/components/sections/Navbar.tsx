@@ -1,4 +1,3 @@
-import type { Session } from "better-auth";
 import {
 	CircleUserRound,
 	CircleX,
@@ -19,10 +18,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { revokeSessions, signOut, useSession } from "@/lib/auth-client";
-
-interface NavbarProps {
-	sessionData: Session | null | undefined;
-}
 
 interface NavItem {
 	title: string;
@@ -47,10 +42,9 @@ const authenticatedNavItems: Array<NavItem> = [
 	{ title: "About", url: "/about" },
 ];
 
-export default function Navbar({ sessionData }: NavbarProps) {
+export default function Navbar() {
 	const [mounted, setMounted] = useState(false);
-	const { data: clientSession } = useSession();
-	const session = clientSession || sessionData;
+	const { data: session } = useSession();
 
 	useEffect(() => {
 		setMounted(true);
@@ -74,15 +68,15 @@ export default function Navbar({ sessionData }: NavbarProps) {
 	};
 
 	return (
-		<header className="text-light bg-airwar-600 dark:bg-airwar-900 sticky inset-x-0 top-0 z-50 mx-auto w-full px-4 sm:px-6">
-			<nav className="relative mx-auto grid w-full grid-cols-6 items-center rounded-3xl px-4 md:px-6 lg:grid-cols-8 lg:px-6 xl:px-8">
+		<header className="text-light bg-airwar-600 dark:bg-airwar-900 sticky inset-x-0 top-0 z-50 mx-auto w-full">
+			<nav className="relative mx-auto grid w-full grid-cols-6 items-center px-4 md:px-6 lg:grid-cols-8 xl:px-8">
 				<div className="col-span-4 sm:py-2 lg:col-span-2">
 					<a
 						className="flex items-center gap-x-2"
 						href="/"
 						aria-label="Air War Trail Logo"
 					>
-						<AwtLogo className="size-20 md:size-22" />
+						<AwtLogo className="size-16 sm:size-18 xl:size-22" />
 						<span className="text-xl font-bold sm:text-2xl xl:text-4xl text-nowrap">
 							Air War Trail
 						</span>
