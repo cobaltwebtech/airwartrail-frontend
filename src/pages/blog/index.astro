@@ -1,6 +1,7 @@
 ---
 
 import { getLiveCollection } from 'astro:content';
+import { NotebookPen } from "@lucide/astro";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -49,14 +50,22 @@ const structuredData = {
   <h1 class="text-4xl font-bold sm:text-5xl">Blog Posts</h1>
 
   <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-    {posts?.map(post => (
+    {posts?.map(post => {
+      const thumbnailUrl = post.data.featuredImageUrl?.replace(/\/blog\/?$/, '/blogsm');
+      return (
       <a href={`/blog/${post.data.slug}`} class="group">
-        <Card className="bg-accent-6 hover:bg-accent-6/80 transition-colors duration-300 pt-0">
-                      <img
-              src={post.data.featuredImageUrl}
+        <Card className="h-full bg-accent-6 hover:bg-accent-6/80 transition-colors duration-300 pt-0">
+          {post.data.featuredImageUrl ? (
+            <img
+              src={thumbnailUrl}
               alt={post.data.featuredImageAlt || post.data.title}
-              class="object-cover rounded-t-lg"
+              class="w-full aspect-3/2 object-cover rounded-t-lg"
             />
+          ) : (
+            <div class="w-full aspect-3/2 flex items-center justify-center bg-primary rounded-t-lg">
+              <NotebookPen class="size-12" />
+            </div>
+          )}
           <CardHeader>
             <CardTitle>
             <h2 class="text-xl font-bold line-clamp-1 group-hover:underline">{post.data.title}</h2>
@@ -71,6 +80,7 @@ const structuredData = {
           </CardContent>
         </Card>
       </a>
-    ))}
+      );
+    })}
   </div>
 </BaseLayout>
