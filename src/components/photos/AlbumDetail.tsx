@@ -323,15 +323,15 @@ function ImageLightbox({
 						src={url}
 						srcSet={srcSet}
 						sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"
-						alt={albumImage.caption || image.altText || "Album photo"}
+						alt={image.altText || "Album photo"}
 						className={`max-h-[80vh] max-w-full rounded-lg object-contain transition-opacity duration-300 ${isLoadingImage ? "opacity-0" : "opacity-100"}`}
 						onLoad={handleImageLoad}
 					/>
 
-					{/* Caption */}
-					{!isLoadingImage && albumImage.caption && (
+					{/* Caption (use the alt text as caption) */}
+					{!isLoadingImage && image.altText && (
 						<figcaption className="py-3 text-center text-sm text-light">
-							{albumImage.caption}
+							{image.altText}
 						</figcaption>
 					)}
 				</figure>

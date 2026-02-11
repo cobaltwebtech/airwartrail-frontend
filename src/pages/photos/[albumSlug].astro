@@ -1,6 +1,11 @@
 ---
+import { Pricing } from "@/components/partials/Pricing";
 import { AlbumDetail } from "@/components/photos/AlbumDetail";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
 
 const { albumSlug } = Astro.params;
 
@@ -27,5 +32,9 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
-	<AlbumDetail client:load albumSlug={albumSlug} requiresSub={true} />
+	{hasActiveSubscription ? (
+		<AlbumDetail client:load albumSlug={albumSlug} requiresSub={true} />
+	) : (
+		<Pricing />
+	)}
 </BaseLayout>

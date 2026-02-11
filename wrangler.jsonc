@@ -1,7 +1,7 @@
 {  
   "name": "airwartrail-frontend",
 	"main": "./dist/_worker.js/index.js",
-	"compatibility_date": "2026-01-20",
+	"compatibility_date": "2026-02-10",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
@@ -37,14 +37,6 @@
 			"service": "airwartrail-cms"
 		}
 	],
-	"vars": {
-		"AWT_BASIC_LIBRARY_ID": "pnr6CRTe",
-		"AWT_PREMIUM_LIBRARY_ID": "WM2OkZia",
-		"AWT_CMS_API_URL": "https://dashboard.airwartrail.com/trpc",
-		"BETTER_AUTH_URL": "https://airwartrail.cobaltweb.dev", // Update this when going to production
-		"UMAMI_ID": "6e001137-4b73-407b-9422-27c1f4bfcb24",
-		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABigvVfdn9-L_sZY"
-	},
 	// Rate limiting configuration
 	"ratelimits": [
 		{
@@ -63,5 +55,13 @@
 				"period": 60
 			}
 		}
-	]
+	],
+	"vars": {
+		"AWT_BASIC_LIBRARY_ID": "pnr6CRTe",
+		"AWT_PREMIUM_LIBRARY_ID": "WM2OkZia",
+		"AWT_CMS_API_URL": "https://dashboard.airwartrail.com/trpc",
+		"BETTER_AUTH_URL": "https://airwartrail.cobaltweb.dev", // Update this when going to production
+		"UMAMI_ID": "6e001137-4b73-407b-9422-27c1f4bfcb24",
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABigvVfdn9-L_sZY"
+	}
 }
