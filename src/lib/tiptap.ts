@@ -27,6 +27,59 @@ export interface TiptapContent {
 }
 
 // ============================================================================
+// Responsive Image Helpers
+// ============================================================================
+
+/**
+ * Extract variant from Cloudflare Image Delivery URL
+ * Example: https://www.airwartrail.com/cdn-cgi/imagedelivery/.../imageid/blog -> "blog"
+ */
+function extractImageVariant(url: string): string | null {
+	const match = url.match(/\/([^/]+)$/);
+	return match ? match[1] : null;
+}
+
+/**
+ * Generate srcset for responsive images using Cloudflare Image Delivery variants
+ * Maps variants like "blog" to alternative sizes like "blogsm"
+ *
+ */
+function generateImageSrcset(src: string): string {
+	const variant = extractImageVariant(src);
+	if (!variant) return "";
+
+	// Map base variant to responsive variants with their widths
+	// Listed in ascending order (mobile-first)
+	// Note: Must use the same variant names defined in Cloudflare Image Delivery configuration
+	const variantMap: Record<
+		string,
+		Array<{ variant: string; width: number }>
+	> = {
+		blog: [
+			{ variant: "blogsm", width: 360 },
+			{ variant: "blog", width: 768 },
+		],
+	};
+
+	const variants = variantMap[variant];
+	if (!variants) return "";
+
+	// Build srcset by replacing the variant in the URL
+	const srcWithoutVariant = src.replace(/\/[^/]+$/, "");
+	const srcsetParts = variants
+		.map(({ variant: v, width }) => {
+			const newSrc = `${srcWithoutVariant}/${v}`;
+			if (width === 0) {
+				return newSrc; // Full width, no width descriptor
+			}
+			return `${newSrc} ${width}w`;
+		})
+		.filter((s) => s);
+
+	return srcsetParts.join(", ");
+}
+
+// ============================================================================
 // HTML Escaping
 // ============================================================================
 
@@ -129,8 +182,12 @@ function nodeToHtml(node: TiptapNode): string {
 		const src = escapeAttr(node.attrs?.src as string);
 		const alt = escapeAttr(node.attrs?.alt as string);
 		const title = node.attrs?.title as string | undefined;
-		const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
-		return `<img src="${src}" alt="${alt}"${titleAttr} loading="lazy" />`;
+		const titleAttr = title ? `title="${escapeAttr(title)}"` : "";
+		const srcset = generateImageSrcset(node.attrs?.src as string);
+		const srcsetAttr = srcset ? `srcset="${escapeAttr(srcset)}"` : "";
+		// sizes attribute tells browser the image layout width for responsive selection
+		const sizesAttr = srcset ? `sizes="(max-width: 768px) 100vw, 768px"` : "";
+		return `<img src="${src}" alt="${alt}" ${srcsetAttr} ${sizesAttr} ${titleAttr} class="rounded-lg" loading="lazy" />`;
 	}
 
 	// Recursively render child content

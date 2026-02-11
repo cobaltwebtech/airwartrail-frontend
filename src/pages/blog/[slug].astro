@@ -86,30 +86,30 @@ const formattedDate = publishedAt
 		</BreadcrumbList>
 	</Breadcrumb>
   <article class="mx-auto max-w-3xl px-4 pb-12">
-    <header class="mb-8">
+    <header class="mb-8 space-y-4">
       <h1 class="text-4xl font-bold sm:text-5xl">
         {title}
       </h1>
       {shortDescription && (
-        <p class="mt-4 text-xl">
+        <p class="text-lg">
           {shortDescription}
         </p>
       )}
-      <div class="mt-6 flex items-center gap-4 text-sm">
+      <p class="flex items-center gap-4 text-sm">
         <span>By {author}</span>
         {formattedDate && (
           <>
-            <span>•</span>
-            <time datetime={publishedAt ?? undefined}>{formattedDate}</time>
+            <span>&#9733;</span>
+            <time datetime={publishedAt ?? undefined}><span class="text-xs font-light">{formattedDate}</span></time>
           </>
         )}
         {readingTimeMinutes && (
           <>
-            <span>•</span>
-            <span>{readingTimeMinutes} min read</span>
+            <span>&#9733;</span>
+            <span class="text-xs font-light">{readingTimeMinutes} min read</span>
           </>
         )}
-      </div>
+      </p>
     </header>
 
     <!-- Featured Image -->

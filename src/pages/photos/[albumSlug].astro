@@ -1,0 +1,31 @@
+---
+import { AlbumDetail } from "@/components/photos/AlbumDetail";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const { albumSlug } = Astro.params;
+
+if (!albumSlug) {
+	return Astro.redirect("/photos");
+}
+
+const pageTitle = "Photo Album | Air War Trail";
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "ImageGallery",
+	"@id": `https://www.airwartrail.com/photos/${albumSlug}/`,
+	url: `https://www.airwartrail.com/photos/${albumSlug}/`,
+	name: pageTitle,
+	description:
+		"Browse historical photographs from the East Anglia Air War Project.",
+	isPartOf: {
+		"@type": "CollectionPage",
+		url: "https://www.airwartrail.com/photos/",
+		name: "Photographs | Air War Trail",
+	},
+	inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+	<AlbumDetail client:load albumSlug={albumSlug} requiresSub={true} />
+</BaseLayout>

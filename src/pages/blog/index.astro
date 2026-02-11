@@ -2,7 +2,7 @@
 
 import { getLiveCollection } from 'astro:content';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const { entries: posts, error } = await getLiveCollection('blog', { 
@@ -50,28 +50,26 @@ const structuredData = {
 
   <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
     {posts?.map(post => (
-      <a href={`/blog/${post.data.slug}`}>
-        <Item variant="accent" role="listitem">
-          <ItemMedia variant="image" className="size-20">
-            <img
+      <a href={`/blog/${post.data.slug}`} class="group">
+        <Card className="bg-accent-6 hover:bg-accent-6/80 transition-colors duration-300 pt-0">
+                      <img
               src={post.data.featuredImageUrl}
               alt={post.data.featuredImageAlt || post.data.title}
-              width={80}
-              height={80}
-              class="object-cover"
+              class="object-cover rounded-t-lg"
             />
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle className="line-clamp-1">
-              {post.data.title}
-            </ItemTitle>
-            <ItemDescription>{post.data.shortDescription}</ItemDescription>
-          </ItemContent>
-          <ItemContent className="flex-none text-center">
-            <ItemDescription>{post.data.readingTimeMinutes} min read</ItemDescription>
-            <ItemDescription>Read Post &rarr;</ItemDescription>
-          </ItemContent>
-        </Item>
+          <CardHeader>
+            <CardTitle>
+            <h2 class="text-xl font-bold line-clamp-1 group-hover:underline">{post.data.title}</h2>
+            </CardTitle>
+            <CardDescription className="line-clamp-2">
+              {post.data.shortDescription}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <p>Read Post <span class="inline-block group-hover:translate-x-1 transition-transform duration-300">&rarr;</span></p>
+            <p class="text-sm text-muted-foreground">{post.data.readingTimeMinutes} min read</p>
+          </CardContent>
+        </Card>
       </a>
     ))}
   </div>

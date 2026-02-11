@@ -104,7 +104,7 @@ const premiumContentMiddleware = defineMiddleware(async (context, next) => {
 	const hasActiveSubscription = context.locals.auth.hasActiveSubscription;
 	const premiumLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
 	const basicVideoRouteMatch = path.match(/^\/watch\/basic\/([^/]+)\/video/);
-	const premiumPaths = ["premium", "film-series"];
+	const premiumPaths = ["premium", "film-series", "photos"];
 	const isPremiumPath = premiumPaths.some((pattern) => path.includes(pattern));
 
 	// Prevent URL manipulation: accessing premium library via basic routes

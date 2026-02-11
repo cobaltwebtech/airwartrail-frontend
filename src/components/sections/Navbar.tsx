@@ -38,6 +38,7 @@ const authenticatedNavItems: Array<NavItem> = [
 	{ title: "Premium Content", url: "/streaming/premium" },
 	{ title: "Film Series", url: "/film-series" },
 	{ title: "Coming Soon", url: "/coming-soon" },
+	{ title: "Photos", url: "/photos" },
 	{ title: "Blog", url: "/blog" },
 	{ title: "About", url: "/about" },
 ];

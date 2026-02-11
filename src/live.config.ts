@@ -198,11 +198,22 @@ function blogLoader(): LiveLoader<
 					featuredOnly: typedFilter?.featuredOnly ?? false,
 				};
 
-				const result = await fetchFromCMS<ListPostsOutput>("blog.list", input);
-				const posts = result.posts || [];
+				const result = await fetchFromCMS<ListPostsOutput>(
+					"blog.listFiltered",
+					input,
+				);
+				const posts = result.blogPosts ?? [];
+				const now = new Date();
+
+				// Only include posts with publishedAt today or in the past
+				const filteredPosts = posts.filter((post: Post) => {
+					if (!post.publishedAt) return true;
+					const publishedDate = new Date(post.publishedAt);
+					return publishedDate <= now;
+				});
 
 				return {
-					entries: posts.map((post) => ({
+					entries: filteredPosts.map((post: Post) => ({
 						id: post.slug,
 						data: normalizePost(post),
 					})),

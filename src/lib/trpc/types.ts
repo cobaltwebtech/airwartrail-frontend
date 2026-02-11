@@ -246,7 +246,7 @@ export interface ListPostsPagination {
 }
 
 export interface ListPostsOutput {
-	posts: Post[];
+	blogPosts: Post[];
 	pagination: ListPostsPagination;
 }
 
@@ -268,6 +268,152 @@ export type UploadStatus =
 	| "errored"
 	| "cancelled"
 	| "timed_out";
+
+// ============================================================================
+// Cloudflare Images Types
+// ============================================================================
+
+export interface Image {
+	id: string; // Internal DB ID (project-level)
+	cfImageId: string; // Cloudflare Images ID
+	deliveryUrl: string; // Base delivery URL (imagedelivery.net or custom domain)
+	fileName: string | null; // Original filename
+	altText: string | null; // Accessibility alt text
+	width: number | null; // Image width in pixels
+	height: number | null; // Image height in pixels
+	requireSignedURLs: boolean; // Whether signed URLs are required
+	metadata: Record<string, unknown> | null; // Custom metadata
+	createdAt: Date; // Upload timestamp
+}
+
+export interface Album {
+	id: string;
+	slug: string; // URL-friendly identifier
+	title: string;
+	description: string | null;
+	publishStatus: "draft" | "published" | "archived";
+	coverImageId: string | null; // References an image
+	coverImage: Image | null; // Cover image object (when fetched with relations)
+	authorId: string | null;
+	imageCount: number; // Number of images in album
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface AlbumImage {
+	id: string;
+	albumId: string;
+	imageId: string;
+	image: Image; // Full image object
+	caption: string | null; // Album-specific caption
+	sortOrder: number; // Position in album
+	createdAt: Date;
+}
+
+// ============================================================================
+// Cloudflare Images Input Types
+// ============================================================================
+
+export interface ListImagesInput {
+	limit?: number; // 1-100, default: 50
+	page?: number; // default: 1
+	sortOrder?: "asc" | "desc"; // default: 'desc'
+}
+
+export interface GetImageInput {
+	id: string; // Internal image ID
+}
+
+export interface GetImageByCfIdInput {
+	cfImageId: string; // Cloudflare Images ID
+}
+
+export interface ListImagesOutput {
+	images: Image[];
+	pagination: PaginationMeta;
+}
+
+export interface PaginationMeta {
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
+}
+
+// ============================================================================
+// Album Input Types
+// ============================================================================
+
+export interface GetAlbumInput {
+	id?: string; // Album ID
+	slug?: string; // Album slug (URL-friendly)
+	// Must provide either id OR slug
+}
+
+export interface ListAlbumsInput {
+	limit?: number; // 1-100, default: 25
+	page?: number; // default: 1
+	status?: "draft" | "published" | "archived"; // Filter by status
+	sortBy?: "createdAt" | "updatedAt" | "title"; // default: 'createdAt'
+	sortOrder?: "asc" | "desc"; // default: 'desc'
+}
+
+export interface ListAlbumsOutput {
+	albums: (Album & { coverImage: Image | null })[];
+	pagination: PaginationMeta;
+}
+
+export interface GetAlbumOutput extends Album {
+	images: AlbumImage[];
+}
+
+// ============================================================================
+// Signed URLs Input/Output Types
+// ============================================================================
+
+export interface SignUrlInput {
+	imageId: string; // Internal image ID
+	variant?: string; // Named variant, default: 'public'
+	expirationSeconds?: number; // 60-86400 (1 min - 24 hrs), default: 3600
+}
+
+export interface SignUrlOutput {
+	imageId: string;
+	variant: string;
+	url: string; // Signed or plain URL depending on requireSignedURLs
+	signed: boolean; // true if image requires signatures
+}
+
+export interface SignVariantsInput {
+	imageId: string; // Internal image ID
+	variants: string[]; // Array of variant names (max 20)
+	expirationSeconds?: number; // 60-86400, default: 3600
+}
+
+export interface SignVariantsOutput {
+	imageId: string;
+	signed: boolean;
+	variants: {
+		variant: string;
+		url: string;
+	}[];
+}
+
+export interface SignBatchInput {
+	imageIds: string[]; // Array of internal image IDs (max 100)
+	variant?: string; // Single variant for all, default: 'public'
+	expirationSeconds?: number; // 60-86400, default: 3600
+}
+
+export interface SignBatchOutput {
+	images: {
+		imageId: string;
+		variant: string;
+		url: string;
+		signed: boolean;
+	}[];
+	notFound: string[]; // IDs that weren't found
+}
 
 // ============================================================================
 // API Key Types
