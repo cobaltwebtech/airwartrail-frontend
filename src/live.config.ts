@@ -39,9 +39,23 @@ interface BlogEntryFilter {
 }
 
 // ============================================================================
-// Blog Post Schema
+// Blog Post Schemas
 // ============================================================================
 
+/** Schema for list view - minimal fields from listFiltered procedure */
+const blogListSchema = z.object({
+	id: z.string(),
+	slug: z.string(),
+	title: z.string(),
+	shortDescription: z.string().nullable(),
+	featuredImageUrl: z.string().nullable(),
+	featuredImageAlt: z.string().nullable(),
+	publishedAt: z.string().nullable(),
+	isFeatured: z.boolean(),
+	readingTimeMinutes: z.number().nullable(),
+});
+
+/** Schema for full post view - complete fields from get procedure */
 const blogPostSchema = z.object({
 	id: z.string(),
 	slug: z.string(),
@@ -56,8 +70,8 @@ const blogPostSchema = z.object({
 	authorId: z.string().nullable(),
 	isFeatured: z.boolean(),
 	readingTimeMinutes: z.number().nullable(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
+	createdAt: z.string().nullable(),
+	updatedAt: z.string().nullable(),
 });
 
 // ============================================================================
@@ -86,6 +100,33 @@ function getCMSConfig(): { apiUrl: string; apiKey: string } {
 	}
 
 	return { apiUrl, apiKey };
+}
+
+/** Type for blog post data returned by the loader */
+type BlogData = Record<string, unknown>;
+
+/**
+ * Normalize a Post to ensure dates are ISO strings for schema validation
+ */
+function normalizePost(post: Post): Record<string, unknown> {
+	return {
+		...post,
+		createdAt: post.createdAt
+			? typeof post.createdAt === "string"
+				? post.createdAt
+				: new Date(post.createdAt).toISOString()
+			: undefined,
+		updatedAt: post.updatedAt
+			? typeof post.updatedAt === "string"
+				? post.updatedAt
+				: new Date(post.updatedAt).toISOString()
+			: undefined,
+		publishedAt: post.publishedAt
+			? typeof post.publishedAt === "string"
+				? post.publishedAt
+				: new Date(post.publishedAt).toISOString()
+			: null,
+	};
 }
 
 /**
@@ -143,43 +184,18 @@ async function fetchFromCMS<T>(procedure: string, input: unknown): Promise<T> {
 // Blog Loader
 // ============================================================================
 
-/** Type for blog post data returned by the loader */
-type BlogData = Record<string, unknown>;
-
 /**
- * Normalize a Post to ensure dates are ISO strings for schema validation
+ * Live loader for blog post listings from listFiltered procedure
+ * Returns minimal data for list views
  */
-function normalizePost(post: Post): Record<string, unknown> {
-	return {
-		...post,
-		createdAt:
-			typeof post.createdAt === "string"
-				? post.createdAt
-				: new Date(post.createdAt).toISOString(),
-		updatedAt:
-			typeof post.updatedAt === "string"
-				? post.updatedAt
-				: new Date(post.updatedAt).toISOString(),
-		publishedAt: post.publishedAt
-			? typeof post.publishedAt === "string"
-				? post.publishedAt
-				: new Date(post.publishedAt).toISOString()
-			: null,
-	};
-}
-
-/**
- * Live loader for blog posts from the CMS API
- * Uses regular HTTP fetch since live loaders run outside Workers context
- */
-function blogLoader(): LiveLoader<
+function blogListLoader(): LiveLoader<
 	BlogData,
 	BlogEntryFilter,
 	BlogCollectionFilter,
 	Error
 > {
 	return {
-		name: "blog-loader",
+		name: "blog-list-loader",
 
 		/**
 		 * Load a collection of blog posts with optional filtering
@@ -229,7 +245,36 @@ function blogLoader(): LiveLoader<
 		},
 
 		/**
-		 * Load a single blog post by ID or slug
+		 * Not used for list loader
+		 */
+		loadEntry: async () => {
+			throw new Error("Use blog-full collection for individual posts");
+		},
+	};
+}
+
+/**
+ * Live loader for full blog post data from get procedure
+ * Returns complete post data including content
+ */
+function blogPostLoader(): LiveLoader<
+	BlogData,
+	BlogEntryFilter,
+	BlogCollectionFilter,
+	Error
+> {
+	return {
+		name: "blog-post-loader",
+
+		/**
+		 * Not used for full loader - use loadEntry instead
+		 */
+		loadCollection: async () => {
+			throw new Error("Use blog collection for listings");
+		},
+
+		/**
+		 * Load a single blog post by ID or slug with full data
 		 */
 		loadEntry: async ({ filter }) => {
 			try {
@@ -261,12 +306,16 @@ function blogLoader(): LiveLoader<
 }
 
 // ============================================================================
-// Blog Collection
+// Blog Collections
 // ============================================================================
 
 export const collections = {
-	blog: defineLiveCollection({
-		loader: blogLoader(),
+	blogList: defineLiveCollection({
+		loader: blogListLoader(),
+		schema: blogListSchema,
+	}),
+	blogPost: defineLiveCollection({
+		loader: blogPostLoader(),
 		schema: blogPostSchema,
 	}),
 };

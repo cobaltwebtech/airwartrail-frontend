@@ -1,7 +1,7 @@
 {
   "name": "airwartrail-frontend",
   "type": "module",
-  "version": "0.72.0",
+  "version": "0.72.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",

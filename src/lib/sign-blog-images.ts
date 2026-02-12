@@ -253,10 +253,7 @@ export async function signTiptapImages(
 ): Promise<SignedImageMap> {
 	const images = extractImagesFromTiptap(content);
 
-	console.log("[sign-blog-images] Extracted images:", images);
-
 	if (images.length === 0) {
-		console.log("[sign-blog-images] No images found in content");
 		return {};
 	}
 
@@ -265,14 +262,9 @@ export async function signTiptapImages(
 
 	// Get unique cfImageIds
 	const uniqueCfImageIds = [...new Set(images.map((img) => img.cfImageId))];
-	console.log("[sign-blog-images] Unique cfImageIds:", uniqueCfImageIds);
 
 	// Look up internal database IDs
 	const cfIdToDbId = await lookupImageIdsByCfId(uniqueCfImageIds, trpc);
-	console.log(
-		"[sign-blog-images] cfIdToDbId map:",
-		Object.fromEntries(cfIdToDbId),
-	);
 
 	if (cfIdToDbId.size === 0) {
 		console.warn("[sign-blog-images] No images found in database");
@@ -301,21 +293,12 @@ export async function signTiptapImages(
 		Array.from(imagesByVariant.entries()).map(async ([variant, imageList]) => {
 			try {
 				const dbIds = imageList.map((img) => img.dbId);
-				console.log(
-					`[sign-blog-images] Signing variant "${variant}" for dbIds:`,
-					dbIds,
-				);
 
 				const result = await signedClient.cfImages.signedUrls.signBatch.query({
 					imageIds: dbIds,
 					variant,
 					expirationSeconds: BLOG_IMAGE_EXPIRATION_SECONDS,
 				});
-
-				console.log(
-					`[sign-blog-images] signBatch result for "${variant}":`,
-					result,
-				);
 
 				// Build a reverse map: dbId -> cfImageId for this batch
 				const dbIdToCfId = new Map(
@@ -347,7 +330,6 @@ export async function signTiptapImages(
 		}),
 	);
 
-	console.log("[sign-blog-images] Final signedMap:", signedMap);
 	return signedMap;
 }
 

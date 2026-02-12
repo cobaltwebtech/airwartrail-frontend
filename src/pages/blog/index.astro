@@ -6,7 +6,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const { entries: posts, error } = await getLiveCollection('blog', { 
+const { entries: posts, error } = await getLiveCollection('blogList', { 
   status: 'published',
   sortBy: 'publishedAt',
   sortOrder: 'desc',

@@ -1,6 +1,6 @@
 ---
 
-import { getLiveCollection } from 'astro:content';
+import { getLiveEntry } from 'astro:content';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { extractCfImageIdFromUrl, signFeaturedImage, signTiptapImages } from "@/lib/sign-blog-images";
@@ -16,33 +16,30 @@ if (!slug) {
   return Astro.redirect('/blog');
 }
 
-// Fetch blog posts from the Live Collection and find the one matching the slug
-// We use getLiveCollection since getLiveEntry doesn't support filter by slug directly
-const { entries, error } = await getLiveCollection('blog');
+// Fetch the individual blog post by slug
+// This calls loadEntry in the blogPost loader, which fetches full post data via blog.get
+const result = await getLiveEntry('blogPost', { slug });
 
-if (error) {
-  console.error('Failed to load blog posts:', error.message);
+if (result.error) {
+  console.error('Failed to load blog post:', result.error.message);
   return Astro.redirect('/404');
 }
-
-// Find the post matching the slug (entries are indexed by slug as ID)
-const post = entries?.find(entry => entry.id === slug);
 
 // Return 404 if post not found
-if (!post) {
+if (!result.entry) {
   return Astro.redirect('/404');
 }
 
-const { 
-  title, 
-  shortDescription, 
-  postContent, 
-  featuredImageUrl, 
+const {
+  title,
+  shortDescription,
+  postContent,
+  featuredImageUrl,
   featuredImageAlt,
-  publishedAt, 
+  publishedAt,
   author,
   readingTimeMinutes,
-} = post.data;
+} = result.entry.data;
 
 // Sign all images in the post content (runs in parallel)
 const [signedImageMap, signedFeaturedImage] = await Promise.all([

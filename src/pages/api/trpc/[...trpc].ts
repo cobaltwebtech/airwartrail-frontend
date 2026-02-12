@@ -59,6 +59,7 @@ export const ALL: APIRoute = async ({ params, request, locals }) => {
 		const path = params.trpc || "";
 		const url = new URL(request.url);
 		const internalUrl = `https://awt-cms-worker/trpc/${path}${url.search}`;
+		console.log(`Request to CMS Worker: ${internalUrl}`);
 
 		// Create headers with API key authentication
 		const headers = new Headers(request.headers);
