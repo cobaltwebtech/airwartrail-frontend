@@ -7,7 +7,7 @@
  * Requires an active subscription to view.
  */
 
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
 	ArrowLeft,
 	ChevronLeft,
@@ -85,11 +85,19 @@ type GetAlbumClient = {
 	};
 };
 
-type SignUrlClient = {
+type SignVariantsClient = {
 	cfImages: {
 		signedUrls: {
-			signUrl: {
-				query: (input: SignUrlInput) => Promise<SignUrlOutput>;
+			signVariants: {
+				query: (input: {
+					imageId: string;
+					variants: string[];
+					expirationSeconds?: number;
+				}) => Promise<{
+					imageId: string;
+					signed: boolean;
+					variants: Array<{ variant: string; url: string }>;
+				}>;
 			};
 		};
 	};
@@ -170,40 +178,39 @@ function ImageLightbox({
 		setIsLoadingImage(true);
 	}
 
-	// Fetch signed URLs for all responsive variants (full-size lightbox view)
-	const signedUrlQueries = useQueries({
-		queries: LIGHTBOX_VARIANTS.map((variant) => ({
-			queryKey: ["cfImages", "signedUrls", "signUrl", imageId, variant.name],
-			queryFn: async () => {
-				const client = trpcClient as unknown as SignUrlClient;
-				return client.cfImages.signedUrls.signUrl.query({
-					imageId: imageId,
-					variant: variant.name,
-					expirationSeconds: 3600,
-				});
-			},
-			enabled: image.requireSignedURLs,
-			staleTime: SIGNED_URL_STALE_TIME,
-			retry: false,
-		})),
+	// Fetch signed URLs for all responsive variants in a single request (srcset usage)
+	const { data: signedVariants } = useQuery({
+		queryKey: ["cfImages", "signedUrls", "signVariants", imageId],
+		queryFn: async () => {
+			const client = trpcClient as unknown as SignVariantsClient;
+			return client.cfImages.signedUrls.signVariants.query({
+				imageId: imageId,
+				variants: LIGHTBOX_VARIANTS.map((v) => v.name),
+				expirationSeconds: 3600,
+			});
+		},
+		enabled: image.requireSignedURLs,
+		staleTime: SIGNED_URL_STALE_TIME,
+		retry: false,
 	});
 
 	// Build responsive srcSet and fallback src from signed or public URLs
-	const getVariantUrl = (index: number) => {
-		const variant = LIGHTBOX_VARIANTS[index];
-		if (image.requireSignedURLs && signedUrlQueries[index]?.data?.url) {
-			return signedUrlQueries[index].data.url;
+	const getVariantUrl = (variantName: string) => {
+		if (image.requireSignedURLs && signedVariants?.variants) {
+			const signed = signedVariants.variants.find(
+				(v) => v.variant === variantName,
+			);
+			if (signed) return signed.url;
 		}
-		return `${image.deliveryUrl}/${variant.name}`;
+		return `${image.deliveryUrl}/${variantName}`;
 	};
 
 	const srcSet = LIGHTBOX_VARIANTS.map(
-		(variant, i) => `${getVariantUrl(i)} ${variant.width}w`,
+		(variant) => `${getVariantUrl(variant.name)} ${variant.width}w`,
 	).join(", ");
 
 	// Use the xl variant as the fallback src for balance between resolution and file size
-	const xlVariantIndex = LIGHTBOX_VARIANTS.findIndex((v) => v.name === "xl");
-	const url = getVariantUrl(xlVariantIndex);
+	const url = getVariantUrl("xl");
 
 	// Download handler — streams the original image via our API proxy
 	const handleDownload = async () => {

@@ -1,28 +1,19 @@
 /**
  * Video Library Component
  *
- * A read-only, reusable component to display videos from a specific library in grid or table view.
+ * A read-only, reusable component to display videos from a specific library
+ * in a virtualized grid using TanStack Virtual.
  * Supports infinite scrolling for large video collections.
  *
  * Can optionally require a subscription to view the library.
  */
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import {
-	type ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	getSortedRowModel,
-	type SortingState,
-	useReactTable,
-} from "@tanstack/react-table";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import {
 	ArrowDown,
 	ArrowUp,
-	ArrowUpDown,
 	Film,
-	Grid3X3,
-	List,
 	Loader2,
 	OctagonX,
 	Play,
@@ -51,14 +42,6 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
@@ -80,22 +63,16 @@ interface VideoLibraryProps {
 	libraryId: string;
 	/** Number of videos to fetch per page */
 	pageSize?: number;
-	/** Optional initial view mode */
-	initialViewMode?: "grid" | "table";
 	/** Whether this library requires a subscription to view */
 	requiresSub: boolean;
 }
-
-type ViewMode = "grid" | "table";
 
 const STORAGE_KEY = "videoLibrary-settings";
 const DEFAULT_PAGE_SIZE = 20;
 
 interface VideoLibrarySettings {
-	viewMode: ViewMode;
 	sortCriteria: string;
 	sortDirection: string;
-	tableSorting: SortingState;
 }
 
 function getStoredSettings(): VideoLibrarySettings {
@@ -104,32 +81,18 @@ function getStoredSettings(): VideoLibrarySettings {
 		if (stored) {
 			const parsed = JSON.parse(stored);
 			return {
-				viewMode: parsed.viewMode ?? "grid",
 				sortCriteria: parsed.sortCriteria ?? "date",
 				sortDirection: parsed.sortDirection ?? "desc",
-				tableSorting: parsed.tableSorting ?? [],
 			};
 		}
 	} catch {
 		// Ignore parse errors
 	}
 	return {
-		viewMode: "grid",
 		sortCriteria: "date",
 		sortDirection: "desc",
-		tableSorting: [],
 	};
 }
-
-const formatDate = (date: Date | string | null | undefined): string => {
-	if (!date) return "N/A";
-	const d = typeof date === "string" ? new Date(date) : date;
-	return d.toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	});
-};
 
 // Read stored settings once at module level
 const initialSettings = getStoredSettings();
@@ -137,7 +100,6 @@ const initialSettings = getStoredSettings();
 function VideoLibraryContent({
 	libraryId,
 	pageSize = DEFAULT_PAGE_SIZE,
-	initialViewMode,
 	requiresSub,
 }: VideoLibraryProps) {
 	// Check session and subscription status only if required
@@ -162,16 +124,33 @@ function VideoLibraryContent({
 	const [sortDirection, setSortDirection] = useState(
 		initialSettings.sortDirection,
 	);
-	const [viewMode, setViewMode] = useState<ViewMode>(
-		initialViewMode || initialSettings.viewMode,
-	);
-	const [tableSorting, setTableSorting] = useState<SortingState>(
-		initialSettings.tableSorting,
-	);
 
-	// Ref for infinite scroll observer
-	const loadMoreRef = useRef<HTMLDivElement>(null);
+	// Refs for virtualization
+	const gridListRef = useRef<HTMLDivElement>(null);
 	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Track column count for grid virtualization
+	const [columnCount, setColumnCount] = useState(4);
+
+	// Update column count based on viewport width
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const updateColumnCount = () => {
+			const width = window.innerWidth;
+			if (width >= 1280)
+				setColumnCount(4); // xl
+			else if (width >= 1024)
+				setColumnCount(3); // lg
+			else if (width >= 640)
+				setColumnCount(2); // sm
+			else setColumnCount(1); // mobile
+		};
+
+		updateColumnCount();
+		window.addEventListener("resize", updateColumnCount);
+		return () => window.removeEventListener("resize", updateColumnCount);
+	}, []);
 
 	// Update URL when selected tags change (using slugs)
 	useEffect(() => {
@@ -196,10 +175,8 @@ function VideoLibraryContent({
 
 		saveTimeoutRef.current = setTimeout(() => {
 			const settings: VideoLibrarySettings = {
-				viewMode,
 				sortCriteria,
 				sortDirection,
-				tableSorting,
 			};
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 		}, 300);
@@ -209,7 +186,7 @@ function VideoLibraryContent({
 				clearTimeout(saveTimeoutRef.current);
 			}
 		};
-	}, [viewMode, sortCriteria, sortDirection, tableSorting]);
+	}, [sortCriteria, sortDirection]);
 
 	// Fetch all active tags using the new tag management API
 	const {
@@ -364,26 +341,6 @@ function VideoLibraryContent({
 			});
 	}, [allVideos, searchTerm, sortCriteria, sortDirection]);
 
-	// Infinite scroll observer
-	useEffect(() => {
-		if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
-
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-					fetchNextPage();
-				}
-			},
-			{ threshold: 0.1 },
-		);
-
-		observer.observe(loadMoreRef.current);
-
-		return () => {
-			observer.disconnect();
-		};
-	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
 	const toggleSortDirection = () => {
 		setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
 	};
@@ -411,129 +368,36 @@ function VideoLibraryContent({
 		[libraryId, requiresSub],
 	);
 
-	const handleSortingChange = useCallback(
-		(updater: SortingState | ((old: SortingState) => SortingState)) => {
-			setTableSorting((old) => {
-				const newValue = typeof updater === "function" ? updater(old) : updater;
-				return newValue;
-			});
-		},
-		[],
-	);
-
-	// Table columns definition
-	const columns = useMemo<ColumnDef<Video>[]>(
-		() => [
-			{
-				accessorKey: "thumbnail",
-				header: "",
-				enableSorting: false,
-				cell: ({ row }) => (
-					<div className="max-w-25 mx-auto">
-						<a href={buildVideoUrl(row.original.id, row.original.title)}>
-							<VideoThumbnail
-								playbackId={row.original.playbackId}
-								alt={row.original.title}
-								className="size-full object-cover rounded-md"
-								width={160}
-								height={90}
-								policy={row.original.policy ?? undefined}
-								libraryId={libraryId}
-								videoId={row.original.id}
-							/>
-						</a>
-					</div>
-				),
-			},
-			{
-				accessorKey: "title",
-				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Title
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				),
-				cell: ({ row }) => (
-					<a
-						href={buildVideoUrl(row.original.id, row.original.title)}
-						className="font-semibold text-foreground hover:underline"
-					>
-						{row.original.title}
-					</a>
-				),
-			},
-			{
-				accessorKey: "duration",
-				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Duration
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				),
-				cell: ({ row }) => (
-					<span className="text-muted-foreground">
-						{formatDuration(row.original.duration)}
-					</span>
-				),
-			},
-			{
-				accessorKey: "createdAt",
-				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Uploaded
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				),
-				cell: ({ row }) => (
-					<span className="text-muted-foreground text-sm">
-						{formatDate(row.original.createdAt)}
-					</span>
-				),
-			},
-			{
-				accessorKey: "views",
-				header: ({ column }) => (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="-ml-4"
-					>
-						Views
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				),
-				cell: ({ row }) => (
-					<Badge variant="secondary">
-						{row.original.views?.toLocaleString() ?? 0}
-					</Badge>
-				),
-			},
-		],
-		[buildVideoUrl, libraryId],
-	);
-
-	const table = useReactTable({
-		data: filteredVideos,
-		columns,
-		state: {
-			sorting: tableSorting,
-		},
-		onSortingChange: handleSortingChange,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
+	// Grid virtualizer - virtualizes rows of cards
+	const gridRowCount = Math.ceil(filteredVideos.length / columnCount);
+	const gridVirtualizer = useWindowVirtualizer({
+		count: hasNextPage ? gridRowCount + 1 : gridRowCount, // +1 for loader row
+		estimateSize: () => 340, // Estimated card height including gap
+		overscan: 3,
+		scrollMargin: gridListRef.current?.offsetTop ?? 0,
 	});
+
+	// Infinite scroll via virtualizer - detect when last item is visible
+	useEffect(() => {
+		const virtualItems = gridVirtualizer.getVirtualItems();
+		const lastItem = virtualItems[virtualItems.length - 1];
+
+		if (!lastItem) return;
+
+		if (
+			lastItem.index >= gridRowCount - 1 &&
+			hasNextPage &&
+			!isFetchingNextPage
+		) {
+			fetchNextPage();
+		}
+	}, [
+		hasNextPage,
+		fetchNextPage,
+		isFetchingNextPage,
+		gridRowCount,
+		gridVirtualizer,
+	]);
 
 	// Show loading state during hydration or auth check (only if auth is required)
 	if (checkAuth && (!mounted || authLoading)) {
@@ -690,7 +554,7 @@ function VideoLibraryContent({
 
 	return (
 		<section className="w-full space-y-6">
-			{/* Search and view mode controls */}
+			{/* Search and sort controls */}
 			<div className="flex flex-wrap justify-between gap-2">
 				<Input
 					placeholder="Search videos..."
@@ -699,52 +563,25 @@ function VideoLibraryContent({
 					className="max-w-sm"
 				/>
 				<div className="flex gap-x-2">
-					{viewMode === "grid" && (
-						<>
-							<Select value={sortCriteria} onValueChange={setSortCriteria}>
-								<SelectTrigger className="max-w-sm">
-									<SelectValue placeholder="Sort by" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="date">Upload Date</SelectItem>
-									<SelectItem value="title">Title</SelectItem>
-								</SelectContent>
-							</Select>
+					<Select value={sortCriteria} onValueChange={setSortCriteria}>
+						<SelectTrigger className="max-w-sm">
+							<SelectValue placeholder="Sort by" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="date">Upload Date</SelectItem>
+							<SelectItem value="title">Title</SelectItem>
+						</SelectContent>
+					</Select>
+					<Tooltip>
+						<TooltipTrigger asChild>
 							<Button size="icon" onClick={toggleSortDirection}>
 								{sortDirection === "asc" ? <ArrowUp /> : <ArrowDown />}
 							</Button>
-						</>
-					)}
-					<div className="flex rounded-full border">
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button
-									variant={viewMode === "grid" ? "secondary" : "ghost"}
-									size="icon"
-									onClick={() => setViewMode("grid")}
-									className="rounded-r-none"
-								>
-									<Grid3X3 className="h-4 w-4" />
-									<span className="sr-only">Grid view</span>
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>Grid View</TooltipContent>
-						</Tooltip>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button
-									variant={viewMode === "table" ? "secondary" : "ghost"}
-									size="icon"
-									onClick={() => setViewMode("table")}
-									className="rounded-l-none"
-								>
-									<List className="h-4 w-4" />
-									<span className="sr-only">Table view</span>
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent>Table View</TooltipContent>
-						</Tooltip>
-					</div>
+						</TooltipTrigger>
+						<TooltipContent>
+							{sortDirection === "asc" ? "Ascending" : "Descending"}
+						</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 
@@ -757,121 +594,111 @@ function VideoLibraryContent({
 				</div>
 			)}
 
-			{/* Table layout for videos */}
-			{!isLoading && viewMode === "table" && (
-				<div className="rounded-t-lg border bg-card">
-					<Table>
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => (
-										<TableHead
-											key={header.id}
-											style={{ width: header.getSize() }}
-										>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									))}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow key={row.id}>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
-											</TableCell>
-										))}
-									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-24 text-center"
-									>
-										No videos found.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-			)}
+			{/* Grid layout for videos - virtualized */}
+			{!isLoading && (
+				<div ref={gridListRef}>
+					<div
+						style={{
+							height: `${gridVirtualizer.getTotalSize()}px`,
+							width: "100%",
+							position: "relative",
+						}}
+					>
+						{gridVirtualizer.getVirtualItems().map((virtualRow) => {
+							const isLoaderRow = virtualRow.index >= gridRowCount;
+							const startIndex = virtualRow.index * columnCount;
+							const rowVideos = filteredVideos.slice(
+								startIndex,
+								startIndex + columnCount,
+							);
 
-			{/* Grid layout for videos */}
-			{!isLoading && viewMode === "grid" && (
-				<>
-					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						{filteredVideos.map((video) => (
-							<Card
-								key={video.id}
-								className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
-							>
-								<a href={buildVideoUrl(video.id, video.title)}>
-									<div className="relative">
-										<VideoThumbnail
-											playbackId={video.playbackId}
-											alt={video.title}
-											className="aspect-video w-full object-cover"
-											aspectVideo
-											policy={video.policy ?? undefined}
-											libraryId={libraryId}
-											videoId={video.id}
-										/>
-										<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-											<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-												<Play className="size-6" />
-											</div>
+							return (
+								<div
+									key={virtualRow.index}
+									data-index={virtualRow.index}
+									ref={gridVirtualizer.measureElement}
+									style={{
+										position: "absolute",
+										top: 0,
+										left: 0,
+										width: "100%",
+										transform: `translateY(${virtualRow.start - gridVirtualizer.options.scrollMargin}px)`,
+									}}
+								>
+									{isLoaderRow ? (
+										<div className="flex justify-center py-4">
+											{isFetchingNextPage ? (
+												<div className="text-muted-foreground flex items-center">
+													<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+													Loading more videos...
+												</div>
+											) : (
+												<p className="text-muted-foreground text-xs">
+													End of videos
+												</p>
+											)}
 										</div>
-										<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
-											{formatDuration(video.duration)}
+									) : (
+										<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4">
+											{rowVideos.map((video) => (
+												<Card
+													key={video.id}
+													className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
+												>
+													<a href={buildVideoUrl(video.id, video.title)}>
+														<div className="relative">
+															<VideoThumbnail
+																playbackId={video.playbackId}
+																alt={video.title}
+																className="aspect-video w-full object-cover"
+																aspectVideo
+																policy={video.policy ?? undefined}
+																libraryId={libraryId}
+																videoId={video.id}
+															/>
+															<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+																<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+																	<Play className="size-6" />
+																</div>
+															</div>
+															<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+																{formatDuration(video.duration)}
+															</div>
+														</div>
+													</a>
+													<CardHeader className="p-4 flex items-center justify-between">
+														<a
+															href={buildVideoUrl(video.id, video.title)}
+															className="text-left hover:text-accent-foreground"
+														>
+															<h3 className="font-semibold line-clamp-2">
+																{video.title}
+															</h3>
+														</a>
+														<CardDescription>
+															<Badge>
+																{video.views?.toLocaleString() ?? 0} views
+															</Badge>
+														</CardDescription>
+													</CardHeader>
+													<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
+														Uploaded {formatTimeAgo(video.createdAt)}
+													</CardFooter>
+												</Card>
+											))}
 										</div>
-									</div>
-								</a>
-								<CardHeader className="p-4 flex items-center justify-between">
-									<a
-										href={buildVideoUrl(video.id, video.title)}
-										className="text-left hover:text-accent-foreground"
-									>
-										<h3 className="font-semibold line-clamp-2">
-											{video.title}
-										</h3>
-									</a>
-									<CardDescription>
-										<Badge>{video.views?.toLocaleString() ?? 0} views</Badge>
-									</CardDescription>
-								</CardHeader>
-								<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-									Uploaded {formatTimeAgo(video.createdAt)}
-								</CardFooter>
-							</Card>
-						))}
+									)}
+								</div>
+							);
+						})}
 					</div>
-
-					{/* Infinite scroll trigger */}
-					<div ref={loadMoreRef} className="flex justify-center py-4">
-						{isFetchingNextPage && (
-							<div className="text-muted-foreground flex items-center">
-								<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-								Loading more videos...
-							</div>
-						)}
-						{!hasNextPage && filteredVideos.length > 0 && (
+					{/* End of videos message when no more pages */}
+					{!hasNextPage && filteredVideos.length > 0 && (
+						<div className="flex justify-center py-4">
 							<p className="text-muted-foreground text-xs">End of videos</p>
-						)}
-					</div>
-				</>
+						</div>
+					)}
+				</div>
 			)}
 
 			{filteredVideos.length === 0 && !isLoading && (

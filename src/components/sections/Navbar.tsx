@@ -71,7 +71,7 @@ export default function Navbar() {
 	return (
 		<header className="text-light bg-airwar-600 dark:bg-airwar-900 sticky inset-x-0 top-0 z-50 mx-auto w-full">
 			<nav className="relative mx-auto grid w-full grid-cols-6 items-center px-4 md:px-6 lg:grid-cols-8 xl:px-8">
-				<div className="col-span-4 sm:py-2 lg:col-span-2">
+				<div className="col-span-4 py-1 sm:py-2 lg:col-span-2">
 					<a
 						className="flex items-center gap-x-2"
 						href="/"

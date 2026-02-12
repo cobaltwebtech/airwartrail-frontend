@@ -26,13 +26,42 @@ export interface TiptapContent {
 	content: TiptapNode[];
 }
 
+/**
+ * Map of imageId -> variant -> signedUrl for use with signed URL rendering
+ */
+export interface SignedImageMap {
+	[imageId: string]: {
+		[variant: string]: string;
+	};
+}
+
+/**
+ * Options for tiptapToHtml conversion
+ */
+export interface TiptapToHtmlOptions {
+	/**
+	 * Map of cfImageId -> variant -> signedUrl
+	 * When provided, image URLs will be replaced with signed versions
+	 */
+	signedImageMap?: SignedImageMap;
+}
+
 // ============================================================================
 // Responsive Image Helpers
 // ============================================================================
 
 /**
+ * Extract Cloudflare Image ID from a delivery URL.
+ * URL format: https://domain/cdn-cgi/imagedelivery/{account_hash}/{cf_image_id}/{variant}
+ */
+function extractCfImageId(url: string): string | null {
+	const match = url.match(/\/imagedelivery\/[^/]+\/([^/]+)\/[^/]+$/);
+	return match?.[1] || null;
+}
+
+/**
  * Extract variant from Cloudflare Image Delivery URL
- * Example: https://www.airwartrail.com/cdn-cgi/imagedelivery/.../imageid/blog -> "blog"
+ * Example: https://www.airwartrail.com/cdn-cgi/imagedelivery/.../imageid/md -> "md"
  */
 function extractImageVariant(url: string): string | null {
 	const match = url.match(/\/([^/]+)$/);
@@ -40,11 +69,16 @@ function extractImageVariant(url: string): string | null {
 }
 
 /**
- * Generate srcset for responsive images using Cloudflare Image Delivery variants
- * Maps variants like "blog" to alternative sizes like "blogsm"
+ * Generate srcset for responsive images using Cloudflare Image Delivery variants.
+ * When signedImageMap is provided, uses signed URLs for the srcset.
  *
+ * @param src - The original image src URL
+ * @param signedImageMap - Optional map of cfImageId -> variant -> signedUrl
  */
-function generateImageSrcset(src: string): string {
+function generateImageSrcset(
+	src: string,
+	signedImageMap?: SignedImageMap,
+): string {
 	const variant = extractImageVariant(src);
 	if (!variant) return "";
 
@@ -55,20 +89,26 @@ function generateImageSrcset(src: string): string {
 		string,
 		Array<{ variant: string; width: number }>
 	> = {
-		blog: [
-			{ variant: "blogsm", width: 360 },
-			{ variant: "blog", width: 768 },
+		md: [
+			{ variant: "xsm", width: 400 },
+			{ variant: "sm", width: 640 },
+			{ variant: "md", width: 768 },
 		],
 	};
 
 	const variants = variantMap[variant];
 	if (!variants) return "";
 
-	// Build srcset by replacing the variant in the URL
+	// Check if we have signed URLs for this image
+	const cfImageId = extractCfImageId(src);
+	const signedUrls = cfImageId ? signedImageMap?.[cfImageId] : undefined;
+
+	// Build srcset by replacing the variant in the URL or using signed URLs
 	const srcWithoutVariant = src.replace(/\/[^/]+$/, "");
 	const srcsetParts = variants
 		.map(({ variant: v, width }) => {
-			const newSrc = `${srcWithoutVariant}/${v}`;
+			// Use signed URL if available, otherwise construct URL
+			const newSrc = signedUrls?.[v] || `${srcWithoutVariant}/${v}`;
 			if (width === 0) {
 				return newSrc; // Full width, no width descriptor
 			}
@@ -151,8 +191,10 @@ function applyMark(text: string, mark: TiptapMark): string {
 
 /**
  * Convert a Tiptap node to HTML
+ * @param node - The Tiptap node to render
+ * @param signedImageMap - Optional map of cfImageId -> variant -> signedUrl
  */
-function nodeToHtml(node: TiptapNode): string {
+function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 	// Handle text nodes
 	if (node.type === "text") {
 		let text = escapeHtml(node.text || "");
@@ -179,11 +221,18 @@ function nodeToHtml(node: TiptapNode): string {
 
 	// Handle images
 	if (node.type === "image") {
-		const src = escapeAttr(node.attrs?.src as string);
+		const originalSrc = node.attrs?.src as string;
 		const alt = escapeAttr(node.attrs?.alt as string);
 		const title = node.attrs?.title as string | undefined;
+
+		// Get signed URL if available
+		const cfImageId = extractCfImageId(originalSrc);
+		const variant = extractImageVariant(originalSrc) || "md";
+		const signedSrc = cfImageId && signedImageMap?.[cfImageId]?.[variant];
+		const src = escapeAttr(signedSrc || originalSrc);
+
 		const titleAttr = title ? `title="${escapeAttr(title)}"` : "";
-		const srcset = generateImageSrcset(node.attrs?.src as string);
+		const srcset = generateImageSrcset(originalSrc, signedImageMap);
 		const srcsetAttr = srcset ? `srcset="${escapeAttr(srcset)}"` : "";
 		// sizes attribute tells browser the image layout width for responsive selection
 		const sizesAttr = srcset ? `sizes="(max-width: 768px) 100vw, 768px"` : "";
@@ -192,7 +241,8 @@ function nodeToHtml(node: TiptapNode): string {
 
 	// Recursively render child content
 	const childrenHtml =
-		node.content?.map((child) => nodeToHtml(child)).join("") || "";
+		node.content?.map((child) => nodeToHtml(child, signedImageMap)).join("") ||
+		"";
 
 	// Handle different node types
 	switch (node.type) {
@@ -276,16 +326,26 @@ function nodeToHtml(node: TiptapNode): string {
  * Convert Tiptap JSON content to HTML string
  *
  * @param content - The Tiptap JSON content (usually from postContent field)
+ * @param options - Optional configuration including signedImageMap
  * @returns HTML string ready to be rendered
  *
  * @example
  * ```typescript
+ * // Basic usage
  * const html = tiptapToHtml(post.postContent);
+ *
+ * // With signed image URLs
+ * const signedMap = await signTiptapImages(post.postContent, env, request);
+ * const html = tiptapToHtml(post.postContent, { signedImageMap: signedMap });
+ *
  * // Use with Astro's set:html directive
  * <div set:html={html} />
  * ```
  */
-export function tiptapToHtml(content: unknown): string {
+export function tiptapToHtml(
+	content: unknown,
+	options?: TiptapToHtmlOptions,
+): string {
 	if (!content || typeof content !== "object") {
 		return "";
 	}
@@ -300,7 +360,9 @@ export function tiptapToHtml(content: unknown): string {
 		return "";
 	}
 
-	return doc.content.map((node) => nodeToHtml(node)).join("");
+	return doc.content
+		.map((node) => nodeToHtml(node, options?.signedImageMap))
+		.join("");
 }
 
 /**

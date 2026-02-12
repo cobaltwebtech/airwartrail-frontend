@@ -49,9 +49,9 @@ const structuredData = {
 
   <h1 class="text-4xl font-bold sm:text-5xl">Blog Posts</h1>
 
-  <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+  <div class="w-full grid sm:grid-cols-2 md:grid-cols-3 gap-8">
     {posts?.map(post => {
-      const thumbnailUrl = post.data.featuredImageUrl?.replace(/\/blog\/?$/, '/blogsm');
+      const thumbnailUrl = post.data.featuredImageUrl?.replace(/\/md\/?$/, '/thumbnail');
       return (
       <a href={`/blog/${post.data.slug}`} class="group">
         <Card className="h-full bg-accent-6 hover:bg-accent-6/80 transition-colors duration-300 pt-0">

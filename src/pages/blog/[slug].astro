@@ -3,7 +3,11 @@
 import { getLiveCollection } from 'astro:content';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { extractCfImageIdFromUrl, signFeaturedImage, signTiptapImages } from "@/lib/sign-blog-images";
 import { tiptapToHtml } from "@/lib/tiptap";
+
+// Get Cloudflare environment for tRPC calls
+const { env } = Astro.locals.runtime;
 
 // Get the slug from the route parameter
 const { slug } = Astro.params;
@@ -40,6 +44,28 @@ const {
   readingTimeMinutes,
 } = post.data;
 
+// Sign all images in the post content (runs in parallel)
+const [signedImageMap, signedFeaturedImage] = await Promise.all([
+  // Sign body images
+  signTiptapImages(postContent, env, Astro.request),
+  // Sign featured image if present
+  featuredImageUrl 
+    ? (async () => {
+        const cfImageId = extractCfImageIdFromUrl(featuredImageUrl);
+        if (cfImageId) {
+          return signFeaturedImage(cfImageId, env, Astro.request);
+        }
+        return { md: null, sm: null };
+      })()
+    : Promise.resolve({ md: null, sm: null }),
+]);
+
+// Use signed featured image URL or fall back to original
+const displayFeaturedImageUrl = signedFeaturedImage.md || featuredImageUrl;
+const featuredImageSrcset = signedFeaturedImage.sm && signedFeaturedImage.md
+  ? `${signedFeaturedImage.sm} 640w, ${signedFeaturedImage.md} 768w`
+  : undefined;
+
 const pageTitle = `${title} | Blog | Air War Trail`;
 const structuredData = {
   "@context": "https://schema.org",
@@ -48,7 +74,7 @@ const structuredData = {
   url: `https://www.airwartrail.com/blog/${slug}/`,
   headline: title,
   description: shortDescription,
-  image: featuredImageUrl ? [featuredImageUrl] : undefined,
+  image: displayFeaturedImageUrl ? [displayFeaturedImageUrl] : undefined,
   datePublished: publishedAt,
   author: {
     "@type": "Person",
@@ -113,10 +139,12 @@ const formattedDate = publishedAt
     </header>
 
     <!-- Featured Image -->
-    {featuredImageUrl && (
+    {displayFeaturedImageUrl && (
       <figure class="mb-8">
         <img 
-          src={featuredImageUrl} 
+          src={displayFeaturedImageUrl} 
+          srcset={featuredImageSrcset}
+          sizes={featuredImageSrcset ? "(max-width: 768px) 100vw, 768px" : undefined}
           alt={featuredImageAlt || title} 
           class="w-full rounded-lg object-cover"
         />
@@ -125,7 +153,7 @@ const formattedDate = publishedAt
 
     <!-- Post Content -->
     <div class="prose prose-lg dark:prose-invert">
-      <Fragment set:html={tiptapToHtml(postContent)} />
+      <Fragment set:html={tiptapToHtml(postContent, { signedImageMap })} />
     </div>
   </article>
 </BaseLayout>

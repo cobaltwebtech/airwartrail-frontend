@@ -1,7 +1,7 @@
 {
   "name": "airwartrail-frontend",
   "type": "module",
-  "version": "0.71.1",
+  "version": "0.72.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -40,7 +40,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-query-devtools": "^5.91.3",
-    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.18",
     "@trpc/client": "^11.10.0",
     "@trpc/tanstack-react-query": "^11.10.0",
     "astro": "5.17.1",

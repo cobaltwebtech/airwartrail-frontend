@@ -177,7 +177,7 @@ function PlaylistCard({ playlist, libraryId }: PlaylistCardProps) {
 						{playlist.videoCount} {playlist.videoCount === 1 ? "film" : "films"}
 					</ItemDescription>
 					{playlist.description && (
-						<ItemDescription className="mt-2 line-clamp-3">
+						<ItemDescription className="mt-2 line-clamp-2">
 							{playlist.description}
 						</ItemDescription>
 					)}

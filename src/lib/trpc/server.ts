@@ -45,10 +45,14 @@ export function createServerTRPCClient(env: Env, request?: Request) {
 					...(request ? Object.fromEntries(request.headers) : {}),
 					"x-api-key": env.AWT_CMS_API_KEY,
 				},
-				fetch: async (url, options) => {
-					// Use Service Binding instead of public HTTP
-					const internalRequest = new Request(url, options);
-					return env.AWT_CMS.fetch(internalRequest);
+				fetch: async (input, options) => {
+					// Service binding fetch - handle both Request objects and URL strings
+					if (input instanceof Request) {
+						// tRPC sometimes passes a Request object directly
+						return env.AWT_CMS.fetch(input);
+					}
+					// Pass URL string + init directly to avoid Miniflare issues
+					return env.AWT_CMS.fetch(input, options);
 				},
 			}),
 		],
@@ -83,8 +87,17 @@ export function createApiKeyTRPCClient(env: Env, apiKey: string) {
 				headers: {
 					"x-api-key": apiKey,
 				},
-				fetch: async (url, options) => {
-					const internalRequest = new Request(url, options);
+				fetch: async (input, options) => {
+					// Handle string, URL, and Request objects
+					let urlString: string;
+					if (typeof input === "string") {
+						urlString = input;
+					} else if (input instanceof URL) {
+						urlString = input.toString();
+					} else {
+						urlString = input.url;
+					}
+					const internalRequest = new Request(urlString, options);
 					return env.AWT_CMS.fetch(internalRequest);
 				},
 			}),

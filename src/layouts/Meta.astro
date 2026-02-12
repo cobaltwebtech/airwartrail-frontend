@@ -1,8 +1,9 @@
 ---
+
 import { getImage } from "astro:assets";
-import { siteMeta, openGraph, seoMeta } from "@/lib/siteData";
 import faviconSvg from "@/assets/static/favicon.svg";
 import faviconMask from "@/assets/static/icon-mask.png";
+import { openGraph, seoMeta, siteMeta } from "@/lib/siteData";
 
 // Default properties for the Meta component. These values are used if props are not provided.
 // 'meta' sets a default description meta tag to describe the page content.
@@ -81,4 +82,4 @@ const socialImage = Astro.url.origin + socialImageRes.src;
 <link href={faviconMask.src} rel="apple-touch-icon" />
 <link href={faviconMask.src} rel="shortcut icon" />
 <!-- Set theme color -->
-<meta name="theme-color" content="#647b52" />
+<meta name="theme-color" content="#556b45" />
