@@ -12,6 +12,19 @@ import {
 	getMuxThumbnailUrl,
 } from "@/lib/video-helpers";
 
+/** Pre-fetched thumbnail data from batch API */
+export interface PrefetchedThumbnailData {
+	customThumbnailUrl: string | null;
+	customThumbnailTime: number | null;
+}
+
+/** Pre-fetched signed tokens from batch API */
+export interface PrefetchedSignedTokens {
+	playback: string;
+	thumbnail: string;
+	storyboard: string;
+}
+
 export interface VideoThumbnailProps {
 	/** The Mux playback ID for the video */
 	playbackId: string | null | undefined;
@@ -35,6 +48,10 @@ export interface VideoThumbnailProps {
 	time?: number;
 	/** Custom fallback icon component */
 	fallbackIcon?: ReactNode;
+	/** Pre-fetched thumbnail data from batch API (skips individual fetch if provided) */
+	prefetchedThumbnail?: PrefetchedThumbnailData;
+	/** Pre-fetched signed tokens from batch API (skips individual token fetch if provided) */
+	prefetchedSignedTokens?: PrefetchedSignedTokens;
 }
 
 type TypedTrpcClient = {
@@ -67,6 +84,8 @@ export function VideoThumbnail({
 	videoId,
 	time,
 	fallbackIcon,
+	prefetchedThumbnail,
+	prefetchedSignedTokens,
 }: VideoThumbnailProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const [isLoaded, setIsLoaded] = useState(false);
@@ -78,27 +97,36 @@ export function VideoThumbnail({
 	const finalHeight = height ?? defaultDimensions.height;
 
 	// Fetch custom thumbnail data from database (if videoId and libraryId provided)
-	const { data: thumbnailData, isLoading: isLoadingThumbnail } = useQuery({
-		queryKey: ["mux", "getThumbnail", videoId, libraryId],
-		queryFn: async () => {
-			type GetThumbnailClient = {
-				mux: {
-					getThumbnail: {
-						query: (input: { videoId: string; libraryId: string }) => Promise<{
-							customThumbnailUrl: string | null;
-							customThumbnailTime: number | null;
-						}>;
+	// Skip fetch if prefetched data is provided
+	const { data: fetchedThumbnailData, isLoading: isLoadingThumbnail } =
+		useQuery({
+			queryKey: ["mux", "getThumbnail", videoId, libraryId],
+			queryFn: async () => {
+				type GetThumbnailClient = {
+					mux: {
+						getThumbnail: {
+							query: (input: {
+								videoId: string;
+								libraryId: string;
+							}) => Promise<{
+								customThumbnailUrl: string | null;
+								customThumbnailTime: number | null;
+							}>;
+						};
 					};
 				};
-			};
-			const typedClient = trpcClient as unknown as GetThumbnailClient;
-			return typedClient.mux.getThumbnail.query({
-				videoId: videoId || "",
-				libraryId: libraryId || "",
-			});
-		},
-		enabled: !!videoId && !!libraryId,
-	});
+				const typedClient = trpcClient as unknown as GetThumbnailClient;
+				return typedClient.mux.getThumbnail.query({
+					videoId: videoId || "",
+					libraryId: libraryId || "",
+				});
+			},
+			// Skip individual fetch if prefetched data is available
+			enabled: !!videoId && !!libraryId && !prefetchedThumbnail,
+		});
+
+	// Use prefetched data if available, otherwise use fetched data
+	const thumbnailData = prefetchedThumbnail ?? fetchedThumbnailData;
 
 	// Determine effective thumbnail time based on priority:
 	// 1. customThumbnailTime from database (if exists)
@@ -125,7 +153,8 @@ export function VideoThumbnail({
 
 	// Fetch signed token if the video has a signed policy and we're using Mux thumbnail
 	// For signed videos, time/width/height/fit_mode are embedded in the JWT token claims
-	const { data: signedTokens, isLoading: isLoadingToken } = useQuery({
+	// Skip fetch if prefetched tokens are provided
+	const { data: fetchedSignedTokens, isLoading: isLoadingToken } = useQuery({
 		queryKey: [
 			"mux",
 			"generateSignedTokens",
@@ -143,9 +172,16 @@ export function VideoThumbnail({
 				thumbnailParams,
 			}),
 		enabled:
-			policy === "signed" && !!playbackId && !!libraryId && !customThumbnailUrl, // Only fetch token if not using custom URL
+			policy === "signed" &&
+			!!playbackId &&
+			!!libraryId &&
+			!customThumbnailUrl &&
+			!prefetchedSignedTokens, // Skip if prefetched tokens provided
 		staleTime: 60 * 60 * 1000,
 	});
+
+	// Use prefetched tokens if available, otherwise use fetched tokens
+	const signedTokens = prefetchedSignedTokens ?? fetchedSignedTokens;
 
 	// Generate thumbnail URL based on priority
 	// Priority 1: Use custom thumbnail URL if it exists (bypass Mux)
@@ -176,14 +212,15 @@ export function VideoThumbnail({
 		);
 	}
 
-	// Show skeleton while loading custom thumbnail data
-	if (isLoadingThumbnail) {
+	// Show skeleton while loading custom thumbnail data (only if not using prefetched data)
+	if (!prefetchedThumbnail && isLoadingThumbnail) {
 		return <Skeleton className={skeletonClass} />;
 	}
 
-	// Show skeleton while loading token for signed videos (only if not using custom URL)
+	// Show skeleton while loading token for signed videos (only if not using custom URL or prefetched tokens)
 	if (
 		!customThumbnailUrl &&
+		!prefetchedSignedTokens &&
 		policy === "signed" &&
 		(isLoadingToken || !signedTokens?.thumbnail)
 	) {

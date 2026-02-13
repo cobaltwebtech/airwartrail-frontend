@@ -46,7 +46,11 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { VideoThumbnail } from "@/components/video/VideoThumbnail";
+import {
+	type PrefetchedSignedTokens,
+	type PrefetchedThumbnailData,
+	VideoThumbnail,
+} from "@/components/video/VideoThumbnail";
 import type {
 	SearchVideoResult,
 	SearchVideosByTagsInput,
@@ -56,7 +60,11 @@ import type {
 } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
 import { useSubStatus } from "@/lib/useSubStatus";
-import { formatDuration, formatTimeAgo } from "@/lib/video-helpers";
+import {
+	formatDuration,
+	formatTimeAgo,
+	getDefaultThumbnailDimensions,
+} from "@/lib/video-helpers";
 
 interface VideoLibraryProps {
 	/** The library ID to fetch videos from */
@@ -340,6 +348,150 @@ function VideoLibraryContent({
 							new Date(a.createdAt || 0).getTime();
 			});
 	}, [allVideos, searchTerm, sortCriteria, sortDirection]);
+	// Batch fetch thumbnails for all loaded videos
+	const videoIdsForThumbnails = useMemo(() => {
+		return allVideos.map((v) => v.id);
+	}, [allVideos]);
+
+	const { data: thumbnailBatchData } = useQuery({
+		queryKey: ["mux", "getThumbnailBatch", libraryId, videoIdsForThumbnails],
+		queryFn: async () => {
+			if (videoIdsForThumbnails.length === 0) return [];
+
+			type GetThumbnailBatchClient = {
+				mux: {
+					getThumbnailBatch: {
+						query: (input: {
+							videoIds: string[];
+							libraryId: string;
+						}) => Promise<
+							{
+								videoId: string;
+								customThumbnailUrl: string | null;
+								customThumbnailTime: number | null;
+								hasCustomThumbnail: boolean;
+							}[]
+						>;
+					};
+				};
+			};
+			const client = trpcClient as unknown as GetThumbnailBatchClient;
+			return client.mux.getThumbnailBatch.query({
+				videoIds: videoIdsForThumbnails,
+				libraryId,
+			});
+		},
+		enabled: videoIdsForThumbnails.length > 0,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+
+	// Create a map for O(1) thumbnail lookup
+	const thumbnailMap = useMemo(() => {
+		const map = new Map<string, PrefetchedThumbnailData>();
+		if (thumbnailBatchData) {
+			for (const item of thumbnailBatchData) {
+				map.set(item.videoId, {
+					customThumbnailUrl: item.customThumbnailUrl,
+					customThumbnailTime: item.customThumbnailTime,
+				});
+			}
+		}
+		return map;
+	}, [thumbnailBatchData]);
+
+	// Get signed videos that need token batch fetching
+	// Only fetch tokens for videos that don't have a custom thumbnail URL
+	const signedVideoItems = useMemo(() => {
+		const dimensions = getDefaultThumbnailDimensions(true); // aspectVideo=true
+		return allVideos
+			.filter(
+				(v): v is Video & { playbackId: string } =>
+					v.policy === "signed" && typeof v.playbackId === "string",
+			)
+			.filter((v) => {
+				// Skip videos with custom thumbnail URLs (they don't need Mux tokens)
+				const thumbnail = thumbnailMap.get(v.id);
+				return !thumbnail?.customThumbnailUrl;
+			})
+			.map((v) => {
+				const thumbnail = thumbnailMap.get(v.id);
+				const thumbnailTime = thumbnail?.customThumbnailTime ?? 5;
+				return {
+					playbackId: v.playbackId,
+					expiresIn: 3600,
+					thumbnailParams: {
+						time: thumbnailTime,
+						width: dimensions.width,
+						height: dimensions.height,
+						fit_mode: "smartcrop",
+					},
+				};
+			});
+	}, [allVideos, thumbnailMap]);
+
+	// Batch fetch signed tokens for all signed videos
+	const { data: tokenBatchData } = useQuery({
+		queryKey: [
+			"mux",
+			"generateSignedTokensBatch",
+			libraryId,
+			signedVideoItems.map((i) => i.playbackId),
+		],
+		queryFn: async () => {
+			if (signedVideoItems.length === 0) return [];
+
+			type GenerateSignedTokensBatchClient = {
+				mux: {
+					generateSignedTokensBatch: {
+						query: (input: {
+							items: Array<{
+								playbackId: string;
+								expiresIn?: number;
+								thumbnailParams?: {
+									time?: number;
+									width?: number;
+									height?: number;
+									fit_mode?: string;
+								};
+							}>;
+							libraryId?: string;
+						}) => Promise<
+							Array<{
+								playbackId: string;
+								playback: string;
+								thumbnail: string;
+								storyboard: string;
+							}>
+						>;
+					};
+				};
+			};
+			const client = trpcClient as unknown as GenerateSignedTokensBatchClient;
+			return client.mux.generateSignedTokensBatch.query({
+				items: signedVideoItems,
+				libraryId,
+			});
+		},
+		// Wait for thumbnail data before fetching tokens to ensure correct filtering
+		// (videos with custom URLs don't need tokens, and we need customThumbnailTime for token params)
+		enabled: signedVideoItems.length > 0 && !!thumbnailBatchData,
+		staleTime: 55 * 60 * 1000, // 55 minutes (tokens expire in 60)
+	});
+
+	// Create a map for O(1) token lookup by playbackId
+	const tokenMap = useMemo(() => {
+		const map = new Map<string, PrefetchedSignedTokens>();
+		if (tokenBatchData) {
+			for (const item of tokenBatchData) {
+				map.set(item.playbackId, {
+					playback: item.playback,
+					thumbnail: item.thumbnail,
+					storyboard: item.storyboard,
+				});
+			}
+		}
+		return map;
+	}, [tokenBatchData]);
 
 	const toggleSortDirection = () => {
 		setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -655,6 +807,12 @@ function VideoLibraryContent({
 																policy={video.policy ?? undefined}
 																libraryId={libraryId}
 																videoId={video.id}
+																prefetchedThumbnail={thumbnailMap.get(video.id)}
+																prefetchedSignedTokens={
+																	video.playbackId
+																		? tokenMap.get(video.playbackId)
+																		: undefined
+																}
 															/>
 															<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
 																<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
