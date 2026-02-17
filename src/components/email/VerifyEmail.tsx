@@ -27,8 +27,8 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 			<Preview>Verify Your Email</Preview>
 			<Tailwind>
 				<Body className="mx-auto my-auto bg-white px-2 font-sans">
-					<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-stone-300 bg-stone-100 p-[20px]">
-						<Section className="my-[20px] px-[32px] py-[20px]">
+					<Container className="mx-auto my-10 max-w-116.25 rounded border border-solid border-stone-300 bg-stone-100 p-5">
+						<Section className="my-5 px-8 py-5">
 							<Row>
 								<Column align="center">
 									<Link href="https://www.airwartrail.com/">
@@ -70,7 +70,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 								</Column>
 							</Row>
 						</Section>
-						<Section className="mb-[24px]">
+						<Section className="mb-6">
 							<Row>
 								<Column className="text-center">
 									<Text className="text-center text-xl font-bold text-stone-900">
@@ -80,7 +80,7 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 										Click the link below to verify.
 									</Text>
 									<Button
-										className="box-border w-full max-w-[200px] rounded-[8px] bg-green-800 p-3 font-semibold text-white"
+										className="box-border w-full max-w-50 rounded-[8px] bg-green-800 p-3 font-semibold text-white"
 										href={url}
 									>
 										Verify Email Address
@@ -91,18 +91,18 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 								</Column>
 							</Row>
 						</Section>
-						<Section className="my-[24px] py-[24px] text-center">
-							<Row className="mt-[24px]">
+						<Section className="my-6 py-6 text-center">
+							<Row className="mt-6">
 								<Column className="text-center">
 									<Img
 										alt="Air War Trail Logo"
 										width="80"
 										src="https://assets.airwartrail.com/static/Airwar-Trail-Logo.png"
-										className="mx-auto w-[80px]"
+										className="mx-auto w-20"
 									/>
 								</Column>
 							</Row>
-							<Row className="my-[12px]">
+							<Row className="my-3">
 								<Column className="text-center">
 									<Link href="http://www.youtube.com/@airwartrail">
 										<Img
@@ -116,12 +116,12 @@ export const VerifyEmail: React.FC<VerifyEmailProps> = ({ url }) => {
 									</Link>
 								</Column>
 							</Row>
-							<Row className="my-[12px]">
+							<Row className="my-3">
 								<Column className="text-center">
-									<Text className="my-[8px] text-[12px] leading-[24px] text-stone-500">
+									<Text className="my-2 text-[12px] leading-6 text-stone-500">
 										Air War Trail is a subsidiary of Old Segundo Productions
 									</Text>
-									<Text className="mt-[4px] mb-0 text-[12px] leading-[24px] font-semibold text-stone-500">
+									<Text className="mt-1 mb-0 text-[12px] leading-6 font-semibold text-stone-500">
 										<Link href="mailto:info@airwartrail.com">
 											info@airwartrail.com
 										</Link>
