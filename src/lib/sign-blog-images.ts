@@ -102,24 +102,39 @@ type CfImagesSignedUrlsClient = {
 
 /**
  * Extract Cloudflare Image ID from a delivery URL.
- * URL format: https://domain/cdn-cgi/imagedelivery/{account_hash}/{cf_image_id}/{variant}
+ * URL format: https://domain/cdn-cgi/imagedelivery/{account_hash}/{cf_image_id} (no variant)
+ * or: https://domain/cdn-cgi/imagedelivery/{account_hash}/{cf_image_id}/{variant}
  *
  * @param url - The Cloudflare Images delivery URL
  * @returns The cfImageId or null if not parseable
  */
 export function extractCfImageIdFromUrl(url: string): string | null {
-	// Match: /imagedelivery/{hash}/{cfImageId}/{variant}
-	const match = url.match(/\/imagedelivery\/[^/]+\/([^/]+)\/[^/]+$/);
+	// Try matching with variant first: /imagedelivery/{hash}/{cfImageId}/{variant}
+	let match = url.match(/\/imagedelivery\/[^/]+\/([^/]+)\/[^/]+$/);
+	if (match) return match[1];
+
+	// No variant, match without it: /imagedelivery/{hash}/{cfImageId}
+	match = url.match(/\/imagedelivery\/[^/]+\/([^/]+)$/);
 	return match?.[1] || null;
 }
 
 /**
  * Extract variant from Cloudflare Image Delivery URL.
- * Example: .../imageid/blog -> "blog"
+ * Example: .../imageid/md -> "md"
+ * Example: .../imageid (no variant) -> BLOG_IMAGE_VARIANT
  */
 function extractVariantFromUrl(url: string): string {
 	const match = url.match(/\/([^/]+)$/);
-	return match?.[1] || BLOG_IMAGE_VARIANT;
+	const lastSegment = match?.[1];
+
+	// Known variants
+	const knownVariants = ["xsm", "sm", "md", "lg", "xl"];
+	if (lastSegment && knownVariants.includes(lastSegment)) {
+		return lastSegment;
+	}
+
+	// If last segment is not a known variant, it's the image ID, so use default
+	return BLOG_IMAGE_VARIANT;
 }
 
 // ============================================================================
@@ -153,27 +168,28 @@ function extractImagesFromTiptap(content: unknown): ExtractedImage[] {
 					const variant = extractVariantFromUrl(src);
 
 					if (cfImageId && !seenCfIds.has(`${cfImageId}-${variant}`)) {
+						// Ensure the original src has the variant appended
+						const srcWithVariant =
+							extractVariantFromUrl(src) === variant
+								? src
+								: `${src.replace(/\/[^/]+$|$/, "")}/${variant}`;
+
 						images.push({
 							cfImageId,
-							originalSrc: src,
+							originalSrc: srcWithVariant,
 							variant,
 						});
 						seenCfIds.add(`${cfImageId}-${variant}`);
 
-						// Also track the small variant if blog variant is used
-						if (variant === BLOG_IMAGE_VARIANT) {
-							const smKey = `${cfImageId}-${BLOG_IMAGE_VARIANT_SM}`;
-							if (!seenCfIds.has(smKey)) {
-								images.push({
-									cfImageId,
-									originalSrc: src.replace(
-										/\/[^/]+$/,
-										`/${BLOG_IMAGE_VARIANT_SM}`,
-									),
-									variant: BLOG_IMAGE_VARIANT_SM,
-								});
-								seenCfIds.add(smKey);
-							}
+						// Always track the small variant for responsive images
+						const smKey = `${cfImageId}-${BLOG_IMAGE_VARIANT_SM}`;
+						if (!seenCfIds.has(smKey)) {
+							images.push({
+								cfImageId,
+								originalSrc: `${src.replace(/\/[^/]+$|$/, "")}/${BLOG_IMAGE_VARIANT_SM}`,
+								variant: BLOG_IMAGE_VARIANT_SM,
+							});
+							seenCfIds.add(smKey);
 						}
 					}
 				}

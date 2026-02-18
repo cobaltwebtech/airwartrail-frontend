@@ -62,10 +62,17 @@ function extractCfImageId(url: string): string | null {
 /**
  * Extract variant from Cloudflare Image Delivery URL
  * Example: https://www.airwartrail.com/cdn-cgi/imagedelivery/.../imageid/md -> "md"
+ * Returns null if the last segment is not a known variant
  */
 function extractImageVariant(url: string): string | null {
 	const match = url.match(/\/([^/]+)$/);
-	return match ? match[1] : null;
+	const lastSegment = match ? match[1] : null;
+
+	// Known variants - only return if it matches one of these
+	const knownVariants = ["xsm", "sm", "md", "lg", "xl"];
+	return lastSegment && knownVariants.includes(lastSegment)
+		? lastSegment
+		: null;
 }
 
 /**
@@ -221,9 +228,14 @@ function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 
 	// Handle images
 	if (node.type === "image") {
-		const originalSrc = node.attrs?.src as string;
+		let originalSrc = node.attrs?.src as string;
 		const alt = escapeAttr(node.attrs?.alt as string);
 		const title = node.attrs?.title as string | undefined;
+
+		// If the image URL doesn't have a variant suffix, add "md" as the default
+		if (!extractImageVariant(originalSrc)) {
+			originalSrc = `${originalSrc}/md`;
+		}
 
 		// Get signed URL if available
 		const cfImageId = extractCfImageId(originalSrc);
