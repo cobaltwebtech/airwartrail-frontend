@@ -93,9 +93,7 @@ function VideoEmbedContent({
 	// Loading state
 	if (videoLoading) {
 		return (
-			<div className={className}>
-				<Skeleton className="size-full aspect-video rounded-lg overflow-hidden" />
-			</div>
+			<Skeleton className="size-full aspect-video rounded-lg overflow-hidden" />
 		);
 	}
 

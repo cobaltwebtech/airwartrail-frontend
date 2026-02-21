@@ -128,7 +128,16 @@ function extractVariantFromUrl(url: string): string {
 	const lastSegment = match?.[1];
 
 	// Known variants
-	const knownVariants = ["xsm", "sm", "md", "lg", "xl"];
+	const knownVariants = [
+		"xsm",
+		"sm",
+		"md",
+		"lg",
+		"xl",
+		"xsmnomark",
+		"smnomark",
+		"mdnomark",
+	];
 	if (lastSegment && knownVariants.includes(lastSegment)) {
 		return lastSegment;
 	}
@@ -181,15 +190,22 @@ function extractImagesFromTiptap(content: unknown): ExtractedImage[] {
 						});
 						seenCfIds.add(`${cfImageId}-${variant}`);
 
-						// Always track the small variant for responsive images
-						const smKey = `${cfImageId}-${BLOG_IMAGE_VARIANT_SM}`;
-						if (!seenCfIds.has(smKey)) {
-							images.push({
-								cfImageId,
-								originalSrc: `${src.replace(/\/[^/]+$|$/, "")}/${BLOG_IMAGE_VARIANT_SM}`,
-								variant: BLOG_IMAGE_VARIANT_SM,
-							});
-							seenCfIds.add(smKey);
+						// Always track the small variants for responsive images
+						// Determine the appropriate variants based on whether this is a "nomark" variant
+						const responsiveVariants = variant.endsWith("nomark")
+							? ["smnomark", "xsmnomark"]
+							: ["sm", "xsm"];
+
+						for (const respVariant of responsiveVariants) {
+							const respKey = `${cfImageId}-${respVariant}`;
+							if (!seenCfIds.has(respKey)) {
+								images.push({
+									cfImageId,
+									originalSrc: `${src.replace(/\/[^/]+$|$/, "")}/${respVariant}`,
+									variant: respVariant,
+								});
+								seenCfIds.add(respKey);
+							}
 						}
 					}
 				}

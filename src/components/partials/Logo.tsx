@@ -19,8 +19,7 @@ export const AwtLogo: React.FC<AwtLogoProps> = ({
 			<title>Air War Trail Logo</title>
 			<path
 				d="M255.83 456.61c-110.94 0-201.19-90.25-201.19-201.19S144.89 54.24 255.83 54.24s201.19 90.25 201.19 201.19-90.25 201.19-201.19 201.19Zm0-354.06c-84.29 0-152.87 68.58-152.87 152.87s68.58 152.87 152.87 152.87S408.7 339.71 408.7 255.42s-68.58-152.87-152.87-152.87"
-				fill="#647b52"
-				stroke="currentColor"
+				fill="#acbe9d"
 				strokeWidth="8"
 			/>
 			<path

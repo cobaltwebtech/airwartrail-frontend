@@ -69,7 +69,16 @@ function extractImageVariant(url: string): string | null {
 	const lastSegment = match ? match[1] : null;
 
 	// Known variants - only return if it matches one of these
-	const knownVariants = ["xsm", "sm", "md", "lg", "xl"];
+	const knownVariants = [
+		"xsm",
+		"sm",
+		"md",
+		"lg",
+		"xl",
+		"xsmnomark",
+		"smnomark",
+		"mdnomark",
+	];
 	return lastSegment && knownVariants.includes(lastSegment)
 		? lastSegment
 		: null;
@@ -100,6 +109,11 @@ function generateImageSrcset(
 			{ variant: "xsm", width: 400 },
 			{ variant: "sm", width: 640 },
 			{ variant: "md", width: 768 },
+		],
+		mdnomark: [
+			{ variant: "xsmnomark", width: 400 },
+			{ variant: "smnomark", width: 640 },
+			{ variant: "mdnomark", width: 768 },
 		],
 	};
 
@@ -248,7 +262,7 @@ function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 		const srcsetAttr = srcset ? `srcset="${escapeAttr(srcset)}"` : "";
 		// sizes attribute tells browser the image layout width for responsive selection
 		const sizesAttr = srcset ? `sizes="(max-width: 768px) 100vw, 768px"` : "";
-		return `<img src="${src}" alt="${alt}" ${srcsetAttr} ${sizesAttr} ${titleAttr} class="rounded-lg" loading="lazy" />`;
+		return `<img src="${src}" alt="${alt}" ${srcsetAttr} ${sizesAttr} ${titleAttr} class="mx-auto rounded-lg" loading="lazy" />`;
 	}
 
 	// Recursively render child content

@@ -11,7 +11,13 @@ function HomepageHeroContent() {
 	if (loading) {
 		return (
 			<div className="space-y-4">
-				<Skeleton className="mx-auto h-16 w-3/4" />
+				<Skeleton className="mx-auto h-17 w-3/4" />
+				<Skeleton className="mx-auto h-12 w-9/10" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
