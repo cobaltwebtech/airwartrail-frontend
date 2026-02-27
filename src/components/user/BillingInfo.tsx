@@ -213,19 +213,8 @@ function BillingInfoContent() {
 				</div>
 				<div className="mt-6 flex flex-wrap justify-between gap-4">
 					{isBasicPlan && (
-						<Button
-							className="w-fit"
-							onClick={handleUpgrade}
-							disabled={isUpgrading}
-						>
-							{isUpgrading ? (
-								<div className="flex items-center gap-2">
-									<Loader2 className="size-4 animate-spin" />
-									<span>Proceeding to payment...</span>
-								</div>
-							) : (
-								"Upgrade to Premium Plan"
-							)}
+						<Button className="w-fit">
+							<a href="/subscribe/checkout">Upgrade to Premium Plan</a>
 						</Button>
 					)}
 					<Button

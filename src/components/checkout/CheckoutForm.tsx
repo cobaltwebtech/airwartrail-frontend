@@ -306,9 +306,9 @@ export function CheckoutForm({
 					</p>
 					{/* Error Message */}
 					{errorMessage && (
-						<div className="bg-destructive/50">
-							<AlertCircle className="mt-0.5 size-4 shrink-0" />
-							<span>{errorMessage}</span>
+						<div className="bg-destructive/50 p-4 rounded-md flex items-center gap-2">
+							<AlertCircle className="size-6 shrink-0" />
+							<p>{errorMessage}</p>
 						</div>
 					)}
 				</CardFooter>
