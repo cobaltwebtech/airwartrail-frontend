@@ -170,7 +170,7 @@ export const createAuth = (
 					plans: [
 						{
 							name: "premium", // This must match the plan name in the React components
-							priceId: "price_1RJRAiE1nIE0FtFy8qxYKWyk", // The price id from Stripe
+							priceId: "price_1RJpMYCklmauTxVl3CFqnaR8", // The price id from Stripe
 						},
 					],
 					getCheckoutSessionParams: async () => {
