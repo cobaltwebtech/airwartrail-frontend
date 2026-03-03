@@ -1,3 +1,4 @@
+import { dash } from "@better-auth/infra";
 import { stripe } from "@better-auth/stripe";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -19,7 +20,7 @@ export const createDrizzle = (db: D1Database) =>
 // Initialize Stripe client that accepts runtime environment
 export const createStripeClient = (env: Env) => {
 	return new Stripe(env.STRIPE_SECRET_KEY, {
-		apiVersion: "2025-12-15.clover",
+		apiVersion: "2026-02-25.clover",
 	});
 };
 
@@ -137,6 +138,7 @@ export const createAuth = (
 		},
 		plugins: [
 			admin(),
+			dash(),
 			magicLink({
 				// Token expiration default is 5 minutes
 				disableSignUp: true,

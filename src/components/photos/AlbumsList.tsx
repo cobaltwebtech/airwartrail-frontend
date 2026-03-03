@@ -101,7 +101,7 @@ function AlbumCoverImage({ image }: { image: CfImage }) {
  */
 function AlbumCard({ album }: { album: AlbumWithCover }) {
 	return (
-		<a href={`/photos/${album.slug}`} className="group">
+		<a href={`/bonus-content/photos/${album.slug}`} className="group">
 			<Card className="h-full overflow-hidden transition-shadow duration-200 group-hover:shadow-lg pt-0 bg-card-alternate">
 				{/* Cover Image */}
 				{album.coverImage ? (

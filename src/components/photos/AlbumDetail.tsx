@@ -476,7 +476,7 @@ function AlbumDetailContent({ albumSlug, requiresSub }: AlbumDetailProps) {
 						: error.message ||
 							"An unexpected error occurred. Please try again later."}
 				</p>
-				<a href="/photos">
+				<a href="/bonus-content/photos">
 					<Button variant="outline" className="mt-6">
 						<ArrowLeft className="mr-2 size-4" />
 						Back to Albums
@@ -492,7 +492,7 @@ function AlbumDetailContent({ albumSlug, requiresSub }: AlbumDetailProps) {
 			<div className="mx-auto flex w-full max-w-md flex-col items-center justify-center p-12 text-center">
 				<ImageIcon className="mb-4 size-16 text-muted-foreground" />
 				<p className="text-lg font-semibold">Album not found</p>
-				<a href="/photos">
+				<a href="/bonus-content/photos">
 					<Button variant="outline" className="mt-6">
 						<ArrowLeft className="mr-2 size-4" />
 						Back to Albums
@@ -507,7 +507,7 @@ function AlbumDetailContent({ albumSlug, requiresSub }: AlbumDetailProps) {
 			{/* Album Header */}
 			<div className="space-y-3">
 				<a
-					href="/photos"
+					href="/bonus-content/photos"
 					className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
 				>
 					<ArrowLeft className="size-4" />

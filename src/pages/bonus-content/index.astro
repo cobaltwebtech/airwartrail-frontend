@@ -1,0 +1,75 @@
+---
+
+import { BookOpenText, Images } from "@lucide/astro";
+import { Pricing } from "@/components/partials/Pricing";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
+
+const pageTitle = "Bonus Content | Air War Trail";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": "https://www.airwartrail.com/bonus-content/",
+  url: "https://www.airwartrail.com/bonus-content/",
+  name: "Bonus Content | Air War Trail",
+  description:
+    "Browse bonus content from the East Anglia Air War Project documenting the American air war against the German empire in the ETO.",
+  isPartOf: {
+    "@type": "WebSite",
+    url: "https://www.airwartrail.com/",
+    name: "Air War Trail",
+    description:
+      "The documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. The mission of Air War Trail is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+  },
+  inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    Bonus Content
+  </h1>
+  {hasActiveSubscription ? (
+    <div class="grid sm:grid-cols-2 gap-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex flex-col items-center gap-2">
+            <Images class="size-16 text-accent-foreground" />
+            <h2 class="text-xl font-semibold">Photographs</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          Check out our exclusive collection of photographs from the East Anglia Air War Project, available only to premium subscribers.
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Button>
+            <a href="/bonus-content/photos">View Photographs</a>
+          </Button>
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex flex-col items-center gap-2">
+            <BookOpenText class="size-16 text-accent-foreground" />
+            <h2 class="text-xl font-semibold">Documents & Other Content</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          Check out our exclusive collection of documents and other content from the East Anglia Air War Project, available only to premium subscribers.
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Button>
+            <a href="/bonus-content/docs">View Documents</a>
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  ) : (
+    <Pricing />
+  )}
+</BaseLayout>

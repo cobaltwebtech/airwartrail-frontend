@@ -1,0 +1,53 @@
+---
+import { DocumentsList } from "@/components/documents/DocumentsList";
+import { Pricing } from "@/components/partials/Pricing";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Check auth and subscription status via middleware
+const { hasActiveSubscription } =
+	Astro.locals.auth;
+
+const pageTitle = "Documents & Other Content | Air War Trail";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": "https://www.airwartrail.com/bonus-content/docs/",
+  url: "https://www.airwartrail.com/bonus-content/docs/",
+  name: "Documents & Other Content | Air War Trail",
+  description:
+    "Browse documents and other content from the East Anglia Air War Project documenting the American air war against the German empire in the ETO.",
+  isPartOf: {
+    "@type": "WebSite",
+    url: "https://www.airwartrail.com/",
+    name: "Air War Trail",
+    description:
+      "The documentary films, interviews, and images bring the voices alive from those who experienced World War II in an up close and personal way. The mission of Air War Trail is to bring you their stories, when freedom stood in the balance and a generation of the free made a difference in the world.",
+  },
+  inLanguage: "en-US",
+};
+---
+
+<BaseLayout title={pageTitle} structuredData={structuredData}>
+  
+  <Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+        <BreadcrumbLink href="/bonus-content">Back to Bonus Content</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    Documents & Other Content
+  </h1>
+  {hasActiveSubscription ? (
+    <DocumentsList client:load requiresSub={true} />
+  ) : (
+    <Pricing />
+  )}
+</BaseLayout>

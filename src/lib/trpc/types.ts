@@ -444,6 +444,45 @@ export type Permissions = {
 };
 
 // ============================================================================
+// Document Types
+// ============================================================================
+
+export type DocumentPublishStatus = "draft" | "published" | "archived";
+
+export interface Document {
+	id: string;
+	name: string;
+	description: string | null;
+	fileUrl: string;
+	fileSize: number | null;
+	mimeType: string | null;
+	publishStatus: DocumentPublishStatus;
+	author: string;
+	authorId: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ListDocumentsInput {
+	limit?: number;
+	page?: number;
+	sortOrder?: "asc" | "desc";
+	publishStatus?: DocumentPublishStatus;
+}
+
+export interface ListDocumentsPagination {
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
+}
+
+export interface ListDocumentsOutput {
+	documents: Document[];
+	pagination: ListDocumentsPagination;
+}
+
+// ============================================================================
 // Signed Token Types
 // ============================================================================
 

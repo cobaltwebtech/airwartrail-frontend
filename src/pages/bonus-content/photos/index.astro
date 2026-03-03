@@ -2,6 +2,7 @@
 
 import { Pricing } from "@/components/partials/Pricing";
 import { AlbumsList } from "@/components/photos/AlbumsList";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
 // Check auth and subscription status via middleware
@@ -16,7 +17,7 @@ const structuredData = {
   url: "https://www.airwartrail.com/photos/",
   name: "Photographs | Air War Trail",
   description:
-    "Browse historical photo albums from the East Anglia Air War Project documenting the American air war against the German empire in the ETO.",
+    "Browse photographs from the East Anglia Air War Project documenting the American air war against the German empire in the ETO.",
   isPartOf: {
     "@type": "WebSite",
     url: "https://www.airwartrail.com/",
@@ -29,6 +30,19 @@ const structuredData = {
 ---
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
+    
+  <Breadcrumb className="mb-8">
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbLink href="/">Home</BreadcrumbLink>
+			</BreadcrumbItem>
+			<BreadcrumbSeparator />
+			<BreadcrumbItem>
+        <BreadcrumbLink href="/bonus-content">Back to Bonus Content</BreadcrumbLink>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	</Breadcrumb>
+
   <h1 class="mb-8 text-center text-3xl font-bold">
     Photographs
   </h1>
