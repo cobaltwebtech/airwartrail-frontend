@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			throw new Error("Environment variables not available");
 		}
 
-		const stripeClient = createStripeClient(runtime.env);
+		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
 
 		// Update the customer's email in Stripe
 		await stripeClient.customers.update(customerId, {

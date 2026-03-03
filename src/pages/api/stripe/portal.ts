@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			throw new Error("Environment variables not available");
 		}
 
-		const stripeClient = createStripeClient(runtime.env);
+		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
 
 		// Get the current hostname from the request
 		const hostname = new URL(request.url).origin;

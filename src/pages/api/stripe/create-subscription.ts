@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		}
 
 		const auth = createAuth(runtime.env);
-		const stripeClient = createStripeClient(runtime.env);
+		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
 		const db = createDrizzle(runtime.env.DB_AUTH);
 
 		// Get the session from Better Auth
