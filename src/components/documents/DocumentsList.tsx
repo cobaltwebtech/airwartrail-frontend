@@ -249,7 +249,8 @@ function DocumentsListContent({ requiresSub }: DocumentsListProps) {
 				<FileText className="mb-4 size-16" />
 				<p className="text-lg font-semibold">Failed to load documents</p>
 				<p className="mt-2 text-sm text-muted-foreground">
-					An unexpected error occurred. Please try again later."
+					{error.message ||
+						"An unexpected error occurred. Please try again later."}
 				</p>
 			</div>
 		);
