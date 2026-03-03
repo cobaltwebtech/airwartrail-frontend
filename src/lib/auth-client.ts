@@ -1,4 +1,4 @@
-import { dashClient, sentinelClient } from "@better-auth/infra/client";
+import { dashClient } from "@better-auth/infra/client";
 import { stripeClient } from "@better-auth/stripe/client";
 import { adminClient, magicLinkClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
@@ -9,9 +9,6 @@ export const client = createAuthClient({
 		magicLinkClient(),
 		adminClient(),
 		dashClient(),
-		sentinelClient({
-			autoSolveChallenge: true, // Automatically solve PoW challenges
-		}),
 		stripeClient({
 			subscription: true,
 		}),
