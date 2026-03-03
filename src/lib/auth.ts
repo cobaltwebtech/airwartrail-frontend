@@ -138,7 +138,9 @@ export const createAuth = (
 		},
 		plugins: [
 			admin(),
-			dash(),
+			dash({
+				apiKey: env.BETTER_AUTH_API_KEY,
+			}),
 			magicLink({
 				// Token expiration default is 5 minutes
 				disableSignUp: true,

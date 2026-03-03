@@ -8,7 +8,9 @@ export const client = createAuthClient({
 	plugins: [
 		magicLinkClient(),
 		adminClient(),
-		sentinelClient(),
+		sentinelClient({
+			autoSolveChallenge: true, // Automatically solve PoW challenges
+		}),
 		stripeClient({
 			subscription: true,
 		}),
