@@ -5,7 +5,7 @@
  * the Astro app. Handles both public and signed playback policies.
  */
 
-import MuxPlayer from "@mux/mux-player-react";
+import MuxPlayer from "@mux/mux-player-react/lazy";
 import { useQuery } from "@tanstack/react-query";
 import { VideoOff } from "lucide-react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -18,6 +18,12 @@ interface VideoEmbedProps {
 	libraryId: string;
 	thumbnailTime?: number;
 	className?: string;
+	/** Controls when the player bundle is fetched.
+	 *  - "viewport" (default): waits until the player scrolls into view
+	 *  - "page": loads immediately after the JS bundle executes — use this
+	 *    for above-the-fold / hero videos to avoid lazy-load delay.
+	 */
+	loading?: "page" | "viewport";
 }
 
 type VideoData = {
@@ -53,6 +59,7 @@ function VideoEmbedContent({
 	libraryId,
 	thumbnailTime = 5,
 	className,
+	loading = "viewport",
 }: VideoEmbedProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const playerThumbnailTime =
@@ -125,6 +132,7 @@ function VideoEmbedContent({
 			accentColor="#ea580c"
 			className={`w-full aspect-video rounded-lg overflow-hidden ${className ?? ""}`}
 			streamType="on-demand"
+			loading={loading}
 			thumbnailTime={
 				video.policy === "signed" ? undefined : playerThumbnailTime
 			}
@@ -148,11 +156,20 @@ function VideoEmbedContent({
  *
  * @example
  * ```astro
+ * // Default — lazy loads when scrolled into view (good for below-the-fold)
  * <VideoEmbed
  *   client:load
  *   videoId="abc123"
  *   libraryId="lib_xyz"
  *   thumbnailTime={10}
+ * />
+ *
+ * // Eager — loads immediately after JS bundle (use for above-the-fold hero videos)
+ * <VideoEmbed
+ *   client:load
+ *   videoId="abc123"
+ *   libraryId="lib_xyz"
+ *   loading="page"
  * />
  * ```
  */

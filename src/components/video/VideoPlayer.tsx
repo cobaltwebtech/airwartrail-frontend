@@ -545,8 +545,8 @@ function VideoPlayerDetailContent({
 					</CardAction>
 				</CardHeader>
 				<CardContent className="space-y-2 font-light text-sm text-pretty">
-					{descriptionParagraphs.map((paragraph, idx) => (
-						<p key={`${video.id}-paragraph-${idx}`}>{paragraph}</p>
+					{descriptionParagraphs.map((paragraph) => (
+						<p key={`${video.id}-paragraph-${paragraph.substring(0, 30)}`}>{paragraph}</p>
 					))}
 				</CardContent>
 			</Card>
