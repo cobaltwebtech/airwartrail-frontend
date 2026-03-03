@@ -1,4 +1,4 @@
-import { dash } from "@better-auth/infra";
+import { dash, sentinel } from "@better-auth/infra";
 import { stripe } from "@better-auth/stripe";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -139,6 +139,9 @@ export const createAuth = (
 		plugins: [
 			admin(),
 			dash({
+				apiKey: env.BETTER_AUTH_API_KEY,
+			}),
+			sentinel({
 				apiKey: env.BETTER_AUTH_API_KEY,
 			}),
 			magicLink({
