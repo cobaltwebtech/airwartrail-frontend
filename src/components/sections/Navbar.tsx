@@ -36,7 +36,7 @@ const publicNavItems: Array<NavItem> = [
 // Menu items for authenticated users
 const authenticatedNavItems: Array<NavItem> = [
 	{ title: "Premium Content", url: "/streaming/premium" },
-	{ title: "Film Series", url: "/film-series" },
+	{ title: "Playlists", url: "/playlists" },
 	{ title: "Coming Soon", url: "/coming-soon" },
 	{ title: "Bonus Content", url: "/bonus-content" },
 	{ title: "Blog", url: "/blog" },

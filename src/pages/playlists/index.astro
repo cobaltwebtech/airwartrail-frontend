@@ -9,13 +9,13 @@ const { hasActiveSubscription } =
 	Astro.locals.auth;
 
 const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
-const pageTitle = "Film Series | Air War Trail";
+const pageTitle = "Playlists | Air War Trail";
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "@id": "https://www.airwartrail.com/film-series/",
-  url: "https://www.airwartrail.com/film-series/",
-  name: "Film Series | Air War Trail",
+  "@id": "https://www.airwartrail.com/playlists/",
+  url: "https://www.airwartrail.com/playlists/",
+  name: "Playlists | Air War Trail",
   description:
     "In 2002 Military Historian and Producer/Director Vernon L. Williams established the East Anglia Air War Project with a mission to document the American air war against the German empire in the ETO.",
   isPartOf: {
@@ -31,7 +31,7 @@ const structuredData = {
 
 <BaseLayout title={pageTitle} structuredData={structuredData}>
   <h1 class="mb-2 text-center text-3xl font-bold">
-    Film Series
+    Playlists
   </h1>
   <p class="mb-8 text-center text-lg font-semibold">View our curated collection of films by playlists.</p>
   {hasActiveSubscription ? (

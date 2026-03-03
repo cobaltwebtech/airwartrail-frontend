@@ -70,14 +70,14 @@ function HomepageHeroContent() {
 								View Premium Content
 							</Button>
 						</a>
-						<a href="/film-series">
+						<a href="/playlists">
 							<Button
 								variant="reversed"
 								size="lg"
 								className="text-lg font-semibold"
 							>
 								<Film className="size-6" />
-								Film Series
+								View Playlists
 							</Button>
 						</a>
 					</>

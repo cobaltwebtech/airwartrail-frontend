@@ -11,7 +11,7 @@ const { hasActiveSubscription } =
 
 const { slug } = Astro.params;
 if (!slug) {
-	return Astro.redirect("/film-series");
+	return Astro.redirect("/playlists");
 }
 
 const videoLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
@@ -24,13 +24,13 @@ const formatTitle = (slug: string) => {
 		.join(" ");
 };
 
-const pageTitle = `${formatTitle(slug)} | Film Series | Air War Trail`;
+const pageTitle = `${formatTitle(slug)} | Playlist | Air War Trail`;
 
 const structuredData = {
 	"@context": "https://schema.org",
 	"@type": "WebPage",
-	"@id": `https://www.airwartrail.com/film-series/${slug}/`,
-	url: `https://www.airwartrail.com/film-series/${slug}/`,
+	"@id": `https://www.airwartrail.com/playlists/${slug}/`,
+	url: `https://www.airwartrail.com/playlists/${slug}/`,
 	name: pageTitle,
 	description:
 		"Watch our curated collection of World War II documentaries, interviews, and historical films from the East Anglia Air War Project.",
@@ -53,7 +53,7 @@ const structuredData = {
 			</BreadcrumbItem>
 			<BreadcrumbSeparator />
 			<BreadcrumbItem>
-				<BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
+				<BreadcrumbLink href="/playlists">Playlists</BreadcrumbLink>
 			</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>

@@ -18,7 +18,7 @@ const { hasActiveSubscription } =
 const { slug } = Astro.params;
 
 if (!slug) {
-	return Astro.redirect("/film-series");
+	return Astro.redirect("/playlists");
 }
 
 // Get the video index from query parameter (e.g., ?video=2)
@@ -64,11 +64,11 @@ const structuredData = {
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="/film-series">Film Series</BreadcrumbLink>
+        <BreadcrumbLink href="/playlists">Playlists</BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href={`/film-series/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
+        <BreadcrumbLink href={`/playlists/${slug}`}>{formatTitle(slug)}</BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>

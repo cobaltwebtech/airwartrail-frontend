@@ -141,7 +141,7 @@ interface PlaylistCardProps {
 }
 
 function PlaylistCard({ playlist, libraryId }: PlaylistCardProps) {
-	const playlistUrl = `/film-series/${playlist.slug}`;
+	const playlistUrl = `/playlists/${playlist.slug}`;
 
 	return (
 		<Item asChild className="bg-accent-6">
