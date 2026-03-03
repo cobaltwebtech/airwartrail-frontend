@@ -1,3 +1,4 @@
+import { sentinelClient } from "@better-auth/infra/client";
 import { stripeClient } from "@better-auth/stripe/client";
 import { adminClient, magicLinkClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
@@ -7,6 +8,7 @@ export const client = createAuthClient({
 	plugins: [
 		magicLinkClient(),
 		adminClient(),
+		sentinelClient(),
 		stripeClient({
 			subscription: true,
 		}),
