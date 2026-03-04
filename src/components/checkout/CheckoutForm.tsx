@@ -221,14 +221,17 @@ export function CheckoutForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+		<form
+			onSubmit={handleSubmit}
+			className="grid md:grid-cols-2 gap-6 overflow-x-hidden w-full"
+		>
 			{/* Billing Address */}
 			<Card className="md:col-span-full">
-				<CardHeader className="flex items-center gap-2">
+				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
 					<MapPin className="size-4" />
 					<CardTitle>Billing Address</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="px-4 sm:px-6">
 					<AddressElement
 						options={{
 							mode: "billing",
@@ -245,11 +248,11 @@ export function CheckoutForm({
 
 			{/* Payment Element */}
 			<Card>
-				<CardHeader className="flex items-center gap-2">
+				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
 					<CreditCard className="size-4" />
 					<CardTitle>Payment Details</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="px-4 sm:px-6">
 					<PaymentElement
 						options={{
 							layout: "tabs",
@@ -260,11 +263,11 @@ export function CheckoutForm({
 
 			{/* Order Summary with Tax */}
 			<Card>
-				<CardHeader className="flex items-center gap-2">
+				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
 					<Receipt className="size-4" />
 					<CardTitle>Order Summary</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="px-4 sm:px-6">
 					<div className="flex items-center justify-between">
 						<span>Premium Plan (Monthly)</span>
 						<span>$9.99</span>
@@ -310,7 +313,7 @@ export function CheckoutForm({
 						</div>
 					)}
 				</CardContent>
-				<CardFooter className="flex-col items-start gap-2">
+				<CardFooter className="flex-col items-start gap-2 px-4 sm:px-6">
 					<p className="text-xs text-muted-foreground">
 						Your subscription will renew monthly. Cancel anytime.
 					</p>
@@ -350,12 +353,7 @@ export function CheckoutForm({
 							Processing...
 						</>
 					) : (
-						<>
-							<ShieldCheck className="size-6" />
-							{taxInfo
-								? `Subscribe Now - ${formatAmount(taxInfo.total, taxInfo.currency)}/mo`
-								: "Subscribe Now"}
-						</>
+						<>Subscribe Now</>
 					)}
 				</Button>
 			</div>

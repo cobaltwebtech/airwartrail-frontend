@@ -76,11 +76,9 @@ export function CheckoutProcess() {
 
 	return (
 		// Stripe embedded checkout form
-		<div className="mx-auto max-w-3xl">
-			<h2 className="text-2xl">Complete Your Subscription</h2>
-			<p className="mb-4">
-				Enter your payment details below to subscribe to the Premium plan
-			</p>
+		<div className="mx-auto max-w-3xl space-y-4 text-center">
+			<h2 className="text-xl font-semibold">Complete Your Subscription</h2>
+			<p>Enter your payment details below to subscribe to the Premium plan</p>
 			<StripeCheckout
 				onSuccess={handleCheckoutSuccess}
 				onCancel={handleCheckoutCancel}
