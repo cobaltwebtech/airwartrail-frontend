@@ -1,6 +1,5 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password";
+import { toast } from "@/components/ui/toast";
 import { resetPassword } from "@/lib/auth-client";
 import { passwordSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";

@@ -7,7 +7,6 @@ import {
 	SquareUserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { AwtLogo } from "@/components/partials/Logo";
 import { ThemeToggle } from "@/components/partials/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/toast";
 import { revokeSessions, signOut, useSession } from "@/lib/auth-client";
 
 interface NavItem {

@@ -1,7 +1,7 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckoutForm } from "./CheckoutForm";
 
@@ -24,11 +24,11 @@ export function StripeCheckout({ onSuccess, onCancel }: StripeCheckoutProps) {
 
 	// Check if dark mode is active and use appropriate color
 	// Using hex fallbacks since Stripe doesn't support oklch
-	const updateColors = useCallback(() => {
+	const updateColors = useEffectEvent(() => {
 		const isDark = document.documentElement.classList.contains("dark");
 		setTextColor(isDark ? "#f7f7f7" : "#1a2e1a");
 		setBackgroundColor(isDark ? "#323b2c" : "#fbfff8");
-	}, []);
+	});
 
 	useEffect(() => {
 		updateColors();
@@ -44,7 +44,7 @@ export function StripeCheckout({ onSuccess, onCancel }: StripeCheckoutProps) {
 		});
 
 		return () => observer.disconnect();
-	}, [updateColors]);
+	}, []);
 
 	useEffect(() => {
 		// Create a SetupIntent when the component mounts
@@ -123,10 +123,25 @@ export function StripeCheckout({ onSuccess, onCancel }: StripeCheckoutProps) {
 				colorBackground: backgroundColor,
 				colorText: textColor,
 				colorDanger: "#dc2626",
-				fontFamily: "system-ui, sans-serif",
+				fontFamily: "'Reddit Sans', system-ui, sans-serif",
 				borderRadius: "8px",
 			},
 		},
+		fonts: [
+			{
+				family: "Reddit Sans",
+				src: "url(/fonts/RedditSans-VariableFont_wght.woff2)",
+				weight: "100-900",
+				display: "swap",
+			},
+			{
+				family: "Reddit Sans",
+				src: "url(/fonts/RedditSans-Italic-VariableFont_wght.woff2)",
+				weight: "100-900",
+				style: "italic",
+				display: "swap",
+			},
+		],
 	};
 
 	return (

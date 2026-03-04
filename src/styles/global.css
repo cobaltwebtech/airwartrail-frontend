@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./lenis.css";
 @import "preline/variants.css";
+@import "sonner/dist/styles.css";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -16,7 +17,7 @@
 	--card: oklch(0.9705 0.039 91.2);
 	--card-foreground: oklch(0.209 0.057 131.33);
 	--card-alternate: oklch(0.9319 0.091 91.1);
-	--popover: oklch(0.9705 0.039 91.2);
+	--popover: oklch(0.8775 0.054 130.3);
 	--popover-foreground: oklch(0.209 0.057 131.33);
 	--primary: oklch(0.77 0.054 130.3);
 	--primary-foreground: oklch(0.2969 0.083 132.35);
@@ -26,7 +27,7 @@
 	--muted-foreground: oklch(0.2969 0.083 132.35);
 	--accent-foreground: oklch(0.3764 0.077 90.4);
 	--destructive: oklch(0.6139 0.224 29.17);
-	--border: oklch(0.923 0.003 48.717);
+	--border: oklch(0.95 0.057 131.33);
 	--input: oklch(0.9951 0.01 131.36);
 	--ring: oklch(0.709 0.01 56.259);
 	--accent-1: oklch(0.86 0.0325 130.63);
@@ -43,7 +44,7 @@
 	--card: oklch(0.209 0.057 131.33);
 	--card-foreground: oklch(0.9687 0.002 17.2);
 	--card-alternate: oklch(0.3764 0.077 90.4);
-	--popover: oklch(0.209 0.057 131.33);
+	--popover: oklch(0.45 0.057 131.33);
 	--popover-foreground: oklch(0.9687 0.002 17.2);
 	--primary: oklch(0.3391 0.028 133.02);
 	--primary-foreground: oklch(0.9706 0.063 131.73);
@@ -53,7 +54,7 @@
 	--muted-foreground: oklch(0.825 0.002 170.625);
 	--accent-foreground: oklch(0.9508 0.066 91.19);
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
+	--border: oklch(0.65 0.057 131.33);
 	--input: oklch(0.3391 0.028 133.02);
 	--ring: oklch(0.5331 0.002 17.24);
 	--accent-1: oklch(0.8862 0.063 132.27);

@@ -11,6 +11,7 @@ import {
 	Loader2,
 	Lock,
 	MapPin,
+	Receipt,
 	ShieldCheck,
 } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -22,6 +23,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { toast } from "@/components/ui/toast";
 
 interface CheckoutFormProps {
 	customerId: string;
@@ -86,15 +88,21 @@ export function CheckoutForm({
 				const data = (await response.json()) as TaxInfo & { error?: string };
 
 				if (!response.ok) {
-					console.error("Tax calculation error:", data.error);
-					// Don't show error to user, just use base price
+					const errorMsg = data.error || "Unable to calculate taxes";
+					toast.error("Tax Calculation Error", { description: errorMsg });
+					setErrorMessage(errorMsg);
 					setTaxInfo(null);
 					return;
 				}
 
 				setTaxInfo(data);
 			} catch (error) {
-				console.error("Error calculating tax:", error);
+				const errorMsg =
+					error instanceof Error
+						? error.message
+						: "An unexpected error occurred";
+				toast.error("Tax Calculation Error", { description: errorMsg });
+				setErrorMessage(errorMsg);
 				setTaxInfo(null);
 			} finally {
 				setIsCalculatingTax(false);
@@ -124,7 +132,6 @@ export function CheckoutForm({
 		}
 
 		setIsProcessing(true);
-		setErrorMessage(null);
 
 		try {
 			// Confirm the SetupIntent to save the payment method
@@ -137,16 +144,19 @@ export function CheckoutForm({
 			});
 
 			if (setupError) {
-				setErrorMessage(
+				const errorMsg =
 					setupError.message ||
-						"An error occurred while processing your payment",
-				);
+					"An error occurred while processing your payment";
+				toast.error("Payment Error", { description: errorMsg });
+				setErrorMessage(errorMsg);
 				setIsProcessing(false);
 				return;
 			}
 
 			if (!setupIntent || setupIntent.status !== "succeeded") {
-				setErrorMessage("Payment setup was not completed. Please try again.");
+				const errorMsg = "Payment setup was not completed. Please try again.";
+				toast.error("Payment Setup Failed", { description: errorMsg });
+				setErrorMessage(errorMsg);
 				setIsProcessing(false);
 				return;
 			}
@@ -175,7 +185,9 @@ export function CheckoutForm({
 			};
 
 			if (!response.ok) {
-				setErrorMessage(result.error || "Failed to create subscription");
+				const errorMsg = result.error || "Failed to create subscription";
+				toast.error("Subscription Error", { description: errorMsg });
+				setErrorMessage(errorMsg);
 				setIsProcessing(false);
 				return;
 			}
@@ -187,9 +199,10 @@ export function CheckoutForm({
 				);
 
 				if (confirmError) {
-					setErrorMessage(
-						confirmError.message || "Payment authentication failed",
-					);
+					const errorMsg =
+						confirmError.message || "Payment authentication failed";
+					toast.error("Authentication Failed", { description: errorMsg });
+					setErrorMessage(errorMsg);
 					setIsProcessing(false);
 					return;
 				}
@@ -198,19 +211,19 @@ export function CheckoutForm({
 			// Success!
 			onSuccess();
 		} catch (error) {
-			console.error("Checkout error:", error);
-			setErrorMessage(
-				error instanceof Error ? error.message : "An unexpected error occurred",
-			);
+			const errorMsg =
+				error instanceof Error ? error.message : "An unexpected error occurred";
+			toast.error("Checkout Error", { description: errorMsg });
+			setErrorMessage(errorMsg);
 		} finally {
 			setIsProcessing(false);
 		}
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-6">
+		<form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
 			{/* Billing Address */}
-			<Card>
+			<Card className="md:col-span-full">
 				<CardHeader className="flex items-center gap-2">
 					<MapPin className="size-4" />
 					<CardTitle>Billing Address</CardTitle>
@@ -247,7 +260,8 @@ export function CheckoutForm({
 
 			{/* Order Summary with Tax */}
 			<Card>
-				<CardHeader>
+				<CardHeader className="flex items-center gap-2">
+					<Receipt className="size-4" />
 					<CardTitle>Order Summary</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -291,7 +305,7 @@ export function CheckoutForm({
 								<span>$9.99/mo + tax</span>
 							</p>
 							<p className="mt-1 text-xs text-muted-foreground">
-								Enter your billing address to see final total with tax
+								Enter your billing address to see final total with tax.
 							</p>
 						</div>
 					)}
@@ -306,7 +320,7 @@ export function CheckoutForm({
 					</p>
 					{/* Error Message */}
 					{errorMessage && (
-						<div className="bg-destructive/50 p-4 rounded-md flex items-center gap-2">
+						<div className="mx-auto bg-destructive/50 p-4 rounded-lg flex items-center gap-2">
 							<AlertCircle className="size-6 shrink-0" />
 							<p>{errorMessage}</p>
 						</div>
@@ -315,7 +329,7 @@ export function CheckoutForm({
 			</Card>
 
 			{/* Action Buttons */}
-			<div className="flex gap-4">
+			<div className="md:col-span-full flex gap-4">
 				<Button
 					variant="outline"
 					onClick={onCancel}
@@ -347,7 +361,7 @@ export function CheckoutForm({
 			</div>
 
 			{/* Terms */}
-			<p className="text-center text-xs text-muted-foreground">
+			<p className="md:col-span-full text-center text-xs text-muted-foreground">
 				By subscribing, you agree to our{" "}
 				<a href="/terms-of-service" className="underline hover:text-foreground">
 					Terms of Service

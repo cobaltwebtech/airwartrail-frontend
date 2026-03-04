@@ -8,7 +8,28 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
 	output: "server",
 	site: "https://www.airwartrail.com",
-	integrations: [mdx(), react(), sitemap()],
+	integrations: [
+		mdx(),
+		react(),
+		sitemap({
+			filter: (page) => {
+				const excludedPaths = [
+					"/auth/login-error/",
+					"/auth/forgot-password/",
+					"/auth/reset-error/",
+					"/auth/reset-password/",
+					"/auth/verification-error/",
+					"/streaming/premium/",
+					"/bonus-content",
+					"/playlists/",
+					"/subscribe/checkout/",
+					"/subscribe/checkout/success/",
+					"/subscribe/upgrade/",
+				];
+				return !excludedPaths.some((path) => page.includes(path));
+			},
+		}),
+	],
 	vite: {
 		plugins: [tailwindcss()],
 	},

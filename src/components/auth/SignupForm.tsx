@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password";
+import { toast } from "@/components/ui/toast";
 import { signUp } from "@/lib/auth-client";
 import { type SignupFormValues, signupSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
@@ -51,7 +52,9 @@ export function SignupForm({
 		setSuccess(false);
 
 		if (data.password !== data.confirmPassword) {
-			setError("Passwords do not match");
+			const errorMsg = "Passwords do not match";
+			setError(errorMsg);
+			toast.error(errorMsg);
 			setIsLoading(false);
 			return;
 		}
@@ -65,17 +68,21 @@ export function SignupForm({
 			});
 
 			if (signupError) {
-				setError(signupError.message ?? "Sign up failed. Please try again.");
+				const errorMsg =
+					signupError.message ?? "Sign up failed. Please try again.";
+				setError(errorMsg);
+				toast.error(errorMsg);
 				return;
 			}
 
 			setSuccess(true);
 		} catch (error) {
-			setError(
+			const errorMsg =
 				error instanceof Error
 					? error.message
-					: "Failed to sign up. Please try again.",
-			);
+					: "Failed to sign up. Please try again.";
+			setError(errorMsg);
+			toast.error(errorMsg);
 		} finally {
 			setIsLoading(false);
 		}

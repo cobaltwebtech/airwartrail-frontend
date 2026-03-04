@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createAuth, createStripeClient } from "@/lib/auth";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = "price_1RJpMYCklmauTxVl3CFqnaR8";
+const PREMIUM_PRICE_ID = import.meta.env.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	try {

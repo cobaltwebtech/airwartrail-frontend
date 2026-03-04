@@ -4,7 +4,7 @@ import { createAuth, createDrizzle, createStripeClient } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = "price_1RJpMYCklmauTxVl3CFqnaR8";
+const PREMIUM_PRICE_ID = import.meta.env.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	try {

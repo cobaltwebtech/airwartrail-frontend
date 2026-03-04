@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, Lock } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/toast";
 import {
 	changePassword,
 	client,

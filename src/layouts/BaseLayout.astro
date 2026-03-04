@@ -7,7 +7,7 @@ import BackToTop from "@/components/partials/BackToTop";
 import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro";
 import Footer from "@/components/sections/Footer";
 import Navbar from "@/components/sections/Navbar";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import Meta from "@/layouts/Meta.astro";
 import { siteMeta } from "@/lib/siteData";
 
@@ -136,6 +136,6 @@ const umamiId = import.meta.env.UMAMI_ID;
     <Footer client:visible />
     <BreakpointIndicator />
     <BackToTop client:visible />
-    <Toaster position="top-right" client:load />
+    <Toaster position="bottom-right" client:load />
   </body>
 </html>

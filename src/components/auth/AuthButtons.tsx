@@ -6,7 +6,6 @@ import {
 	SquareUserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -14,6 +13,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/toast";
 import { revokeSessions, signOut, useSession } from "@/lib/auth-client";
 
 interface AuthButtonsProps {

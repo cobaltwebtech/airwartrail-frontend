@@ -1,7 +1,6 @@
 import { CheckCircle2, CircleX, Loader2, Mail } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -14,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password";
+import { toast } from "@/components/ui/toast";
 import { signIn } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -114,7 +114,9 @@ export function LoginForm({
 				const errorMsg =
 					response.error.message || "Login failed. Please try again.";
 				setErrorMessage(errorMsg);
-				toast.error(errorMsg);
+				toast.error(errorMsg, {
+					description: "Please check your credentials and try again.",
+				});
 				return;
 			}
 		} catch (error) {
@@ -124,7 +126,9 @@ export function LoginForm({
 					? error.message
 					: "Login failed. Please check your credentials and try again.";
 			setErrorMessage(errorMsg);
-			toast.error(errorMsg);
+			toast.error(errorMsg, {
+				description: "Please check your credentials and try again.",
+			});
 		} finally {
 			setIsLoading(false);
 		}
