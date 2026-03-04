@@ -74,6 +74,7 @@ const routeProtectionMiddleware = defineMiddleware(async (context, next) => {
 	const publicAuthPaths = ["/auth/signup", "/auth/login"];
 	const isPublicAuthPath = publicAuthPaths.includes(path);
 	const isPrivatePath = path.startsWith("/account");
+	const isSubscribePath = path.startsWith("/subscribe/checkout");
 
 	// Redirect unauthenticated users from private routes
 	if (isPrivatePath && !isAuthed) {
@@ -86,7 +87,7 @@ const routeProtectionMiddleware = defineMiddleware(async (context, next) => {
 	}
 
 	// Protect subscription success page
-	if (path === "/subscribe/success" && !isAuthed) {
+	if (isSubscribePath && !isAuthed) {
 		return context.redirect("/subscribe");
 	}
 
