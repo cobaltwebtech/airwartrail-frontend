@@ -16,6 +16,11 @@ import { defineLiveCollection } from "astro:content";
 import type { LiveLoader } from "astro/loaders";
 import { z } from "astro/zod";
 import type { ListPostsOutput, Post, PublishStatus } from "./lib/trpc";
+import type {
+	ListPagesOutput,
+	Page,
+	PagePublishStatus,
+} from "./lib/trpc/types";
 
 // ============================================================================
 // Types
@@ -34,6 +39,22 @@ interface BlogCollectionFilter {
 
 /** Filter for fetching a single blog post */
 interface BlogEntryFilter {
+	id?: string;
+	slug?: string;
+}
+
+/** Filter for fetching a collection of pages */
+interface PageCollectionFilter {
+	status?: PagePublishStatus;
+	search?: string;
+	limit?: number;
+	page?: number;
+	sortBy?: "createdAt" | "updatedAt" | "publishedAt" | "title";
+	sortOrder?: "asc" | "desc";
+}
+
+/** Filter for fetching a single page */
+interface PageEntryFilter {
 	id?: string;
 	slug?: string;
 }
@@ -70,6 +91,33 @@ const blogPostSchema = z.object({
 	authorId: z.string().nullable(),
 	isFeatured: z.boolean(),
 	readingTimeMinutes: z.number().nullable(),
+	createdAt: z.string().nullable(),
+	updatedAt: z.string().nullable(),
+});
+
+// ============================================================================
+// Page Schemas
+// ============================================================================
+
+/** Schema for list view - minimal fields from listPublished procedure */
+const pageListSchema = z.object({
+	id: z.string(),
+	slug: z.string(),
+	title: z.string(),
+	pageContent: z.unknown(),
+	publishedAt: z.string().nullable(),
+});
+
+/** Schema for full page view - complete fields from get procedure */
+const pageSchema = z.object({
+	id: z.string(),
+	slug: z.string(),
+	title: z.string(),
+	pageContent: z.unknown(),
+	publishStatus: z.enum(["published", "unpublished"]),
+	publishedAt: z.string().nullable(),
+	author: z.string(),
+	authorId: z.string().nullable(),
 	createdAt: z.string().nullable(),
 	updatedAt: z.string().nullable(),
 });
@@ -305,6 +353,157 @@ function blogPostLoader(): LiveLoader<
 	};
 }
 
+/** Type for page data returned by the loader */
+type PageData = Record<string, unknown>;
+
+/**
+ * Normalize a Page to ensure dates are ISO strings for schema validation
+ */
+function normalizePage(page: Page): Record<string, unknown> {
+	return {
+		...page,
+		createdAt: page.createdAt
+			? typeof page.createdAt === "string"
+				? page.createdAt
+				: new Date(page.createdAt).toISOString()
+			: undefined,
+		updatedAt: page.updatedAt
+			? typeof page.updatedAt === "string"
+				? page.updatedAt
+				: new Date(page.updatedAt).toISOString()
+			: undefined,
+		publishedAt: page.publishedAt
+			? typeof page.publishedAt === "string"
+				? page.publishedAt
+				: new Date(page.publishedAt).toISOString()
+			: null,
+	};
+}
+
+// ============================================================================
+// Page Loaders
+// ============================================================================
+
+/**
+ * Live loader for page listings from listPublished procedure
+ * Returns minimal data for list views
+ */
+function pageListLoader(): LiveLoader<
+	PageData,
+	PageEntryFilter,
+	PageCollectionFilter,
+	Error
+> {
+	return {
+		name: "page-list-loader",
+
+		/**
+		 * Load a collection of pages with optional filtering
+		 */
+		loadCollection: async ({ filter }) => {
+			try {
+				const typedFilter = filter as PageCollectionFilter | undefined;
+
+				const input = {
+					limit: typedFilter?.limit ?? 100,
+					page: typedFilter?.page ?? 1,
+					status: typedFilter?.status ?? "published",
+					search: typedFilter?.search,
+					sortBy: typedFilter?.sortBy ?? "publishedAt",
+					sortOrder: typedFilter?.sortOrder ?? "desc",
+				};
+
+				const result = await fetchFromCMS<ListPagesOutput>(
+					"pages.listPublished",
+					input,
+				);
+				const pages = result.pages ?? [];
+				const now = new Date();
+
+				// Only include pages with publishedAt today or in the past
+				const filteredPages = pages.filter((page: Page) => {
+					if (!page.publishedAt) return true;
+					const publishedDate = new Date(page.publishedAt);
+					return publishedDate <= now;
+				});
+
+				return {
+					entries: filteredPages.map((page: Page) => ({
+						id: page.slug,
+						data: normalizePage(page),
+					})),
+				};
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "Unknown error";
+				console.error("Error loading pages from CMS:", error);
+				return {
+					error: new Error(`Failed to load pages: ${message}`),
+				};
+			}
+		},
+
+		/**
+		 * Not used for list loader
+		 */
+		loadEntry: async () => {
+			throw new Error("Use pageFull collection for individual pages");
+		},
+	};
+}
+
+/**
+ * Live loader for full page data from get procedure
+ * Returns complete page data including content
+ */
+function pageLoader(): LiveLoader<
+	PageData,
+	PageEntryFilter,
+	PageCollectionFilter,
+	Error
+> {
+	return {
+		name: "page-loader",
+
+		/**
+		 * Not used for full loader - use loadEntry instead
+		 */
+		loadCollection: async () => {
+			throw new Error("Use pageList collection for listings");
+		},
+
+		/**
+		 * Load a single page by ID or slug with full data
+		 */
+		loadEntry: async ({ filter }) => {
+			try {
+				const typedFilter = filter as PageEntryFilter;
+
+				const page = await fetchFromCMS<Page>("pages.get", {
+					id: typedFilter.id,
+					slug: typedFilter.slug,
+				});
+
+				if (!page) {
+					return undefined;
+				}
+
+				return {
+					id: page.slug,
+					data: normalizePage(page),
+				};
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "Unknown error";
+				console.error("Error loading page from CMS:", error);
+				return {
+					error: new Error(`Failed to load page: ${message}`),
+				};
+			}
+		},
+	};
+}
+
 // ============================================================================
 // Blog Collections
 // ============================================================================
@@ -317,5 +516,13 @@ export const collections = {
 	blogPost: defineLiveCollection({
 		loader: blogPostLoader(),
 		schema: blogPostSchema,
+	}),
+	pageList: defineLiveCollection({
+		loader: pageListLoader(),
+		schema: pageListSchema,
+	}),
+	page: defineLiveCollection({
+		loader: pageLoader(),
+		schema: pageSchema,
 	}),
 };

@@ -1,5 +1,4 @@
 ---
-
 import HomepageHero from "@/components/partials/HomepageHero";
 import PlaylistDetail from "@/components/playlist/PlaylistDetail";
 import Slideshow from "@/components/sections/Slideshow.astro";
@@ -48,8 +47,6 @@ const structuredData = {
     <HomepageHero client:load />
   </div>
 
-  <!-- Show only to premium user -->
-  <PlaylistDetail client:visible slug="featured-films" libraryId={premiumLibrary} requiresSub={true} hidePlaylist={true} />
   <!-- Show to both premium and basic user -->
   <PlaylistDetail client:visible slug="film-trailers" libraryId={basicLibrary} requiresSub={false} />
  

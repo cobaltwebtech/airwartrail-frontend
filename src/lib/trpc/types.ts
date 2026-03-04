@@ -251,6 +251,53 @@ export interface ListPostsOutput {
 }
 
 // ============================================================================
+// Page Types
+// ============================================================================
+
+export type PagePublishStatus = "published" | "unpublished";
+
+export interface Page {
+	id: string;
+	slug: string;
+	title: string;
+	pageContent: unknown;
+	publishStatus: PagePublishStatus;
+	publishedAt: string | null;
+	author: string;
+	authorId: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface GetPageInput {
+	id?: string;
+	slug?: string;
+}
+
+export interface ListPagesInput {
+	limit?: number;
+	page?: number;
+	status?: PagePublishStatus;
+	search?: string;
+	sortBy?: "createdAt" | "updatedAt" | "publishedAt" | "title";
+	sortOrder?: "asc" | "desc";
+}
+
+export interface ListPagesPagination {
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
+	hasNext: boolean;
+	hasPrev: boolean;
+}
+
+export interface ListPagesOutput {
+	pages: Page[];
+	pagination: ListPagesPagination;
+}
+
+// ============================================================================
 // Upload Types
 // ============================================================================
 

@@ -1,9 +1,33 @@
 ---
-import { PlaylistDetail } from "@/components/playlist/PlaylistDetail";
+import { getLiveCollection } from "astro:content";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { signTiptapImages } from "@/lib/sign-blog-images";
+import { tiptapToHtml } from "@/lib/tiptap";
 
-const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
+const { env } = Astro.locals.runtime;
+
+const { entries: pages, error: pagesError } = await getLiveCollection("pageList", {
+  sortBy: "publishedAt",
+  sortOrder: "desc",
+});
+
+if (pagesError) {
+  console.error("Failed to load pages:", pagesError.message);
+}
+
+const pagesWithSignedContent = await Promise.all(
+  (pages ?? []).map(async (page) => {
+    const signedImageMap = await signTiptapImages(page.data.pageContent, env, Astro.request);
+    const htmlContent = tiptapToHtml(page.data.pageContent, { signedImageMap });
+    return {
+      slug: page.data.slug,
+      title: page.data.title,
+      htmlContent,
+    };
+  })
+);
+
 const pageTitle = `Coming Soon | Air War Trail`;
 const structuredData = {
 	"@context": "https://schema.org",
@@ -34,5 +58,19 @@ const structuredData = {
 			<BreadcrumbItem>Coming Soon</BreadcrumbItem>
 		</BreadcrumbList>
 	</Breadcrumb>
-	<PlaylistDetail client:load slug="coming-soon" libraryId={videoLibraryId} requiresSub={false} />
+
+  <h1 class="text-4xl font-bold sm:text-5xl mb-8">Coming Soon</h1>
+
+  {pagesWithSignedContent.length === 0 ? (
+    <p class="text-lg text-muted-foreground">Check back soon for updates!</p>
+  ) : (
+    <section class="space-y-16 max-w-4xl mx-auto">
+      {pagesWithSignedContent.map((page) => (
+        <article key={page.slug} class="prose prose-lg dark:prose-invert max-w-none">
+          <h2 class="text-3xl font-bold mb-4">{page.title}</h2>
+          <Fragment set:html={page.htmlContent} />
+        </article>
+      ))}
+    </section>
+  )}
 </BaseLayout>

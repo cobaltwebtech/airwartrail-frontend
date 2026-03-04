@@ -161,7 +161,10 @@ export const createAuth = (env: Env) => {
 							`Subscription ${subscription.id} updated to status: ${subscription.status}`,
 						);
 					},
-					onSubscriptionCancel: async ({ subscription, cancellationDetails }) => {
+					onSubscriptionCancel: async ({
+						subscription,
+						cancellationDetails,
+					}) => {
 						console.log(
 							`Subscription ${subscription.id} canceled:`,
 							cancellationDetails,
@@ -170,7 +173,7 @@ export const createAuth = (env: Env) => {
 				},
 				// Use onEvent only for events NOT handled by the plugin
 				// Note: Subscription status updates are handled automatically by Better Auth
-				// via customer.subscription.* webhooks (onSubscriptionComplete, onSubscriptionUpdate, onSubscriptionCancel)			
+				// via customer.subscription.* webhooks (onSubscriptionComplete, onSubscriptionUpdate, onSubscriptionCancel)
 				onEvent: async (event) => {
 					console.log("Stripe webhook event:", event.type);
 
@@ -227,7 +230,7 @@ export const createAuth = (env: Env) => {
 							);
 							break;
 						}
-						// Checkout session cleanup 
+						// Checkout session cleanup
 						// We are using custom but we keep this in case we do use Stripe's hosted checkout in the future
 						case "checkout.session.expired": {
 							const session = event.data.object as Stripe.Checkout.Session;

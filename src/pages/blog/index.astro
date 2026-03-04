@@ -53,7 +53,7 @@ const structuredData = {
     {posts?.map(post => {
       const thumbnailUrl = post.data.featuredImageUrl?.replace(/\/md\/?$/, '/thumbnail');
       return (
-      <a href={`/blog/${post.data.slug}`} class="group">
+      <a key={post.data.slug} href={`/blog/${post.data.slug}`} class="group">
         <Card className="h-full pt-0">
           {post.data.featuredImageUrl ? (
             <img
