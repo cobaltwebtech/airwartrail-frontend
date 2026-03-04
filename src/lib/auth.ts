@@ -113,6 +113,7 @@ export const createAuth = (env: Env) => {
 				},
 			}),
 			magicLink({
+				storeToken: "hashed",
 				disableSignUp: true,
 				sendMagicLink: async ({ email, url }) => {
 					try {
