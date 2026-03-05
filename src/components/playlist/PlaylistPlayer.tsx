@@ -7,8 +7,7 @@
  * Works for both free and premium content with optional subscription gating.
  */
 
-import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
-import MuxPlayer from "@mux/mux-player-react";
+import MuxPlayer from "@mux/mux-player-react/lazy";
 import { useQuery } from "@tanstack/react-query";
 import { Hourglass, Loader2, OctagonX, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -81,6 +80,17 @@ type TypedTrpcClient = {
 	};
 };
 
+interface VideoPlayerRef {
+	currentTime: number;
+	readyState: number;
+	play(): Promise<void>;
+	addEventListener(event: string, handler: EventListener): void;
+	removeEventListener(event: string, handler: EventListener): void;
+	addChapters(
+		chapters: Array<{ startTime: number; endTime?: number; value: string }>,
+	): void;
+}
+
 function formatDuration(seconds: number): string {
 	const hours = Math.floor(seconds / 3600);
 	const minutes = Math.floor((seconds % 3600) / 60);
@@ -105,9 +115,9 @@ function PlaylistVideoPlayerContent({
 	requiresSub = false,
 }: PlaylistVideoPlayerProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
-	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
+	const playerRef = useRef<VideoPlayerRef | null>(null);
 	const setPlayerRef = (node: unknown) => {
-		playerRef.current = node as MuxPlayerRefAttributes | null;
+		playerRef.current = node as VideoPlayerRef | null;
 	};
 
 	// Check session and subscription status only if this is premium content
@@ -400,8 +410,8 @@ function PlaylistVideoPlayerContent({
 					</CardHeader>
 					{descriptionParagraphs.length > 0 && (
 						<CardContent className="space-y-2 font-light text-sm text-pretty">
-							{descriptionParagraphs.map((paragraph, idx) => (
-								<p key={`${currentVideo.id}-paragraph-${idx}`}>{paragraph}</p>
+							{descriptionParagraphs.map((paragraph) => (
+								<p key={`${currentVideo.id}-${paragraph}`}>{paragraph}</p>
 							))}
 						</CardContent>
 					)}

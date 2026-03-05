@@ -33,7 +33,11 @@ export default defineConfig({
 	}),
 	integrations: [
 		mdx(),
-		react(),
+		react({
+			babel: {
+				plugins: ["babel-plugin-react-compiler"],
+			},
+		}),
 		sitemap({
 			filter: (page) => {
 				const excludedPaths = [

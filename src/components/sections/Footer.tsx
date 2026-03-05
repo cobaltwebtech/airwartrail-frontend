@@ -87,7 +87,11 @@ const Footer = () => {
 							href="https://www.cobaltweb.tech/?utm_source=airwartrail&utm_medium=web&utm_campaign=client-referral&utm_content=link"
 							rel="noopener"
 							target="_blank"
-							className="text-nowrap underline">Cobalt Web Technologies</a>.
+							className="text-nowrap underline"
+						>
+							Cobalt Web Technologies
+						</a>
+						.
 					</p>
 				</div>
 				{/* End Social Brands */}

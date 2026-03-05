@@ -8,7 +8,7 @@
  * Can optionally require a subscription to view the video.
  */
 
-import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
+import MuxPlayer from "@mux/mux-player-react/lazy";
 import { useQuery } from "@tanstack/react-query";
 import { Hourglass, Loader2, OctagonX, VideoOff } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
@@ -97,6 +97,17 @@ type TypedTrpcClient = {
 	};
 };
 
+interface VideoPlayerRef {
+	currentTime: number;
+	readyState: number;
+	play(): Promise<void>;
+	addEventListener(event: string, handler: EventListener): void;
+	removeEventListener(event: string, handler: EventListener): void;
+	addChapters(
+		chapters: Array<{ startTime: number; endTime?: number; value: string }>,
+	): void;
+}
+
 function VideoPlayerDetailContent({
 	videoId,
 	libraryId,
@@ -111,9 +122,9 @@ function VideoPlayerDetailContent({
 	const tokenExpiresIn = requiresSub ? 10800 : 3600; // 3 hours (premium, longer videos) or 1 hour (basic, shorter videos)
 
 	const client = trpcClient as unknown as TypedTrpcClient;
-	const playerRef = useRef<MuxPlayerRefAttributes | null>(null);
+	const playerRef = useRef<VideoPlayerRef | null>(null);
 	const setPlayerRef = (node: unknown) => {
-		playerRef.current = node as MuxPlayerRefAttributes | null;
+		playerRef.current = node as VideoPlayerRef | null;
 	};
 
 	// Extract library prefix from URL by searching for 'basic' or 'premium' anywhere in path
