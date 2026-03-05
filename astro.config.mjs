@@ -4,7 +4,6 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import compressor from "astro-compressor";
 
 export default defineConfig({
 	output: "server",
@@ -52,10 +51,6 @@ export default defineConfig({
 				];
 				return !excludedPaths.some((path) => page.includes(path));
 			},
-		}),
-		compressor({
-			gzip: false,
-			brotli: true,
 		}),
 	],
 });
