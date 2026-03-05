@@ -16,18 +16,13 @@ interface Props {
   meta?: string;
   structuredData?: object;
   lang?: string;
-  externalScript?: boolean;
-  scriptUrl?: string;
 }
 
 const {
   title = siteMeta.title,
   meta,
   structuredData,
-  externalScript,
-  scriptUrl,
 } = Astro.props;
-const umamiId = import.meta.env.UMAMI_ID;
 ---
 
 <!doctype html>
@@ -117,12 +112,6 @@ const umamiId = import.meta.env.UMAMI_ID;
         }
       });
     </script>
-    <!-- Umami Analytics script tag -->
-    <!-- <script
-      is:inline
-      defer
-      src="https://umami.cobaltweb.tech/script.js"
-      data-website-id={umamiId}></script> -->
   </head>
 
   <body class="bg-background text-foreground flex min-h-svh flex-col">

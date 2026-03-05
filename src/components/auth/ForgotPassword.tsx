@@ -15,7 +15,7 @@ import { toast } from "@/components/ui/toast";
 import { requestPasswordReset } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-export function ForgotPassword({
+export function ForgotPasswordComponent({
 	className,
 	...props
 }: React.ComponentProps<"div">) {

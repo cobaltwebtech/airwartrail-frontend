@@ -1,4 +1,6 @@
 ---
+export const prerender = true; // This route can be prerendered since it does not require an auth check
+
 import { VideoLibrary } from "@/components/video/VideoLibrary";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
@@ -27,5 +29,5 @@ const structuredData = {
   <h1 class="mb-8 text-center text-3xl font-bold">
     Free Content Library
   </h1>
-  <VideoLibrary client:load requiresSub={false} libraryId={videoLibraryId} />
+  <VideoLibrary client:visible requiresSub={false} libraryId={videoLibraryId} />
 </BaseLayout>

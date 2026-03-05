@@ -1,5 +1,4 @@
 ---
-
 import { Pricing } from "@/components/partials/Pricing";
 import { VideoLibrary } from "@/components/video/VideoLibrary";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -34,7 +33,7 @@ const structuredData = {
     Premium Content
   </h1>
   {hasActiveSubscription ? (
-    <VideoLibrary client:load requiresSub={true} libraryId={videoLibraryId} />
+    <VideoLibrary client:visible requiresSub={true} libraryId={videoLibraryId} />
   ) : (
     <Pricing />
   )}

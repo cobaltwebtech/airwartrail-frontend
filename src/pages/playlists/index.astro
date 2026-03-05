@@ -1,5 +1,4 @@
 ---
-
 import { Pricing } from "@/components/partials/Pricing";
 import { PlaylistsList } from "@/components/playlist/PlaylistsList";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -35,7 +34,7 @@ const structuredData = {
   </h1>
   <p class="mb-8 text-center text-lg font-semibold">View our curated collection of films by playlists.</p>
   {hasActiveSubscription ? (
-    <PlaylistsList client:load libraryId={videoLibraryId} />
+    <PlaylistsList client:visible libraryId={videoLibraryId} />
   ) : (
     <Pricing />
   )}
