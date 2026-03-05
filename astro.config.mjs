@@ -2,7 +2,6 @@ import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import minify from "@playform/compress";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import compressor from "astro-compressor";
@@ -53,13 +52,6 @@ export default defineConfig({
 				];
 				return !excludedPaths.some((path) => page.includes(path));
 			},
-		}),
-		minify({
-			CSS: false,
-			HTML: true,
-			Image: false,
-			JavaScript: false,
-			SVG: true,
 		}),
 		compressor({
 			gzip: false,

@@ -58,10 +58,10 @@ const Footer = () => {
 				{/* End Col */}
 
 				{/* Social Brands */}
-				<div className="flex w-full justify-end">
+				<div className="w-full flex flex-col gap-1">
 					<a
 						href="https://www.youtube.com/@airwartrail"
-						className="size-12"
+						className="size-12 ml-auto"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -81,6 +81,14 @@ const Footer = () => {
 							/>
 						</svg>
 					</a>
+					<p className="text-center text-[10px] lg:text-right">
+						Website and cloud infrastructure built by <br />
+						<a
+							href="https://www.cobaltweb.tech/?utm_source=airwartrail&utm_medium=web&utm_campaign=client-referral&utm_content=link"
+							rel="noopener"
+							target="_blank"
+							className="text-nowrap underline">Cobalt Web Technologies</a>.
+					</p>
 				</div>
 				{/* End Social Brands */}
 			</div>
