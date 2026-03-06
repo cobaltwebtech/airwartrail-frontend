@@ -150,9 +150,22 @@ function RelatedVideosContent({
 	// Filter tag-related videos (exclude current video and unpublished)
 	const filteredTagVideos = useMemo(() => {
 		if (!tagRelatedVideos) return [];
-		return tagRelatedVideos.filter(
+		const filtered = tagRelatedVideos.filter(
 			(video) => video.id !== videoId && video.isPublished,
 		);
+		// DEBUG: Log why videos are being filtered
+		if (tagRelatedVideos.length > 0 && filtered.length === 0) {
+			console.log("[RelatedVideos] DEBUG filter issue:", {
+				tagRelatedVideos,
+				videoId,
+				filterCheck: tagRelatedVideos.map((v) => ({
+					id: v.id,
+					isCurrentVideo: v.id === videoId,
+					isPublished: v.isPublished,
+				})),
+			});
+		}
+		return filtered;
 	}, [tagRelatedVideos, videoId]);
 
 	// DEBUG: Log tag search results
