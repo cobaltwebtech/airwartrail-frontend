@@ -192,6 +192,53 @@ function textAlignStyle(
 // ============================================================================
 
 /**
+ * Allowlist of CSS properties that textStyle marks are permitted to render.
+ * Prevents arbitrary CSS injection from untrusted content.
+ */
+const ALLOWED_TEXT_STYLE_PROPS = new Set([
+	"fontSize",
+	"color",
+	"fontFamily",
+	"fontWeight",
+	"letterSpacing",
+	"lineHeight",
+]);
+
+/**
+ * Validate a CSS property value to guard against injection attacks.
+ * Only allows alphanumeric characters, spaces, dots, hyphens, percent, and px/em/rem units.
+ */
+function isSafeCssValue(value: string): boolean {
+	return /^[a-zA-Z0-9\s.\-_%#(),]+$/.test(value);
+}
+
+/**
+ * Convert a camelCase CSS property name to kebab-case.
+ * e.g. "fontSize" -> "font-size", "fontFamily" -> "font-family"
+ */
+function camelToKebab(str: string): string {
+	return str.replace(/([A-Z])/g, (match) => `-${match.toLowerCase()}`);
+}
+
+/**
+ * Build an inline style string from a textStyle mark's attrs.
+ * Only renders properties in ALLOWED_TEXT_STYLE_PROPS with safe values.
+ * Returns an empty string if no valid styles are found.
+ */
+function buildTextStyleAttr(attrs: Record<string, unknown>): string {
+	const styles: string[] = [];
+
+	for (const prop of ALLOWED_TEXT_STYLE_PROPS) {
+		const value = attrs[prop];
+		if (typeof value === "string" && value.trim() && isSafeCssValue(value)) {
+			styles.push(`${camelToKebab(prop)}: ${value}`);
+		}
+	}
+
+	return styles.length > 0 ? ` style="${styles.join("; ")}"` : "";
+}
+
+/**
  * Apply a mark (bold, italic, link, etc.) to text content
  */
 function applyMark(text: string, mark: TiptapMark): string {
@@ -217,6 +264,12 @@ function applyMark(text: string, mark: TiptapMark): string {
 					? ' rel="noopener noreferrer"'
 					: "";
 			return `<a href="${href}"${targetAttr}${relAttr}>${text}</a>`;
+		}
+		case "textStyle": {
+			if (!mark.attrs) return text;
+			const styleAttr = buildTextStyleAttr(mark.attrs);
+			// Only emit a <span> if there are valid styles to apply
+			return styleAttr ? `<span${styleAttr}>${text}</span>` : text;
 		}
 		case "highlight":
 			return `<mark>${text}</mark>`;
