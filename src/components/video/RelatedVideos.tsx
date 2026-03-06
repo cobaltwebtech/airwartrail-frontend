@@ -224,18 +224,21 @@ function RelatedVideosContent({
 
 	if (isLoading) {
 		return (
-			<div className="w-full">
+			<section className="mb-8 space-y-4 w-full">
 				<h3 className="text-lg font-semibold">Related Videos</h3>
-				<div className="max-w-85">
-					<Card className="pt-0">
-						<Skeleton className="aspect-video w-full" />
-						<CardContent>
-							<Loader2 className="size-8 animate-spin" />
-							<p>Loading related videos...</p>
-						</CardContent>
-					</Card>
+				<div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+					{["1", "2", "3", "4"].map((key) => (
+						<Card key={`skeleton-${key}`} className="pt-0 pb-4 gap-3">
+							<CardHeader className="p-0 gap-1">
+								<Skeleton className="aspect-video w-full" />
+							</CardHeader>
+							<CardContent>
+								<Skeleton className="h-6 w-full" />
+							</CardContent>
+						</Card>
+					))}
 				</div>
-			</div>
+			</section>
 		);
 	}
 

@@ -295,7 +295,7 @@ function VideoPlayerDetailContent({
 
 	if (videoLoading) {
 		return (
-			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
+			<section className="w-full mb-8 grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
 					<div className="relative">
 						<Skeleton className="w-full aspect-video" />
@@ -340,7 +340,7 @@ function VideoPlayerDetailContent({
 		}
 
 		return (
-			<div className="mx-auto my-8 w-fit">
+			<section className="mx-auto my-8 w-fit">
 				<Card className="bg-destructive">
 					<CardHeader className="flex flex-col items-center gap-2">
 						<VideoOff className="size-8" />
@@ -352,13 +352,13 @@ function VideoPlayerDetailContent({
 						</a>
 					</CardContent>
 				</Card>
-			</div>
+			</section>
 		);
 	}
 
 	if (!video?.isPublished) {
 		return (
-			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
+			<section className="w-full mb-8 grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
 					<div className="relative">
 						<Skeleton className="w-full aspect-video" />
@@ -381,7 +381,7 @@ function VideoPlayerDetailContent({
 
 	if (video?.policy === "signed" && tokensLoading) {
 		return (
-			<section className="w-full grid md:grid-cols-[3fr_1fr] gap-4">
+			<section className="w-full mb-8 grid md:grid-cols-[3fr_1fr] gap-4">
 				<Card className="pt-0">
 					<div className="relative">
 						<Skeleton className="w-full aspect-video" />
