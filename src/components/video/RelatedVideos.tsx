@@ -7,7 +7,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Film, Loader2, Play } from "lucide-react";
+import { Film, Play } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -217,9 +217,9 @@ function RelatedVideosContent({
 		(needsFallback && isLoadingRecentVideos);
 	const hasError = tagsError || tagVideosError || recentVideosError;
 
-	const buildVideoUrl = (id: string) => {
+	const buildVideoUrl = (id: string, title: string) => {
 		const prefix = isPremium ? "premium" : "basic";
-		return `/watch/${prefix}/${libraryId}/video/${id}`;
+		return `/watch/${prefix}/${libraryId}/video/${id}?title=${encodeURIComponent(title)}`;
 	};
 
 	if (isLoading) {
@@ -276,7 +276,7 @@ function RelatedVideosContent({
 						key={video.id}
 						className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
 					>
-						<a href={buildVideoUrl(video.id)}>
+						<a href={buildVideoUrl(video.id, video.title)}>
 							<div className="relative">
 								<VideoThumbnail
 									playbackId={video.playbackId}
@@ -299,7 +299,7 @@ function RelatedVideosContent({
 						</a>
 						<CardHeader className="p-4 flex items-center justify-between">
 							<a
-								href={buildVideoUrl(video.id)}
+								href={buildVideoUrl(video.id, video.title)}
 								className="text-left hover:text-accent-foreground"
 							>
 								<h4 className="font-semibold line-clamp-2 text-sm">
