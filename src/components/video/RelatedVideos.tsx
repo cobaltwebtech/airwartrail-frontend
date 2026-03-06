@@ -140,7 +140,7 @@ function RelatedVideosContent({
 					playbackId: r.muxPlaybackId,
 					policy: r.playbackPolicy,
 					duration: r.duration,
-					isPublished: r.isPublished,
+					isPublished: r.isPublished ?? true,
 				}),
 			);
 		},
@@ -150,32 +150,10 @@ function RelatedVideosContent({
 	// Filter tag-related videos (exclude current video and unpublished)
 	const filteredTagVideos = useMemo(() => {
 		if (!tagRelatedVideos) return [];
-		const filtered = tagRelatedVideos.filter(
-			(video) => video.id !== videoId && video.isPublished,
+		return tagRelatedVideos.filter(
+			(video) => video.id !== videoId && video.isPublished === true,
 		);
-		// DEBUG: Log why videos are being filtered
-		if (tagRelatedVideos.length > 0 && filtered.length === 0) {
-			console.log("[RelatedVideos] DEBUG filter issue:", {
-				tagRelatedVideos,
-				videoId,
-				filterCheck: tagRelatedVideos.map((v) => ({
-					id: v.id,
-					isCurrentVideo: v.id === videoId,
-					isPublished: v.isPublished,
-				})),
-			});
-		}
-		return filtered;
 	}, [tagRelatedVideos, videoId]);
-
-	// DEBUG: Log tag search results
-	console.log("[RelatedVideos] DEBUG:", {
-		hasTagIds,
-		tagIds,
-		tagRelatedVideos,
-		filteredTagVideos,
-		videoId,
-	});
 
 	// Determine if we need to fetch fallback videos
 	// Enable fallback if: no tags OR tag query finished but has insufficient results
@@ -203,7 +181,7 @@ function RelatedVideosContent({
 					playbackId: r.playbackId,
 					policy: r.policy,
 					duration: r.duration,
-					isPublished: r.isPublished,
+					isPublished: r.isPublished ?? true,
 				}),
 			);
 		},
@@ -221,27 +199,15 @@ function RelatedVideosContent({
 		const tagVideoIds = new Set(filteredTagVideos.map((v) => v.id));
 		const filteredRecentVideos = (recentVideos ?? []).filter(
 			(video) =>
-				video.id !== videoId && video.isPublished && !tagVideoIds.has(video.id),
+				video.id !== videoId &&
+				video.isPublished === true &&
+				!tagVideoIds.has(video.id),
 		);
-
-		// DEBUG: Log fallback results
-		console.log("[RelatedVideos] DEBUG fallback:", {
-			filteredTagVideos,
-			recentVideos,
-			filteredRecentVideos,
-			videoId,
-		});
 
 		// Combine tag videos with recent videos
 		const combined = [...filteredTagVideos, ...filteredRecentVideos];
 		return combined.slice(0, MAX_RELATED_VIDEOS);
 	}, [filteredTagVideos, recentVideos, videoId]);
-
-	// DEBUG: Log final results
-	console.log("[RelatedVideos] DEBUG final:", {
-		relatedVideos,
-		relatedVideosLength: relatedVideos.length,
-	});
 
 	// Loading state: still loading if any required query is in progress
 	const isLoading =
