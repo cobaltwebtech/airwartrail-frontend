@@ -1,8 +1,13 @@
 ---
-export const prerender = true;
-
 import { CheckoutProcess } from "@/components/checkout/CheckoutProcess";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { checkAuthOnly, redirectToLogin } from "@/lib/auth-check";
+
+const { isAuthenticated } = await checkAuthOnly(Astro);
+
+if (!isAuthenticated) {
+  return redirectToLogin(Astro.url.pathname);
+}
 ---
 
 <BaseLayout title="Checkout | Air War Trail">
