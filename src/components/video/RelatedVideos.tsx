@@ -8,7 +8,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Film, Loader2, Play } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -94,8 +94,18 @@ function RelatedVideosContent({
 }: RelatedVideosProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 
+	// Prevent hydration mismatch by only rendering on client
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
 	// Fetch current video's tags if not provided externally
-	const { data: videoTags, isLoading: isLoadingTags } = useQuery({
+	const {
+		data: videoTags,
+		isLoading: isLoadingTags,
+		error: tagsError,
+	} = useQuery({
 		queryKey: ["mux", "getVideoTags", videoId, libraryId],
 		queryFn: () => client.mux.getVideoTags.query({ videoId, libraryId }),
 		enabled: !externalTagIds && Boolean(videoId),
@@ -199,10 +209,11 @@ function RelatedVideosContent({
 
 	// Loading state: still loading if any required query is in progress
 	const isLoading =
+		!mounted ||
 		isLoadingTags ||
 		isLoadingTagVideos ||
 		(needsFallback && isLoadingRecentVideos);
-	const hasError = tagVideosError || recentVideosError;
+	const hasError = tagsError || tagVideosError || recentVideosError;
 
 	const buildVideoUrl = (id: string) => {
 		const prefix = isPremium ? "premium" : "basic";

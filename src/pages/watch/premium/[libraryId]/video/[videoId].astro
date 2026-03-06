@@ -60,8 +60,13 @@ const structuredData = {
 			libraryId={libraryId}
 			requiresSub={true}
 		/>
-		
-		<RelatedVideos client:visible isPremium={true} videoId={videoId} libraryId={libraryId} />
+
+		<RelatedVideos
+			client:visible
+			isPremium={true}
+			videoId={videoId}
+			libraryId={libraryId}
+		/>
 	) : (
 		<Pricing />
 	)}
