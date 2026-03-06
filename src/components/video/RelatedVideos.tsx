@@ -78,12 +78,26 @@ type TypedTrpcClient = {
 };
 
 const MAX_RELATED_VIDEOS = 4;
+const FALLBACK_VIDEO_LIMIT = 20;
 
 const formatDuration = (seconds: number | null | undefined): string => {
 	if (!seconds) return "0:00";
 	const mins = Math.floor(seconds / 60);
 	const secs = Math.floor(seconds % 60);
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+const isVideoPublished = (isPublished: unknown): boolean => {
+	return Boolean(isPublished) === true;
+};
+
+const shuffleArray = <T,>(array: T[]): T[] => {
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
 };
 
 function RelatedVideosContent({
@@ -151,7 +165,7 @@ function RelatedVideosContent({
 	const filteredTagVideos = useMemo(() => {
 		if (!tagRelatedVideos) return [];
 		return tagRelatedVideos.filter(
-			(video) => video.id !== videoId && video.isPublished === true,
+			(video) => video.id !== videoId && isVideoPublished(video.isPublished),
 		);
 	}, [tagRelatedVideos, videoId]);
 
@@ -171,7 +185,7 @@ function RelatedVideosContent({
 		queryFn: async () => {
 			const results = await client.mux.listVideosFromDatabase.query({
 				libraryId,
-				limit: MAX_RELATED_VIDEOS + 1,
+				limit: FALLBACK_VIDEO_LIMIT,
 				offset: 0,
 			});
 			return results.map(
@@ -190,9 +204,9 @@ function RelatedVideosContent({
 
 	// Determine which videos to display
 	const relatedVideos = useMemo(() => {
-		// If we have enough tag-related videos, use them
+		// If we have enough tag-related videos, use them (shuffled for variety)
 		if (filteredTagVideos.length >= MAX_RELATED_VIDEOS) {
-			return filteredTagVideos.slice(0, MAX_RELATED_VIDEOS);
+			return shuffleArray(filteredTagVideos).slice(0, MAX_RELATED_VIDEOS);
 		}
 
 		// Otherwise, supplement with recent videos (avoiding duplicates)
@@ -200,13 +214,14 @@ function RelatedVideosContent({
 		const filteredRecentVideos = (recentVideos ?? []).filter(
 			(video) =>
 				video.id !== videoId &&
-				video.isPublished === true &&
+				isVideoPublished(video.isPublished) &&
 				!tagVideoIds.has(video.id),
 		);
 
-		// Combine tag videos with recent videos
+		// Combine tag videos with recent videos and shuffle for variety
 		const combined = [...filteredTagVideos, ...filteredRecentVideos];
-		return combined.slice(0, MAX_RELATED_VIDEOS);
+		const shuffled = shuffleArray(combined);
+		return shuffled.slice(0, MAX_RELATED_VIDEOS);
 	}, [filteredTagVideos, recentVideos, videoId]);
 
 	// Loading state: still loading if any required query is in progress
@@ -302,7 +317,7 @@ function RelatedVideosContent({
 								href={buildVideoUrl(video.id, video.title)}
 								className="text-left hover:text-accent-foreground"
 							>
-								<h4 className="font-semibold line-clamp-2 text-sm">
+								<h4 className="font-semibold line-clamp-1 text-sm">
 									{video.title}
 								</h4>
 							</a>
