@@ -155,6 +155,15 @@ function RelatedVideosContent({
 		);
 	}, [tagRelatedVideos, videoId]);
 
+	// DEBUG: Log tag search results
+	console.log("[RelatedVideos] DEBUG:", {
+		hasTagIds,
+		tagIds,
+		tagRelatedVideos,
+		filteredTagVideos,
+		videoId,
+	});
+
 	// Determine if we need to fetch fallback videos
 	// Enable fallback if: no tags OR tag query finished but has insufficient results
 	const needsFallback =
@@ -202,10 +211,24 @@ function RelatedVideosContent({
 				video.id !== videoId && video.isPublished && !tagVideoIds.has(video.id),
 		);
 
+		// DEBUG: Log fallback results
+		console.log("[RelatedVideos] DEBUG fallback:", {
+			filteredTagVideos,
+			recentVideos,
+			filteredRecentVideos,
+			videoId,
+		});
+
 		// Combine tag videos with recent videos
 		const combined = [...filteredTagVideos, ...filteredRecentVideos];
 		return combined.slice(0, MAX_RELATED_VIDEOS);
 	}, [filteredTagVideos, recentVideos, videoId]);
+
+	// DEBUG: Log final results
+	console.log("[RelatedVideos] DEBUG final:", {
+		relatedVideos,
+		relatedVideosLength: relatedVideos.length,
+	});
 
 	// Loading state: still loading if any required query is in progress
 	const isLoading =
