@@ -165,6 +165,29 @@ function escapeAttr(value: string | undefined): string {
 }
 
 // ============================================================================
+// Text Alignment Helper
+// ============================================================================
+
+/**
+ * Valid CSS text-align values emitted by Tiptap's TextAlign extension
+ */
+const VALID_TEXT_ALIGNS = new Set(["left", "center", "right", "justify"]);
+
+/**
+ * Build an inline style string for text alignment.
+ * Returns an empty string when the value is null, undefined, or "left"
+ * (left is the browser default, so no style is needed).
+ */
+function textAlignStyle(
+	textAlign: string | null | undefined,
+): string {
+	if (!textAlign || !VALID_TEXT_ALIGNS.has(textAlign) || textAlign === "left") {
+		return "";
+	}
+	return ` style="text-align: ${textAlign};"`;
+}
+
+// ============================================================================
 // Mark Rendering
 // ============================================================================
 
@@ -275,12 +298,15 @@ function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 		case "doc":
 			return childrenHtml;
 
-		case "paragraph":
-			return `<p>${childrenHtml}</p>`;
+		case "paragraph": {
+			const align = textAlignStyle(node.attrs?.textAlign as string | null | undefined);
+			return `<p${align}>${childrenHtml}</p>`;
+		}
 
 		case "heading": {
 			const level = Math.min(Math.max(Number(node.attrs?.level) || 1, 1), 6);
-			return `<h${level}>${childrenHtml}</h${level}>`;
+			const align = textAlignStyle(node.attrs?.textAlign as string | null | undefined);
+			return `<h${level}${align}>${childrenHtml}</h${level}>`;
 		}
 
 		case "bulletList":

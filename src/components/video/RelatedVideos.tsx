@@ -87,8 +87,9 @@ const formatDuration = (seconds: number | null | undefined): string => {
 	return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
+// Strict equality check matching VideoLibrary's filter: video.isPublished === true
 const isVideoPublished = (isPublished: unknown): boolean => {
-	return Boolean(isPublished) === true;
+	return isPublished === true;
 };
 
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -147,6 +148,7 @@ function RelatedVideosContent({
 				limit: MAX_RELATED_VIDEOS + 1, // Fetch extra in case current video is included
 			});
 			// Map to unified Video type
+			// Use ?? false so that nullish isPublished values fail the published check
 			return results.map(
 				(r): Video => ({
 					id: r.id,
@@ -154,7 +156,7 @@ function RelatedVideosContent({
 					playbackId: r.muxPlaybackId,
 					policy: r.playbackPolicy,
 					duration: r.duration,
-					isPublished: r.isPublished ?? true,
+					isPublished: r.isPublished ?? false,
 				}),
 			);
 		},
@@ -188,6 +190,7 @@ function RelatedVideosContent({
 				limit: FALLBACK_VIDEO_LIMIT,
 				offset: 0,
 			});
+			// Use ?? false so that nullish isPublished values fail the published check
 			return results.map(
 				(r): Video => ({
 					id: r.id,
@@ -195,7 +198,7 @@ function RelatedVideosContent({
 					playbackId: r.playbackId,
 					policy: r.policy,
 					duration: r.duration,
-					isPublished: r.isPublished ?? true,
+					isPublished: r.isPublished ?? false,
 				}),
 			);
 		},
@@ -220,8 +223,7 @@ function RelatedVideosContent({
 
 		// Combine tag videos with recent videos and shuffle for variety
 		const combined = [...filteredTagVideos, ...filteredRecentVideos];
-		const shuffled = shuffleArray(combined);
-		return shuffled.slice(0, MAX_RELATED_VIDEOS);
+		return shuffleArray(combined).slice(0, MAX_RELATED_VIDEOS);
 	}, [filteredTagVideos, recentVideos, videoId]);
 
 	// Loading state: still loading if any required query is in progress
