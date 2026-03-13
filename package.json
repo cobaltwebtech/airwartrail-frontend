@@ -8,7 +8,7 @@
     "dev:cf": "astro build && pnpx wrangler dev",
     "format": "biome format --write",
     "lint": "biome lint",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 astro build",
+    "build": "astro build",
     "deploy:cf": "astro build && pnpx wrangler deploy",
     "preview": "astro build && astro preview",
     "up:astro": "pnpx @astrojs/upgrade",
@@ -16,7 +16,7 @@
     "clean": "rm -rf dist node_modules pnpm-lock.yaml .astro",
     "cf-typegen": "wrangler types --env-interface Env"
   },
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@astrojs/cloudflare": "13.1.1",
     "@astrojs/compiler-rs": "^0.1.4",
@@ -24,7 +24,7 @@
     "@astrojs/react": "5.0.0",
     "@astrojs/sitemap": "^3.7.1",
     "@better-auth/drizzle-adapter": "^1.5.5",
-    "@better-auth/infra": "^0.1.11",
+    "@better-auth/infra": "^0.1.12",
     "@better-auth/stripe": "^1.5.5",
     "@hookform/resolvers": "^5.2.2",
     "@lucide/astro": "^0.577.0",
@@ -74,7 +74,7 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
-    "@biomejs/biome": "^2.4.6",
+    "@biomejs/biome": "^2.4.7",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@trpc/server": "^11.12.0",
