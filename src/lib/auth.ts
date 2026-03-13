@@ -180,7 +180,7 @@ export const createAuth = (env: Env) => {
 
 					switch (event.type) {
 						case "invoice.created": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.log(
@@ -189,14 +189,14 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.finalized": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							console.log(
 								`Invoice finalized: ${invoice.id}, amount: ${invoice.amount_due}`,
 							);
 							break;
 						}
 						case "invoice.paid": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.log(
@@ -205,7 +205,7 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.payment_failed": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.error(
@@ -214,17 +214,17 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.payment_action_required": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							console.log(`Invoice requires action (3D Secure): ${invoice.id}`);
 							break;
 						}
 						case "payment_intent.succeeded": {
-							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							const paymentIntent = event.data.object;
 							console.log(`Payment intent succeeded: ${paymentIntent.id}`);
 							break;
 						}
 						case "payment_intent.payment_failed": {
-							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							const paymentIntent = event.data.object;
 							console.error(
 								`Payment intent failed: ${paymentIntent.id}`,
 								paymentIntent.last_payment_error?.message,
@@ -234,7 +234,7 @@ export const createAuth = (env: Env) => {
 						// Checkout session cleanup
 						// We are using custom but we keep this in case we do use Stripe's hosted checkout in the future
 						case "checkout.session.expired": {
-							const session = event.data.object as Stripe.Checkout.Session;
+							const session = event.data.object;
 							console.log("Checkout session expired:", session.id);
 							if (session.client_reference_id) {
 								const db = createDrizzle(env.DB_AUTH);
