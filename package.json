@@ -8,7 +8,7 @@
     "dev:cf": "astro build && pnpx wrangler dev",
     "format": "biome format --write",
     "lint": "biome lint",
-    "build": "astro build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 astro build",
     "deploy:cf": "astro build && pnpx wrangler deploy",
     "preview": "astro build && astro preview",
     "up:astro": "pnpx @astrojs/upgrade",
