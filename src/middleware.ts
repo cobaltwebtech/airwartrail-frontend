@@ -25,7 +25,7 @@ const sessionMiddleware = defineMiddleware(async (context, next) => {
 	)) as StoredSession | null;
 
 	if (sessionData?.userId) {
-		context.locals.auth = await getAuthState(context, sessionData);
+		context.locals.auth = await getAuthState(sessionData);
 	} else {
 		context.locals.auth = defaultAuthState;
 	}

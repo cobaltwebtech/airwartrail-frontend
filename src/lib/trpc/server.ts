@@ -23,7 +23,7 @@ import type { AppRouter } from "./types";
  * ---
  * import { createServerTRPCClient } from '../lib/trpc/server';
  *
- * const { env } = Astro.locals.runtime;
+ * import { env } from 'cloudflare:workers';
  * const trpc = createServerTRPCClient(env, Astro.request);
  *
  * const videos = await trpc.mux.listVideosFromDatabase.query({
@@ -69,8 +69,9 @@ export function createServerTRPCClient(env: Env, request?: Request) {
  * @example
  * ```typescript
  * // In an API route
+ * import { env } from 'cloudflare:workers';
+ *
  * export const GET: APIRoute = async ({ locals }) => {
- *   const { env } = locals.runtime;
  *   const trpc = createApiKeyTRPCClient(env, env.AWT_CMS_API_KEY);
  *
  *   const libraries = await trpc.mux.listLibraries.query();

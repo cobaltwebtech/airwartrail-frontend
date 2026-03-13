@@ -39,8 +39,6 @@ import { trpcClient } from "@/lib/trpc";
 import type {
 	AlbumImage,
 	GetAlbumOutput,
-	SignUrlInput,
-	SignUrlOutput,
 } from "@/lib/trpc/types";
 import { useSubStatus } from "@/lib/useSubStatus";
 

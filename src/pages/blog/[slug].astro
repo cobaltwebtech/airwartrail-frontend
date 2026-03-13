@@ -1,13 +1,11 @@
 ---
 
 import { getLiveEntry } from 'astro:content';
+import { env } from 'cloudflare:workers';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { extractCfImageIdFromUrl, signFeaturedImage, signTiptapImages } from "@/lib/sign-blog-images";
 import { tiptapToHtml } from "@/lib/tiptap";
-
-// Get Cloudflare environment for tRPC calls
-const { env } = Astro.locals.runtime;
 
 // Get the slug from the route parameter
 const { slug } = Astro.params;

@@ -38,7 +38,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 		return (
 			<li className="flex flex-col">
 				<a
-					href={"#" + heading.slug}
+					href={`#${heading.slug}`}
 					className="group hover:bg-primary mb-2 line-clamp-2 flex w-full flex-row items-center gap-2 rounded-lg px-4 py-2 text-xs transition-colors duration-400 first-letter:uppercase"
 				>
 					<ArrowRight className="size-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />

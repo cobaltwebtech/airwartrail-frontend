@@ -3,7 +3,7 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
 	output: "server",
@@ -11,11 +11,35 @@ export default defineConfig({
 	prefetch: {
 		prefetchAll: true,
 	},
+	fonts: [
+		{
+			provider: fontProviders.local(),
+			name: "Reddit Sans",
+			cssVariable: "--default-font-family",
+			options: {
+				variants: [
+					{
+						src: ["./public/fonts/RedditSans-VariableFont_wght.woff2"],
+						weight: "200 900",
+						style: "normal",
+					},
+					{
+						src: ["./public/fonts/RedditSans-Italic-VariableFont_wght.woff2"],
+						weight: "200 900",
+						style: "italic",
+					},
+				],
+			},
+		},
+	],
 	vite: {
 		plugins: [tailwindcss()],
 	},
 	experimental: {
-		liveContentCollections: true,
+		rustCompiler: true,
+		queuedRendering: {
+			enabled: true,
+		},
 		clientPrerender: true,
 	},
 	markdown: {
@@ -26,10 +50,7 @@ export default defineConfig({
 	},
 	adapter: cloudflare({
 		sessionKVBindingName: "KV_AUTH",
-		imageService: "cloudflare",
-		platformProxy: {
-			enabled: true,
-		},
+		imageService: "cloudflare-binding",
 	}),
 	integrations: [
 		mdx(),

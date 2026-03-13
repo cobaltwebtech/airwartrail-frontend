@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { CreditCard, Loader2, ShieldUser } from "lucide-react";
 import { useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -33,10 +33,8 @@ type Subscription = {
 };
 
 function BillingInfoContent() {
-	const queryClient = useQueryClient();
 	const session = useSession();
 	const [isManagingPayment, setIsManagingPayment] = useState(false);
-	const [isUpgrading, setIsUpgrading] = useState(false);
 
 	// Check if user is admin
 	const isAdmin = session.data?.user?.role === "admin";
@@ -56,25 +54,6 @@ function BillingInfoContent() {
 		refetchOnWindowFocus: true, // Refetch when user returns to tab
 		refetchOnMount: true, // Always refetch when component mounts
 	});
-
-	const handleUpgrade = async () => {
-		setIsUpgrading(true);
-		try {
-			await subscription.upgrade({
-				plan: "premium",
-				successUrl: "/subscribe/success",
-				cancelUrl: window.location.href,
-			});
-			// Invalidate cache after upgrade to reflect new status
-			await queryClient.invalidateQueries({
-				queryKey: ["subscription", session.data?.user?.id],
-			});
-		} catch (error) {
-			console.error("Error upgrading subscription:", error);
-		} finally {
-			setIsUpgrading(false);
-		}
-	};
 
 	// Check if the user has an active subscription
 	const hasActiveSubscription =

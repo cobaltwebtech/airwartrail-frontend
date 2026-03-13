@@ -1,7 +1,8 @@
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { createStripeClient } from "@/lib/auth";
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
 	try {
 		const { customerId, email } = (await request.json()) as {
 			customerId?: string;
@@ -14,13 +15,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			});
 		}
 
-		// Get the environment from the Astro context
-		const runtime = locals.runtime as { env: Env } | undefined;
-		if (!runtime?.env) {
-			throw new Error("Environment variables not available");
-		}
-
-		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
+		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
 
 		// Update the customer's email in Stripe
 		await stripeClient.customers.update(customerId, {

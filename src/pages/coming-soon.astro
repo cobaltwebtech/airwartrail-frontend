@@ -1,11 +1,10 @@
 ---
 import { getLiveCollection } from "astro:content";
+import { env } from 'cloudflare:workers';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { signTiptapImages } from "@/lib/sign-blog-images";
 import { tiptapToHtml } from "@/lib/tiptap";
-
-const { env } = Astro.locals.runtime;
 
 const { entries: pages, error: pagesError } = await getLiveCollection("pageList", {
   sortBy: "publishedAt",
@@ -67,7 +66,8 @@ const structuredData = {
   ) : (
     <section class="space-y-16 max-w-4xl mx-auto">
       {pagesWithSignedContent.map((page) => (
-        <article key={page.slug} class="prose prose-lg dark:prose-invert max-w-none">
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Ignore this since Biome is throwing a false positive about missing keys in this loop, but Astro doesn't use keys in the same way as React
+        <article class="prose prose-lg dark:prose-invert max-w-none">
           <h2 class="text-3xl font-bold mb-4">{page.title}</h2>
           <Fragment set:html={page.htmlContent} />
         </article>

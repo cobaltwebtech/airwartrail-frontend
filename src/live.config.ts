@@ -1,15 +1,12 @@
 /**
  * Live Content Collections Configuration
  *
- * Fetches blog posts from the CMS Worker via tRPC.
+ * Fetches blog posts and pages from the CMS Worker via tRPC.
  *
- * IMPORTANT: Live loaders execute during Astro's content sync phase, which
- * happens OUTSIDE of the Cloudflare Workers request context. This means:
- * - Service bindings (env.AWT_CMS) are NOT available
- * - The cloudflare:workers import does NOT work
- *
- * Therefore, we use regular HTTP fetch to the CMS API's public URL.
- * The API key is read from environment variables.
+ * Astro 6 + Cloudflare adapter v13 allows live loaders to run with the
+ * Cloudflare Workers runtime. We use the `AWT_CMS` service binding to call
+ * the CMS tRPC API directly instead of a public HTTP URL. An optional API
+ * key can still be provided via environment.
  */
 
 import { defineLiveCollection } from "astro:content";
@@ -123,31 +120,27 @@ const pageSchema = z.object({
 });
 
 // ============================================================================
-// tRPC HTTP Client for Live Loaders
+// tRPC Service Binding Client for Live Loaders
 // ============================================================================
 
 /**
- * Get the CMS API configuration from environment variables.
+ * Get the CMS service binding and optional API key from the Cloudflare env.
+ * Uses dynamic import so the module can be parsed during `astro sync` without
+ * requiring the workerd-only `cloudflare:workers` module.
  */
-function getCMSConfig(): { apiUrl: string; apiKey: string } {
-	const apiUrl = import.meta.env.AWT_CMS_API_URL;
-	const apiKey = import.meta.env.AWT_CMS_API_KEY;
+async function getCMSBinding(): Promise<{ binding: Fetcher; apiKey?: string }> {
+	const { env } = await import("cloudflare:workers");
+	const binding = env.AWT_CMS;
+	const apiKey = env.AWT_CMS_API_KEY;
 
-	if (!apiUrl) {
+	if (!binding) {
 		throw new Error(
-			"AWT_CMS_API_URL environment variable is not set. " +
-				"Add it to your .env file with the public URL of your CMS Worker API.",
+			"AWT_CMS service binding is not available. " +
+				"Make sure the binding is configured in wrangler.jsonc.",
 		);
 	}
 
-	if (!apiKey) {
-		throw new Error(
-			"AWT_CMS_API_KEY environment variable is not set. " +
-				"Add it to your .env file with your CMS API key.",
-		);
-	}
-
-	return { apiUrl, apiKey };
+	return { binding, apiKey };
 }
 
 /** Type for blog post data returned by the loader */
@@ -178,27 +171,27 @@ function normalizePost(post: Post): Record<string, unknown> {
 }
 
 /**
- * Make a tRPC query via HTTP GET request.
+ * Make a tRPC query via the CMS service binding.
  * tRPC queries use GET with input as a query parameter.
  */
 async function fetchFromCMS<T>(procedure: string, input: unknown): Promise<T> {
-	const { apiUrl, apiKey } = getCMSConfig();
+	const { binding, apiKey } = await getCMSBinding();
 
 	// tRPC queries use GET with input as query parameter
-	// Format: /procedure?input={"json":{...}}
+	// The hostname is arbitrary — the service binding routes directly to the worker.
 	const inputParam = JSON.stringify({ json: input });
-	const url = `${apiUrl}/${procedure}?input=${encodeURIComponent(inputParam)}`;
+	const path = `https://awt-cms-worker/trpc/${procedure}?input=${encodeURIComponent(inputParam)}`;
 
-	const response = await fetch(url, {
+	const response = await binding.fetch(path, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
-			"x-api-key": apiKey,
+			...(apiKey ? { "x-api-key": apiKey } : {}),
 		},
 	});
 
 	if (!response.ok) {
-		const errorText = await response.text();
+		const errorText = await response.text().catch(() => "<unreadable>");
 		throw new Error(
 			`CMS request failed: ${response.status} ${response.statusText} - ${errorText}`,
 		);

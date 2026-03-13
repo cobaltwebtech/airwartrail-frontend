@@ -178,9 +178,7 @@ const VALID_TEXT_ALIGNS = new Set(["left", "center", "right", "justify"]);
  * Returns an empty string when the value is null, undefined, or "left"
  * (left is the browser default, so no style is needed).
  */
-function textAlignStyle(
-	textAlign: string | null | undefined,
-): string {
+function textAlignStyle(textAlign: string | null | undefined): string {
 	if (!textAlign || !VALID_TEXT_ALIGNS.has(textAlign) || textAlign === "left") {
 		return "";
 	}
@@ -352,13 +350,17 @@ function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 			return childrenHtml;
 
 		case "paragraph": {
-			const align = textAlignStyle(node.attrs?.textAlign as string | null | undefined);
+			const align = textAlignStyle(
+				node.attrs?.textAlign as string | null | undefined,
+			);
 			return `<p${align}>${childrenHtml}</p>`;
 		}
 
 		case "heading": {
 			const level = Math.min(Math.max(Number(node.attrs?.level) || 1, 1), 6);
-			const align = textAlignStyle(node.attrs?.textAlign as string | null | undefined);
+			const align = textAlignStyle(
+				node.attrs?.textAlign as string | null | undefined,
+			);
 			return `<h${level}${align}>${childrenHtml}</h${level}>`;
 		}
 

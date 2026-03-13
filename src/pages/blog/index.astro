@@ -53,7 +53,8 @@ const structuredData = {
     {posts?.map(post => {
       const thumbnailUrl = post.data.featuredImageUrl?.replace(/\/md\/?$/, '/thumbnail');
       return (
-      <a key={post.data.slug} href={`/blog/${post.data.slug}`} class="group">
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Ignore this since Biome is throwing a false positive about missing keys in this loop, but Astro doesn't use keys in the same way as React
+      <a href={`/blog/${post.data.slug}`} class="group">
         <Card className="h-full pt-0">
           {post.data.featuredImageUrl ? (
             <img
