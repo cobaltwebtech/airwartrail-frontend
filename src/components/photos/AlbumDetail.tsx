@@ -36,10 +36,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { trpcClient } from "@/lib/trpc";
-import type {
-	AlbumImage,
-	GetAlbumOutput,
-} from "@/lib/trpc/types";
+import type { AlbumImage, GetAlbumOutput } from "@/lib/trpc/types";
 import { useSubStatus } from "@/lib/useSubStatus";
 
 // ============================================================================

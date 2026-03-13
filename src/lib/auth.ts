@@ -7,10 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Resend } from "resend";
 import Stripe from "stripe";
-import { ConfirmChange } from "@/components/email/ConfirmChange";
-import { MagicLink } from "@/components/email/MagicLink";
-import { PasswordReset } from "@/components/email/PasswordReset";
-import { VerifyEmail } from "@/components/email/VerifyEmail";
+
 import * as schema from "@/lib/db-auth-schema";
 
 // Initialize Drizzle with the Cloudflare D1 database
@@ -53,6 +50,9 @@ export const createAuth = (env: Env) => {
 			requireEmailVerification: true,
 			sendResetPassword: async ({ user, url }) => {
 				try {
+					const { PasswordReset } = await import(
+						"@/components/email/PasswordReset"
+					);
 					await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
@@ -71,6 +71,9 @@ export const createAuth = (env: Env) => {
 			autoSignInAfterVerification: true,
 			sendVerificationEmail: async ({ user, url }) => {
 				try {
+					const { VerifyEmail } = await import(
+						"@/components/email/VerifyEmail"
+					);
 					await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
@@ -88,6 +91,9 @@ export const createAuth = (env: Env) => {
 				enabled: true,
 				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
 					try {
+						const { ConfirmChange } = await import(
+							"@/components/email/ConfirmChange"
+						);
 						await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: user.email,
@@ -117,6 +123,7 @@ export const createAuth = (env: Env) => {
 				disableSignUp: true,
 				sendMagicLink: async ({ email, url }) => {
 					try {
+						const { MagicLink } = await import("@/components/email/MagicLink");
 						await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: email,
