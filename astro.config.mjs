@@ -34,6 +34,17 @@ export default defineConfig({
 	],
 	vite: {
 		plugins: [tailwindcss()],
+		build: {
+			rollupOptions: {
+				output: {
+					manualChunks(id) {
+						if (id.includes("better-auth") || id.includes("zod")) return "better-auth";
+						if (id.includes("stripe")) return "stripe";
+						if (id.includes("drizzle-orm")) return "drizzle";
+					},
+				},
+			},
+		},
 	},
 	experimental: {
 		rustCompiler: true,
