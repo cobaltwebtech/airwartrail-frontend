@@ -7,10 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Resend } from "resend";
 import Stripe from "stripe";
-import { ConfirmChange } from "@/components/email/ConfirmChange";
-import { MagicLink } from "@/components/email/MagicLink";
-import { PasswordReset } from "@/components/email/PasswordReset";
-import { VerifyEmail } from "@/components/email/VerifyEmail";
+
 import * as schema from "@/lib/db-auth-schema";
 
 // Initialize Drizzle with the Cloudflare D1 database
@@ -53,6 +50,9 @@ export const createAuth = (env: Env) => {
 			requireEmailVerification: true,
 			sendResetPassword: async ({ user, url }) => {
 				try {
+					const { PasswordReset } = await import(
+						"@/components/email/PasswordReset"
+					);
 					await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
@@ -71,6 +71,9 @@ export const createAuth = (env: Env) => {
 			autoSignInAfterVerification: true,
 			sendVerificationEmail: async ({ user, url }) => {
 				try {
+					const { VerifyEmail } = await import(
+						"@/components/email/VerifyEmail"
+					);
 					await resend.emails.send({
 						from: "Air War Trail <auth@notify.airwartrail.com>",
 						to: user.email,
@@ -88,6 +91,9 @@ export const createAuth = (env: Env) => {
 				enabled: true,
 				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
 					try {
+						const { ConfirmChange } = await import(
+							"@/components/email/ConfirmChange"
+						);
 						await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: user.email,
@@ -104,7 +110,7 @@ export const createAuth = (env: Env) => {
 		plugins: [
 			admin(),
 			dash({
-				apiKey: env.BETTER_AUTH_API_KEY,
+				apiKey: env.BETTER_AUTH_INFRA_API_KEY,
 				activityTracking: {
 					enabled: true,
 					// How often lastActiveAt is written to the DB per user.
@@ -117,6 +123,7 @@ export const createAuth = (env: Env) => {
 				disableSignUp: true,
 				sendMagicLink: async ({ email, url }) => {
 					try {
+						const { MagicLink } = await import("@/components/email/MagicLink");
 						await resend.emails.send({
 							from: "Air War Trail <auth@notify.airwartrail.com>",
 							to: email,
@@ -180,7 +187,7 @@ export const createAuth = (env: Env) => {
 
 					switch (event.type) {
 						case "invoice.created": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.log(
@@ -189,14 +196,14 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.finalized": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							console.log(
 								`Invoice finalized: ${invoice.id}, amount: ${invoice.amount_due}`,
 							);
 							break;
 						}
 						case "invoice.paid": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.log(
@@ -205,7 +212,7 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.payment_failed": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							const subscriptionId =
 								invoice.parent?.subscription_details?.subscription;
 							console.error(
@@ -214,17 +221,17 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						case "invoice.payment_action_required": {
-							const invoice = event.data.object as Stripe.Invoice;
+							const invoice = event.data.object;
 							console.log(`Invoice requires action (3D Secure): ${invoice.id}`);
 							break;
 						}
 						case "payment_intent.succeeded": {
-							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							const paymentIntent = event.data.object;
 							console.log(`Payment intent succeeded: ${paymentIntent.id}`);
 							break;
 						}
 						case "payment_intent.payment_failed": {
-							const paymentIntent = event.data.object as Stripe.PaymentIntent;
+							const paymentIntent = event.data.object;
 							console.error(
 								`Payment intent failed: ${paymentIntent.id}`,
 								paymentIntent.last_payment_error?.message,
@@ -234,7 +241,7 @@ export const createAuth = (env: Env) => {
 						// Checkout session cleanup
 						// We are using custom but we keep this in case we do use Stripe's hosted checkout in the future
 						case "checkout.session.expired": {
-							const session = event.data.object as Stripe.Checkout.Session;
+							const session = event.data.object;
 							console.log("Checkout session expired:", session.id);
 							if (session.client_reference_id) {
 								const db = createDrizzle(env.DB_AUTH);

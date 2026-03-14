@@ -1,22 +1,14 @@
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { createAuth, createStripeClient } from "@/lib/auth";
 
 // Price ID for the premium plan - should match auth.ts config
 const PREMIUM_PRICE_ID = import.meta.env.STRIPE_PRICE_ID;
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
 	try {
-		// Get the environment from the Astro context
-		const runtime = locals.runtime as { env: Env } | undefined;
-		if (!runtime?.env) {
-			return new Response(
-				JSON.stringify({ error: "Environment variables not available" }),
-				{ status: 500, headers: { "Content-Type": "application/json" } },
-			);
-		}
-
-		const auth = createAuth(runtime.env);
-		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
+		const auth = createAuth(env as Env);
+		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
 
 		// Get the session from Better Auth
 		const session = await auth.api.getSession({

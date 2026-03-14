@@ -54,19 +54,20 @@ const structuredData = {
 	</Breadcrumb>
 
 	{hasActiveSubscription ? (
-		<VideoPlayer
-			client:load
-			videoId={videoId}
-			libraryId={libraryId}
-			requiresSub={true}
-		/>
-
-		<RelatedVideos
-			client:visible
-			isPremium={true}
-			videoId={videoId}
-			libraryId={libraryId}
-		/>
+		<>
+			<VideoPlayer
+				client:load
+				videoId={videoId}
+				libraryId={libraryId}
+				requiresSub={true}
+			/>
+			<RelatedVideos
+				client:visible
+				isPremium={true}
+				videoId={videoId}
+				libraryId={libraryId}
+			/>
+		</>
 	) : (
 		<Pricing />
 	)}

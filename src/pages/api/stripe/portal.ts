@@ -1,7 +1,8 @@
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { createStripeClient } from "@/lib/auth";
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
 	try {
 		const { customerId } = (await request.json()) as { customerId?: string };
 
@@ -9,13 +10,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			return new Response("Customer ID is required", { status: 400 });
 		}
 
-		// Get the environment from the Astro context
-		const runtime = locals.runtime as { env: Env } | undefined;
-		if (!runtime?.env) {
-			throw new Error("Environment variables not available");
-		}
-
-		const stripeClient = createStripeClient(runtime.env.STRIPE_SECRET_KEY);
+		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
 
 		// Get the current hostname from the request
 		const hostname = new URL(request.url).origin;

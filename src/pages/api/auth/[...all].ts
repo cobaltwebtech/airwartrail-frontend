@@ -1,17 +1,10 @@
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { createAuth } from "@/lib/auth";
 
 export const ALL: APIRoute = async (ctx) => {
 	try {
-		const runtime = ctx.locals.runtime as { env: Env } | undefined;
-		if (!runtime?.env) {
-			return new Response(
-				JSON.stringify({ error: "Environment variables not available" }),
-				{ status: 500, headers: { "Content-Type": "application/json" } },
-			);
-		}
-
-		const auth = createAuth(runtime.env);
+		const auth = createAuth(env as Env);
 		const response = await auth.handler(ctx.request);
 
 		// If the auth is good then set the session data using Astro Sessions

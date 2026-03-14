@@ -10,9 +10,10 @@
  * the user receives the file in its original format (JPEG, PNG, etc.).
  */
 
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 
-export const GET: APIRoute = async ({ params, request, locals }) => {
+export const GET: APIRoute = async ({ params, request }) => {
 	const { imageId } = params;
 
 	if (!imageId) {
@@ -21,20 +22,6 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	}
-
-	// Access the Cloudflare runtime environment
-	const runtime = locals.runtime as
-		| { env: Env; ctx?: { waitUntil: (promise: Promise<unknown>) => void } }
-		| undefined;
-
-	if (!runtime?.env) {
-		return new Response(
-			JSON.stringify({ error: "Runtime environment not available" }),
-			{ status: 500, headers: { "Content-Type": "application/json" } },
-		);
-	}
-
-	const { env } = runtime;
 
 	try {
 		// Build the internal request to the CMS worker via Service Binding.

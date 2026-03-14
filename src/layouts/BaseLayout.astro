@@ -1,8 +1,7 @@
 ---
 import "@/styles/global.css";
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
-import { join } from "node:path";
-import { AstroFont } from "astro-font";
 import BackToTop from "@/components/partials/BackToTop";
 import BreakpointIndicator from "@/components/sections/BreakpointIndicator.astro";
 import Footer from "@/components/sections/Footer";
@@ -30,40 +29,8 @@ const {
   <head>
     <!-- Add metadata to the HTML document -->
     <Meta meta={meta} structuredData={structuredData} />
-
     <title>{title}</title>
-
-    <AstroFont
-      config={[
-        {
-          preload: true,
-          display: "swap",
-          name: "Reddit Sans",
-          fallback: "sans-serif",
-          src: [
-            {
-              style: "normal",
-              path: join(
-                process.cwd(),
-                "public",
-                "fonts",
-                "RedditSans-VariableFont_wght.woff2",
-              ),
-            },
-            {
-              style: "italic",
-              path: join(
-                process.cwd(),
-                "public",
-                "fonts",
-                "RedditSans-Italic-VariableFont_wght.woff2",
-              ),
-            },
-          ],
-        },
-      ]}
-    />
-
+    <Font cssVariable="--default-font-family" preload />
     <!-- Script to handle dark mode sets localstorage to save preference and checks the devices preference -->
     <script is:inline>
       const getThemePreference = () => {

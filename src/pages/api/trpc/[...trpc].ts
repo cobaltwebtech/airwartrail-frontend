@@ -9,6 +9,7 @@
  * - Premium subscribers: 200 requests per 60 seconds
  */
 
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 
 /**
@@ -16,8 +17,6 @@ import type { APIRoute } from "astro";
  * tRPC uses GET for queries and POST for mutations
  */
 export const ALL: APIRoute = async ({ params, request, locals }) => {
-	const { env } = locals.runtime;
-
 	// Determine rate limit tier based on auth status
 	const isAuthenticated = locals.auth?.isAuthenticated ?? false;
 	const isPremium = locals.auth?.hasActiveSubscription ?? false;

@@ -12,7 +12,6 @@ import {
 	Lock,
 	MapPin,
 	Receipt,
-	ShieldCheck,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";

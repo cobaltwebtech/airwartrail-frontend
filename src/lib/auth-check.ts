@@ -5,7 +5,8 @@
  * Works with Cloudflare Workers + D1 + Better Auth setup
  */
 
-import type { APIContext, AstroGlobal } from "astro";
+import { env } from "cloudflare:workers";
+import type { AstroGlobal } from "astro";
 import { eq } from "drizzle-orm";
 import { createDrizzle } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
@@ -48,28 +49,24 @@ export interface AuthState {
 export interface AuthCheckResult extends AuthState {}
 
 /**
- * Get the D1 database from context locals
- * Works with both AstroGlobal and APIContext
+ * Get the D1 database from Cloudflare environment
  */
-function getDatabaseFromLocals(locals: App.Locals): D1Database | null {
+function getDatabaseFromCloudflare(): D1Database | null {
 	try {
-		const runtime = locals.runtime as { env: Env } | undefined;
-		return runtime?.env?.DB_AUTH ?? null;
+		return env.DB_AUTH;
 	} catch {
 		return null;
 	}
 }
 
 /**
- * Get auth state for middleware - called when session exists
+ * Get auth state when session exists
  * This is the core logic shared between middleware and page-level checks
  *
- * @param context - API context (from middleware or endpoint)
  * @param sessionData - Already-fetched session data from KV
  * @returns AuthState with user and subscription data
  */
 export async function getAuthState(
-	context: APIContext,
 	sessionData: StoredSession,
 ): Promise<AuthState> {
 	const noAuthResult: AuthState = {
@@ -81,10 +78,10 @@ export async function getAuthState(
 	};
 
 	try {
-		// Get D1 database from runtime context
-		const d1 = getDatabaseFromLocals(context.locals);
+		// Get D1 database from Cloudflare environment
+		const d1 = getDatabaseFromCloudflare();
 		if (!d1) {
-			console.error("Database not available in runtime context");
+			console.error("Database not available in Cloudflare environment");
 			return noAuthResult;
 		}
 
@@ -219,10 +216,7 @@ export async function checkAuthAndSubscription(
 		}
 
 		// Use shared getAuthState logic
-		return await getAuthState(
-			{ locals: Astro.locals } as unknown as APIContext,
-			sessionData,
-		);
+		return await getAuthState(sessionData);
 	} catch (error) {
 		console.error("Server auth check error:", error);
 		return noAuthResult;
