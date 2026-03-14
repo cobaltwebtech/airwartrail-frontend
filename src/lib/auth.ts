@@ -110,7 +110,7 @@ export const createAuth = (env: Env) => {
 		plugins: [
 			admin(),
 			dash({
-				apiKey: env.BETTER_AUTH_API_KEY,
+				apiKey: env.BETTER_AUTH_INFRA_API_KEY,
 				activityTracking: {
 					enabled: true,
 					// How often lastActiveAt is written to the DB per user.
