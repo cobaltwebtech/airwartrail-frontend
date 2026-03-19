@@ -1,9 +1,14 @@
 ---
-export const prerender = true;
-
 import { CircleCheckBig, TvMinimalPlay } from "@lucide/astro";
 import { Button } from "@/components/ui/button";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { checkAuthOnly, redirectToLogin } from "@/lib/auth-check";
+
+const { isAuthenticated } = await checkAuthOnly(Astro);
+
+if (!isAuthenticated) {
+	return redirectToLogin(Astro.url.pathname);
+}
 ---
 
 <BaseLayout title="Successfully Subscribed | Air War Trail">

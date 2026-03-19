@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
+import type Stripe from "stripe";
 import { createAuth, createStripeClient } from "@/lib/auth";
 
 // Price ID for the premium plan - should match auth.ts config
@@ -33,9 +34,10 @@ export const POST: APIRoute = async ({ request }) => {
 				postal_code?: string;
 				country?: string;
 			};
+			promoCodeId?: string;
 		};
 
-		const { customerId, address } = body;
+		const { customerId, address, promoCodeId } = body;
 
 		if (!customerId) {
 			return new Response(
@@ -59,7 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
 		}
 
 		// Create an invoice preview to calculate tax
-		const invoicePreview = await stripeClient.invoices.createPreview({
+		const previewParams: Stripe.InvoiceCreatePreviewParams = {
 			customer: customerId,
 			subscription_details: {
 				items: [{ price: PREMIUM_PRICE_ID, quantity: 1 }],
@@ -67,18 +69,32 @@ export const POST: APIRoute = async ({ request }) => {
 			automatic_tax: {
 				enabled: true,
 			},
-		});
+		};
 
-		// Extract tax information
-		// Total tax is calculated as total - subtotal
+		// Include promo discount in the preview if provided
+		if (promoCodeId) {
+			previewParams.discounts = [{ promotion_code: promoCodeId }];
+		}
+
+		const invoicePreview =
+			await stripeClient.invoices.createPreview(previewParams);
+
+		// Extract tax and discount from the invoice preview
 		const subtotal = invoicePreview.subtotal;
+		const discount =
+			invoicePreview.total_discount_amounts?.reduce(
+				(sum, d) => sum + d.amount,
+				0,
+			) ?? 0;
+		const tax =
+			invoicePreview.total_taxes?.reduce((sum, t) => sum + t.amount, 0) ?? 0;
 		const total = invoicePreview.total;
-		const tax = total - subtotal;
 
 		return new Response(
 			JSON.stringify({
 				subtotal,
 				tax,
+				discount,
 				total,
 				currency: invoicePreview.currency,
 			}),

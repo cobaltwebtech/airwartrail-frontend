@@ -69,13 +69,15 @@ const {
     </script>
     <!-- Enable View Transitions -->
     <ClientRouter fallback="swap" />
+    <!-- Import Preline UI with View Transition support -->
     <script>
-      // Optimize Preline initialization
+      // Optimize Preline initialization only for elements that need it
       document.addEventListener("astro:page-load", async () => {
-        // Only initialize Preline if there are elements that need it
         if (document.querySelector("[data-hs-collapse]")) {
-          const preline = await import("preline/dist/preline.js");
-          preline.HSStaticMethods.autoInit();
+          const { default: HSCollapse } = await import(
+            "preline/plugins/collapse"
+          );
+          HSCollapse.autoInit();
         }
       });
     </script>

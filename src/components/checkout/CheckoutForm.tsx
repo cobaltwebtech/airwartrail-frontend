@@ -7,21 +7,27 @@ import {
 import type { StripeAddressElementChangeEvent } from "@stripe/stripe-js";
 import {
 	AlertCircle,
+	BadgeCheck,
+	BadgePercent,
 	CreditCard,
 	Loader2,
 	Lock,
 	MapPin,
 	Receipt,
+	TriangleAlert,
+	X,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
+	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 
 interface CheckoutFormProps {
@@ -33,8 +39,18 @@ interface CheckoutFormProps {
 interface TaxInfo {
 	subtotal: number;
 	tax: number;
+	discount: number;
 	total: number;
 	currency: string;
+}
+
+interface PromoDiscount {
+	promoCodeId: string;
+	description: string;
+	percentOff: number | null;
+	amountOff: number | null;
+	currency: string | null;
+	duration: string;
 }
 
 export function CheckoutForm({
@@ -49,6 +65,15 @@ export function CheckoutForm({
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [taxInfo, setTaxInfo] = useState<TaxInfo | null>(null);
 	const [addressComplete, setAddressComplete] = useState(false);
+	const [promoCode, setPromoCode] = useState("");
+	const [promoDiscount, setPromoDiscount] = useState<PromoDiscount | null>(
+		null,
+	);
+	const [promoError, setPromoError] = useState<string | null>(null);
+	const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+	const [lastAddress, setLastAddress] = useState<
+		StripeAddressElementChangeEvent["value"]["address"] | null
+	>(null);
 
 	// Format currency amount from cents
 	const formatAmount = (amount: number, currency: string) => {
@@ -60,7 +85,10 @@ export function CheckoutForm({
 
 	// Calculate tax when address changes
 	const calculateTax = useCallback(
-		async (address: StripeAddressElementChangeEvent["value"]["address"]) => {
+		async (
+			address: StripeAddressElementChangeEvent["value"]["address"],
+			promoCodeId?: string,
+		) => {
 			if (!address.postal_code || !address.country) {
 				return;
 			}
@@ -81,6 +109,7 @@ export function CheckoutForm({
 							postal_code: address.postal_code,
 							country: address.country,
 						},
+						promoCodeId,
 					}),
 				});
 
@@ -110,17 +139,70 @@ export function CheckoutForm({
 		[customerId],
 	);
 
+	// Validate promo code against Stripe
+	const handleApplyPromo = useCallback(async () => {
+		if (!promoCode.trim()) return;
+
+		setPromoError(null);
+		setIsValidatingPromo(true);
+
+		try {
+			const response = await fetch("/api/stripe/validate-promo", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify({ code: promoCode.trim() }),
+			});
+
+			const data = (await response.json()) as PromoDiscount & {
+				error?: string;
+			};
+
+			if (!response.ok || data.error) {
+				setPromoError(data.error || "Invalid promo code.");
+				setPromoDiscount(null);
+				return;
+			}
+
+			setPromoDiscount(data);
+			toast.success("Promo code applied!", { description: data.description });
+
+			// Recalculate tax with the promo discount
+			if (lastAddress) {
+				calculateTax(lastAddress, data.promoCodeId);
+			}
+		} catch {
+			setPromoError("Could not validate promo code. Please try again.");
+			setPromoDiscount(null);
+		} finally {
+			setIsValidatingPromo(false);
+		}
+	}, [promoCode, lastAddress, calculateTax]);
+
+	const handleRemovePromo = useCallback(() => {
+		setPromoDiscount(null);
+		setPromoCode("");
+		setPromoError(null);
+
+		// Recalculate tax without the discount
+		if (lastAddress) {
+			calculateTax(lastAddress);
+		}
+	}, [lastAddress, calculateTax]);
+
 	// Handle address change
 	const handleAddressChange = useCallback(
 		(event: StripeAddressElementChangeEvent) => {
 			setAddressComplete(event.complete);
 			if (event.complete) {
-				calculateTax(event.value.address);
+				setLastAddress(event.value.address);
+				calculateTax(event.value.address, promoDiscount?.promoCodeId);
 			} else {
+				setLastAddress(null);
 				setTaxInfo(null);
 			}
 		},
-		[calculateTax],
+		[calculateTax, promoDiscount],
 	);
 
 	const handleSubmit = async (event: React.SubmitEvent) => {
@@ -173,6 +255,7 @@ export function CheckoutForm({
 				body: JSON.stringify({
 					paymentMethodId,
 					customerId,
+					promoCodeId: promoDiscount?.promoCodeId ?? undefined,
 				}),
 			});
 
@@ -222,12 +305,12 @@ export function CheckoutForm({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="grid md:grid-cols-2 gap-6 overflow-x-hidden w-full"
+			className="space-y-4 overflow-x-hidden w-full"
 		>
 			{/* Billing Address */}
-			<Card className="md:col-span-full">
+			<Card>
 				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
-					<MapPin className="size-4" />
+					<MapPin className="size-5" />
 					<CardTitle>Billing Address</CardTitle>
 				</CardHeader>
 				<CardContent className="px-4 sm:px-6">
@@ -245,25 +328,84 @@ export function CheckoutForm({
 				</CardContent>
 			</Card>
 
-			{/* Payment Element */}
+			{/* Promo Code */}
 			<Card>
-				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
-					<CreditCard className="size-4" />
-					<CardTitle>Payment Details</CardTitle>
+				<CardHeader className="flex items-center flex-wrap gap-2 px-4 sm:px-6">
+					<BadgePercent className="size-5" />
+					<CardTitle>Promo Code</CardTitle>
+					<CardDescription>
+						If you have a promotional discount code enter it here.
+					</CardDescription>
 				</CardHeader>
 				<CardContent className="px-4 sm:px-6">
-					<PaymentElement
-						options={{
-							layout: "tabs",
-						}}
-					/>
+					{promoDiscount ? (
+						<div className="flex items-center justify-between rounded-lg border border-green-500/30 bg-green-500/10 p-3">
+							<div className="flex items-center gap-2">
+								<BadgeCheck className="size-4 text-green-600" />
+								<div>
+									<p className="font-medium text-sm uppercase">{promoCode}</p>
+									<p className="text-xs text-muted-foreground">
+										{promoDiscount.description}
+									</p>
+								</div>
+							</div>
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								onClick={handleRemovePromo}
+								className="size-8 p-0"
+							>
+								<X className="size-4" />
+								<span className="sr-only">Remove promo code</span>
+							</Button>
+						</div>
+					) : (
+						<div className="space-y-2">
+							<div className="flex items-center gap-2">
+								<Input
+									value={promoCode}
+									onChange={(e) => {
+										setPromoCode(e.target.value);
+										setPromoError(null);
+									}}
+									placeholder="Enter promo code"
+									className="uppercase"
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleApplyPromo();
+										}
+									}}
+								/>
+								<Button
+									type="button"
+									variant="secondary"
+									onClick={handleApplyPromo}
+									disabled={!promoCode.trim() || isValidatingPromo}
+								>
+									{isValidatingPromo ? (
+										<Loader2 className="size-4 animate-spin" />
+									) : (
+										"Apply"
+									)}
+								</Button>
+							</div>
+							{promoError && (
+								<p className="flex items-center gap-1 text-sm text-destructive">
+									<TriangleAlert />
+									<span>{promoError}</span>
+								</p>
+							)}
+						</div>
+					)}
 				</CardContent>
 			</Card>
 
 			{/* Order Summary with Tax */}
 			<Card>
 				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
-					<Receipt className="size-4" />
+					<Receipt className="size-5" />
 					<CardTitle>Order Summary</CardTitle>
 				</CardHeader>
 				<CardContent className="px-4 sm:px-6">
@@ -271,6 +413,19 @@ export function CheckoutForm({
 						<span>Premium Plan (Monthly)</span>
 						<span>$9.99</span>
 					</div>
+
+					{promoDiscount && (
+						<div className="flex items-center justify-between text-green-600">
+							<span>Discount ({promoDiscount.description})</span>
+							<span>
+								{promoDiscount.percentOff
+									? `-${promoDiscount.percentOff}%`
+									: promoDiscount.amountOff
+										? `-${formatAmount(promoDiscount.amountOff, promoDiscount.currency || "usd")}`
+										: "Applied"}
+							</span>
+						</div>
+					)}
 
 					{isCalculatingTax && (
 						<div className="flex items-center justify-between text-muted-foreground">
@@ -285,6 +440,14 @@ export function CheckoutForm({
 								<span>Subtotal</span>
 								<span>{formatAmount(taxInfo.subtotal, taxInfo.currency)}</span>
 							</div>
+							{taxInfo.discount > 0 && (
+								<div className="flex items-center justify-between text-green-600">
+									<span>Discount Applied</span>
+									<span>
+										-{formatAmount(taxInfo.discount, taxInfo.currency)}
+									</span>
+								</div>
+							)}
 							<div className="flex items-center justify-between text-muted-foreground">
 								<span>Sales Tax</span>
 								<span>{formatAmount(taxInfo.tax, taxInfo.currency)}</span>
@@ -330,8 +493,23 @@ export function CheckoutForm({
 				</CardFooter>
 			</Card>
 
+			{/* Payment Element */}
+			<Card>
+				<CardHeader className="flex items-center gap-2 px-4 sm:px-6">
+					<CreditCard className="size-5" />
+					<CardTitle>Payment Details</CardTitle>
+				</CardHeader>
+				<CardContent className="px-4 sm:px-6">
+					<PaymentElement
+						options={{
+							layout: "tabs",
+						}}
+					/>
+				</CardContent>
+			</Card>
+
 			{/* Action Buttons */}
-			<div className="md:col-span-full flex gap-4">
+			<div className="flex gap-4">
 				<Button
 					variant="outline"
 					onClick={onCancel}

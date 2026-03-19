@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
+import type Stripe from "stripe";
 import { createAuth, createDrizzle, createStripeClient } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
@@ -31,9 +32,10 @@ export const POST: APIRoute = async ({ request }) => {
 		const body = (await request.json()) as {
 			paymentMethodId: string;
 			customerId: string;
+			promoCodeId?: string;
 		};
 
-		const { paymentMethodId, customerId } = body;
+		const { paymentMethodId, customerId, promoCodeId } = body;
 
 		if (!paymentMethodId || !customerId) {
 			return new Response(
@@ -79,8 +81,8 @@ export const POST: APIRoute = async ({ request }) => {
 				.where(eq(schema.user.id, user.id));
 		}
 
-		// Create the subscription
-		const subscription = await stripeClient.subscriptions.create({
+		// Build subscription parameters
+		const subscriptionParams: Stripe.SubscriptionCreateParams = {
 			customer: customerId,
 			items: [{ price: PREMIUM_PRICE_ID }],
 			payment_behavior: "error_if_incomplete",
@@ -92,7 +94,16 @@ export const POST: APIRoute = async ({ request }) => {
 			automatic_tax: {
 				enabled: true,
 			},
-		});
+		};
+
+		// Apply promo code discount if provided
+		if (promoCodeId) {
+			subscriptionParams.discounts = [{ promotion_code: promoCodeId }];
+		}
+
+		// Create the subscription
+		const subscription =
+			await stripeClient.subscriptions.create(subscriptionParams);
 
 		// Check if the subscription requires additional action (e.g., 3D Secure)
 		const invoice = subscription.latest_invoice as

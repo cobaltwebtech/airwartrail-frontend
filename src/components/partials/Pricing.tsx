@@ -68,7 +68,7 @@ export function Pricing() {
 					</Card>
 
 					{/* Premium Plan */}
-					<Card className="border-primary flex h-full flex-col border-2 lg:col-span-2">
+					<Card className="border-border flex h-full flex-col border-2 lg:col-span-2">
 						<CardHeader>
 							<CardTitle className="text-2xl">Premium</CardTitle>
 							<CardDescription>
