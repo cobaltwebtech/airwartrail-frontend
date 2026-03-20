@@ -4,7 +4,7 @@ export const prerender = true; // This route can be prerendered since it does no
 import { VideoLibrary } from "@/components/video/VideoLibrary";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
+const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID; // Use Vite's env since we SSG this route
 const pageTitle = "Streaming Library | Air War Trail";
 const structuredData = {
   "@context": "https://schema.org",

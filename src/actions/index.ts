@@ -1,24 +1,25 @@
 import { ActionError, defineAction } from "astro:actions";
-import { z } from "astro:schema";
+import { env } from "cloudflare:workers";
+import { z } from "astro/zod";
 import { Resend } from "resend";
 import { ContactForm } from "@/components/email/ContactForm";
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY);
 
 // Validate form inputs with Zod
 const contactFormSchema = z.object({
 	fullName: z.string().min(1, "Full name is required"),
-	email: z.string().email("Invalid email address"),
+	email: z.email("Invalid email address"),
 	phone: z.string().min(1, "Phone number is required"),
 	message: z.string().min(1, "Please provide additional info"),
 	"cf-turnstile-response": z
-		.string({ required_error: "CAPTCHA verification is required" })
+		.string()
 		.min(1, "CAPTCHA verification is required"),
 });
 
 // Verify Cloudflare Turnstile token
 async function verifyTurnstileToken(token: string): Promise<boolean> {
-	const secretKey = import.meta.env.TURNSTILE_SECRET_KEY;
+	const secretKey = env.TURNSTILE_SECRET_KEY;
 
 	const formData = new FormData();
 	formData.append("secret", secretKey);

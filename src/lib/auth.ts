@@ -7,7 +7,6 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Resend } from "resend";
 import Stripe from "stripe";
-
 import * as schema from "@/lib/db-auth-schema";
 
 // Initialize Drizzle with the Cloudflare D1 database
@@ -159,6 +158,9 @@ export const createAuth = (env: Env) => {
 						};
 					},
 					// Lifecycle hooks - plugin handles DB updates automatically
+					// Note: onSubscriptionComplete only fires for hosted Stripe Checkout (checkout.session.completed).
+					// Since we use a custom checkout via Stripe React SDK, the welcome email is sent
+					// from the create-subscription API endpoint instead.
 					onSubscriptionComplete: async ({ subscription, plan }) => {
 						console.log(
 							`Subscription ${subscription.id} completed for plan ${plan.name}`,
@@ -239,7 +241,8 @@ export const createAuth = (env: Env) => {
 							break;
 						}
 						// Checkout session cleanup
-						// We are using custom but we keep this in case we do use Stripe's hosted checkout in the future
+						// We are using the custom checkout with Stripe React SDK,
+						// but we keep this if we do use Stripe's hosted checkout in the future
 						case "checkout.session.expired": {
 							const session = event.data.object;
 							console.log("Checkout session expired:", session.id);

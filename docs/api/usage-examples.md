@@ -206,7 +206,7 @@ export const GET: APIRoute = async ({ locals }) => {
   const { env } = locals.runtime;
   
   // Use API key auth via Service Binding
-  const trpc = createApiKeyTRPCClient(env, import.meta.env.AWT_API_KEY);
+  const trpc = createApiKeyTRPCClient(env, env.AWT_API_KEY);
   
   const videos = await trpc.mux.listVideosFromDatabase.query({
     libraryId: 'your-library-id',

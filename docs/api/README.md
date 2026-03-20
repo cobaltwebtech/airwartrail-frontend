@@ -1,4 +1,4 @@
-# AirWarTrail Dashboard API Documentation
+# Air War Trail Dashboard API Documentation
 
 > **For Claude Agent Context**: This is the main index for the AirWarTrail Dashboard API documentation. The backend is built with **tRPC**, **Hono**, and **Better Auth** running on **Cloudflare Workers**. Navigate to specific sections below for detailed information.
 

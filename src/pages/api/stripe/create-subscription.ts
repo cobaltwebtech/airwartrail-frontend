@@ -1,12 +1,13 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
+import { Resend } from "resend";
 import type Stripe from "stripe";
 import { createAuth, createDrizzle, createStripeClient } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = import.meta.env.STRIPE_PRICE_ID;
+const PREMIUM_PRICE_ID = env.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
@@ -156,6 +157,22 @@ export const POST: APIRoute = async ({ request }) => {
 					periodEnd,
 				},
 			});
+
+		// Send welcome email after successful subscription
+		try {
+			const resend = new Resend(env.RESEND_API_KEY);
+			const { default: WelcomeEmail } = await import(
+				"@/components/email/WelcomeEmail"
+			);
+			await resend.emails.send({
+				from: "Air War Trail <auth@notify.airwartrail.com>",
+				to: user.email,
+				subject: "Welcome to Air War Trail Premium - Unlimited Access Awaits!",
+				react: WelcomeEmail(),
+			});
+		} catch (error) {
+			console.error("Error sending welcome email:", error);
+		}
 
 		return new Response(
 			JSON.stringify({

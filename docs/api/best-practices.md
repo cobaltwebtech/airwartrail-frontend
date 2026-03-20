@@ -250,7 +250,7 @@ export const GET: APIRoute = async ({ locals }) => {
   const { env } = locals.runtime;
   const trpc = createApiKeyTRPCClient(
     env, 
-    import.meta.env.AWT_API_KEY // Server-side only
+    env.AWT_API_KEY // Server-side only
   );
 };
 ```

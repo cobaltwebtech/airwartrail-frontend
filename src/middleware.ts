@@ -1,4 +1,5 @@
 import { defineMiddleware, sequence } from "astro:middleware";
+import { env } from "cloudflare:workers";
 import {
 	type AuthState,
 	getAuthState,
@@ -103,7 +104,7 @@ const premiumContentMiddleware = defineMiddleware(async (context, next) => {
 	const url = new URL(context.request.url);
 	const path = url.pathname;
 	const hasActiveSubscription = context.locals.auth.hasActiveSubscription;
-	const premiumLibraryId = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+	const premiumLibraryId = env.AWT_PREMIUM_LIBRARY_ID;
 	const basicVideoRouteMatch = path.match(/^\/watch\/basic\/([^/]+)\/video/);
 	const premiumPaths = ["premium", "playlists", "bonus-content"];
 	const isPremiumPath = premiumPaths.some((pattern) => path.includes(pattern));

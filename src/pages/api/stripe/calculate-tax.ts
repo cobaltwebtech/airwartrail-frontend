@@ -4,7 +4,7 @@ import type Stripe from "stripe";
 import { createAuth, createStripeClient } from "@/lib/auth";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = import.meta.env.STRIPE_PRICE_ID;
+const PREMIUM_PRICE_ID = env.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
