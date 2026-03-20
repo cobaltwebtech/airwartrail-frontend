@@ -334,8 +334,8 @@ function PlaylistDetailSkeleton() {
 			</div>
 
 			{/* Controls skeleton */}
-			<div className="flex justify-between gap-2">
-				<Skeleton className="h-10 w-64" />
+			<div className="flex flex-wrap justify-between gap-2">
+				<Skeleton className="h-10 w-full sm:w-64" />
 				<div className="flex gap-2">
 					<Skeleton className="h-10 w-32" />
 					<Skeleton className="h-10 w-10" />

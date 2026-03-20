@@ -21,7 +21,7 @@ function HomepageHeroContent() {
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
-				<div className="my-8 flex justify-center gap-4">
+			<div className="my-8 flex flex-wrap justify-center gap-4">
 					<Skeleton className="h-12 w-48" />
 					<Skeleton className="h-12 w-48" />
 				</div>

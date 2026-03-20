@@ -14,8 +14,9 @@ export default defineConfig({
 	fonts: [
 		{
 			provider: fontProviders.local(),
-			name: "Reddit Sans",
+			name: "RedditSans",
 			cssVariable: "--default-font-family",
+			fallbacks: ["system-ui", "-apple-system", "sans-serif"],
 			options: {
 				variants: [
 					{
