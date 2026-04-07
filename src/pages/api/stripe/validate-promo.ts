@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
 		}
 
 		const promoCodeData = promoCodes.data[0];
-		// In Stripe v20 (2026-02-25.clover), coupon is nested under promotion
+		
 		const coupon = promoCodeData.promotion.coupon;
 
 		if (!coupon || typeof coupon === "string") {

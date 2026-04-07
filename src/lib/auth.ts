@@ -15,7 +15,7 @@ export const createDrizzle = (db: D1Database) => drizzle(db, { schema });
 // Factory function to create a Stripe client with the configured API version
 export const createStripeClient = (stripeSecretKey: string) =>
 	new Stripe(stripeSecretKey, {
-		apiVersion: "2026-02-25.clover",
+		apiVersion: "2026-03-25.dahlia",
 	});
 
 // Factory function to create the auth instance with environment variables
