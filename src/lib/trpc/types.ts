@@ -146,6 +146,7 @@ export interface PlaylistVideo {
 	duration: number | null;
 	status: string;
 	isPublished: boolean;
+	publishedAt: string | null; // Date when video was published
 	createdAt: Date | string; // Date when video was uploaded to library
 }
 
@@ -637,6 +638,7 @@ export interface SearchVideoResult {
 	playbackPolicy: PlaybackPolicy;
 	duration: number;
 	createdAt: string;
+	publishedAt?: string | null;
 	tagCount?: number;
 	views?: number;
 	isPublished?: boolean;

@@ -285,7 +285,7 @@ function VideoLibraryContent({
 						playbackId: result.muxPlaybackId,
 						policy: result.playbackPolicy,
 						isPublished: result.isPublished ?? true,
-						publishedAt: null,
+						publishedAt: result.publishedAt ?? null,
 						views: result.views ?? 0,
 						viewCountSyncedAt: null,
 						customThumbnailUrl: null,
@@ -341,11 +341,9 @@ function VideoLibraryContent({
 						? a.title.localeCompare(b.title)
 						: b.title.localeCompare(a.title);
 				}
-				return sortDirection === "asc"
-					? new Date(a.createdAt || 0).getTime() -
-							new Date(b.createdAt || 0).getTime()
-					: new Date(b.createdAt || 0).getTime() -
-							new Date(a.createdAt || 0).getTime();
+				const aDate = new Date(a.publishedAt || a.createdAt || 0).getTime();
+				const bDate = new Date(b.publishedAt || b.createdAt || 0).getTime();
+				return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
 			});
 	}, [allVideos, searchTerm, sortCriteria, sortDirection]);
 	// Batch fetch thumbnails for all loaded videos
@@ -720,7 +718,7 @@ function VideoLibraryContent({
 							<SelectValue placeholder="Sort by" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="date">Upload Date</SelectItem>
+							<SelectItem value="date">Release Date</SelectItem>
 							<SelectItem value="title">Title</SelectItem>
 						</SelectContent>
 					</Select>
@@ -840,7 +838,9 @@ function VideoLibraryContent({
 														</CardDescription>
 													</CardHeader>
 													<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-														Uploaded {formatTimeAgo(video.createdAt)}
+														{video.publishedAt
+															? `Released ${formatTimeAgo(video.publishedAt)}`
+															: `Uploaded ${formatTimeAgo(video.createdAt)}`}
 													</CardFooter>
 												</Card>
 											))}

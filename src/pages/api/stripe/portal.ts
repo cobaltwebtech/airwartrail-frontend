@@ -46,9 +46,9 @@ export const POST: APIRoute = async ({ request }) => {
 		});
 	} catch (error) {
 		console.error("Error creating portal session:", error);
-		return new Response(
-			JSON.stringify({ error: "Internal Server Error" }),
-			{ status: 500, headers: { "Content-Type": "application/json" } },
-		);
+		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 };

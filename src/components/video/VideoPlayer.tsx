@@ -54,6 +54,7 @@ type FullVideo = {
 	duration: number;
 	description?: string;
 	createdAt: string;
+	publishedAt: string | null;
 	views?: number;
 	policy: "public" | "signed";
 	aspectRatio?: string;
@@ -549,7 +550,11 @@ function VideoPlayerDetailContent({
 							<Hourglass className="size-4" />
 							{formatDuration(video.duration)}
 						</div>
-						<p>Uploaded {formatTimeAgo(video.createdAt)}</p>
+						<p>
+							{video.publishedAt
+								? `Released ${formatTimeAgo(video.publishedAt)}`
+								: `Uploaded ${formatTimeAgo(video.createdAt)}`}
+						</p>
 					</CardDescription>
 					<CardAction>
 						<Badge>{video.views} views</Badge>

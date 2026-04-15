@@ -49,10 +49,10 @@ export const POST: APIRoute = async ({ request }) => {
 		// Verify the customerId belongs to the authenticated user
 		const userCustomerId = session.user.stripeCustomerId as string | undefined;
 		if (userCustomerId && userCustomerId !== customerId) {
-			return new Response(
-				JSON.stringify({ error: "Customer ID mismatch" }),
-				{ status: 403, headers: { "Content-Type": "application/json" } },
-			);
+			return new Response(JSON.stringify({ error: "Customer ID mismatch" }), {
+				status: 403,
+				headers: { "Content-Type": "application/json" },
+			});
 		}
 
 		// Update customer with address for tax calculation

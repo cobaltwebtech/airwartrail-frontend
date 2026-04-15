@@ -48,10 +48,10 @@ export const POST: APIRoute = async ({ request }) => {
 		// Verify the customerId belongs to the authenticated user
 		const userCustomerId = user.stripeCustomerId as string | undefined;
 		if (userCustomerId && userCustomerId !== customerId) {
-			return new Response(
-				JSON.stringify({ error: "Customer ID mismatch" }),
-				{ status: 403, headers: { "Content-Type": "application/json" } },
-			);
+			return new Response(JSON.stringify({ error: "Customer ID mismatch" }), {
+				status: 403,
+				headers: { "Content-Type": "application/json" },
+			});
 		}
 
 		// Check if user already has an active subscription

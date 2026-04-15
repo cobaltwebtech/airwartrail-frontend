@@ -22,10 +22,10 @@ export const POST: APIRoute = async ({ request }) => {
 		const { email } = (await request.json()) as { email?: string };
 
 		if (!email) {
-			return new Response(
-				JSON.stringify({ error: "Email is required" }),
-				{ status: 400, headers: { "Content-Type": "application/json" } },
-			);
+			return new Response(JSON.stringify({ error: "Email is required" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			});
 		}
 
 		// Use the authenticated user's Stripe customer ID directly
@@ -51,9 +51,9 @@ export const POST: APIRoute = async ({ request }) => {
 		});
 	} catch (error) {
 		console.error("Error updating email in Stripe:", error);
-		return new Response(
-			JSON.stringify({ error: "Internal Server Error" }),
-			{ status: 500, headers: { "Content-Type": "application/json" } },
-		);
+		return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 };

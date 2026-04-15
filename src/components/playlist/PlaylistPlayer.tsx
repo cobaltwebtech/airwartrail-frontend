@@ -400,7 +400,11 @@ function PlaylistVideoPlayerContent({
 								<Hourglass className="size-4" />
 								{formatDuration(currentVideo.duration ?? 0)}
 							</div>
-							<p>Uploaded {formatTimeAgo(currentVideo.createdAt)}</p>
+							<p>
+								{currentVideo.publishedAt
+									? `Released ${formatTimeAgo(currentVideo.publishedAt)}`
+									: `Uploaded ${formatTimeAgo(currentVideo.createdAt)}`}
+							</p>
 						</CardDescription>
 						<CardAction>
 							<Badge>

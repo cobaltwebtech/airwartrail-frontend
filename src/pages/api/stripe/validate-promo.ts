@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
 		}
 
 		const promoCodeData = promoCodes.data[0];
-		
+
 		const coupon = promoCodeData.promotion.coupon;
 
 		if (!coupon || typeof coupon === "string") {
