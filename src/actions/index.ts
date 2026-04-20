@@ -4,6 +4,15 @@ import { z } from "astro/zod";
 import { Resend } from "resend";
 import { ContactForm } from "@/components/email/ContactForm";
 
+// Validate required environment variables
+if (!import.meta.env.RESEND_API_KEY) {
+	throw new Error("RESEND_API_KEY is not defined in environment variables");
+}
+if (!import.meta.env.TURNSTILE_SECRET_KEY) {
+	throw new Error(
+		"TURNSTILE_SECRET_KEY is not defined in environment variables",
+	);
+}
 const resend = new Resend(env.RESEND_API_KEY);
 
 // Validate form inputs with Zod
