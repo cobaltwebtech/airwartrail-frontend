@@ -168,24 +168,21 @@ export function formatTimeAgo(
 }
 
 /**
- * Wraps each non-empty newline-separated block in <p> tags for HTML rendering.
+ * Splits description into paragraph strings for JSX rendering.
+ * React automatically escapes text content, so no manual HTML escaping is needed.
  * @param description - Raw description string
- * @returns HTML string with paragraph tags
+ * @returns Array of paragraph strings
  */
-const escapeHtml = (value: string) =>
-	value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 function buildParagraphs(description: string | undefined): string[] {
 	if (!description) return [];
 
 	return description
 		.split(/\n+/)
 		.map((part) => part.trim())
-		.filter(Boolean)
-		.map(escapeHtml);
+		.filter(Boolean);
 }
 
-// Returns an array of sanitized paragraph strings for direct JSX rendering. Use this function in React components to avoid dangerouslySetInnerHTML.
+// Returns an array of paragraph strings for direct JSX rendering. React automatically handles escaping.
 export function formatDescription(description: string | undefined): string[] {
 	return buildParagraphs(description);
 }
