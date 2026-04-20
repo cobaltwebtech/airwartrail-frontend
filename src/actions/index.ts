@@ -4,17 +4,6 @@ import { z } from "astro/zod";
 import { Resend } from "resend";
 import { ContactForm } from "@/components/email/ContactForm";
 
-// Validate required environment variables
-if (!import.meta.env.RESEND_API_KEY) {
-	throw new Error("RESEND_API_KEY is not defined in environment variables");
-}
-if (!import.meta.env.TURNSTILE_SECRET_KEY) {
-	throw new Error(
-		"TURNSTILE_SECRET_KEY is not defined in environment variables",
-	);
-}
-const resend = new Resend(env.RESEND_API_KEY);
-
 // Validate form inputs with Zod
 const contactFormSchema = z.object({
 	fullName: z.string().min(1, "Full name is required"),
@@ -56,6 +45,9 @@ export const server = {
 		accept: "form",
 		input: contactFormSchema,
 		handler: async (input) => {
+			// Instantiate Resend at runtime when env is available
+			const resend = new Resend(env.RESEND_API_KEY);
+
 			// Verify Turnstile token server-side
 			const isValidToken = await verifyTurnstileToken(
 				input["cf-turnstile-response"],
