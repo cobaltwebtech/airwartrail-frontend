@@ -7,27 +7,26 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { type ContactFormValues, contactFormSchema } from "@/lib/schemas";
 
 export default function ContactForm() {
-
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isSuccess, setIsSuccess] = useState(false);
 	const [turnstileToken, setTurnstileToken] = useState("");
@@ -197,7 +196,9 @@ export default function ContactForm() {
 													maxLength={1000}
 													required
 												/>
-												<div className={`text-right text-sm mt-1 ${field.value && field.value.length >= 1000 ? "text-red-500 font-semibold" : "text-gray-400"}`}>
+												<div
+													className={`text-right text-sm mt-1 ${field.value && field.value.length >= 1000 ? "text-red-500 font-semibold" : "text-gray-400"}`}
+												>
 													{field.value ? field.value.length : 0}/1000 characters
 												</div>
 											</>
@@ -206,7 +207,7 @@ export default function ContactForm() {
 									</FormItem>
 								);
 							}}
-						/> 
+						/>
 
 						<Turnstile
 							className="w-full"

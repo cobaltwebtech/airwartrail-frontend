@@ -165,6 +165,26 @@ function escapeAttr(value: string | undefined): string {
 }
 
 // ============================================================================
+// Iframe URL Validation
+// ============================================================================
+
+const ALLOWED_IFRAME_HOSTNAMES = new Set([
+	"player.vimeo.com",
+	"www.youtube.com",
+	"youtube.com",
+	"youtu.be",
+]);
+
+function isSafeIframeSrc(src: string): boolean {
+	try {
+		const url = new URL(src);
+		return ALLOWED_IFRAME_HOSTNAMES.has(url.hostname);
+	} catch {
+		return false;
+	}
+}
+
+// ============================================================================
 // Text Alignment Helper
 // ============================================================================
 
@@ -414,9 +434,22 @@ function nodeToHtml(node: TiptapNode, signedImageMap?: SignedImageMap): string {
 			return `<td>${childrenHtml}</td>`;
 
 		case "youtube":
-		case "video": {
-			const src = escapeAttr(node.attrs?.src as string);
-			return `<div class="video-embed"><iframe src="${src}" frameborder="0" allowfullscreen></iframe></div>`;
+		case "video":
+		case "iframe": {
+			const rawSrc = (node.attrs?.src as string) || "";
+			if (!rawSrc || !isSafeIframeSrc(rawSrc)) {
+				return "";
+			}
+			const src = escapeAttr(rawSrc);
+			const width = node.attrs?.width as string | undefined;
+			const height = node.attrs?.height as string | undefined;
+			const allow = node.attrs?.allow as string | undefined;
+			const allowfullscreen = node.attrs?.allowfullscreen;
+			const widthAttr = width ? ` width="${escapeAttr(width)}"` : "";
+			const heightAttr = height ? ` height="${escapeAttr(height)}"` : "";
+			const allowAttr = allow ? ` allow="${escapeAttr(allow)}"` : "";
+			const fsAttr = allowfullscreen === false ? "" : " allowfullscreen";
+			return `<div class="video-embed"><iframe src="${src}"${widthAttr}${heightAttr} frameborder="0"${allowAttr}${fsAttr}></iframe></div>`;
 		}
 
 		default:
