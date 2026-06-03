@@ -330,6 +330,18 @@ function blogPostLoader(): LiveLoader<
 					return undefined;
 				}
 
+				// Only include posts with published status and publishedAt today or in the past
+				const now = new Date();
+				if (post.publishStatus !== "published") {
+					return undefined;
+				}
+				if (post.publishedAt) {
+					const publishedDate = new Date(post.publishedAt);
+					if (publishedDate > now) {
+						return undefined;
+					}
+				}
+
 				return {
 					id: post.slug,
 					data: normalizePost(post),
