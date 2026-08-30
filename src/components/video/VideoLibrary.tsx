@@ -126,6 +126,10 @@ function VideoLibraryContent({
 	const checkAuth = requiresSub;
 
 	const [searchTerm, setSearchTerm] = useState("");
+	// Search is filtered client-side over the already-loaded pages. While it is
+	// active we stop auto-paging so a short result list can't cascade-load the
+	// entire library.
+	const isSearchActive = searchTerm.trim().length > 0;
 	const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(() => {
 		// Initialize from URL query params (using slugs)
 		if (typeof window !== "undefined") {
@@ -146,6 +150,7 @@ function VideoLibraryContent({
 
 	// Refs for virtualization
 	const gridListRef = useRef<HTMLDivElement>(null);
+	const endSentinelRef = useRef<HTMLDivElement>(null);
 	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Track column count for grid virtualization
@@ -560,33 +565,39 @@ function VideoLibraryContent({
 	// Grid virtualizer - virtualizes rows of cards
 	const gridRowCount = Math.ceil(filteredVideos.length / columnCount);
 	const gridVirtualizer = useWindowVirtualizer({
-		count: hasNextPage ? gridRowCount + 1 : gridRowCount, // +1 for loader row
+		count: gridRowCount, // The loader/sentinel lives outside the virtualizer
 		estimateSize: () => 340, // Estimated card height including gap
 		overscan: 3,
 		scrollMargin: gridListRef.current?.offsetTop ?? 0,
 	});
 
-	// Infinite scroll via virtualizer - detect when last item is visible
+	// Infinite scroll via sentinel + IntersectionObserver - fetch the next page
+	// only when the sentinel element near the bottom of the list becomes visible.
+	// Reading isFetchingNextPage through a ref keeps the observer stable across
+	// fetch-state changes, so a completed fetch doesn't immediately re-trigger
+	// the next page (the old virtualizer-based trigger cascaded through the whole
+	// library whenever the loader row was in view).
+	const isFetchingNextPageRef = useRef(isFetchingNextPage);
+	isFetchingNextPageRef.current = isFetchingNextPage;
+
 	useEffect(() => {
-		const virtualItems = gridVirtualizer.getVirtualItems();
-		const lastItem = virtualItems[virtualItems.length - 1];
+		const el = endSentinelRef.current;
+		// Don't auto-page while searching: results are filtered client-side over
+		// the loaded pages, and a short result list would keep the sentinel in
+		// view, causing every page to be fetched in a burst.
+		if (!el || !hasNextPage || !fetchNextPage || isSearchActive) return;
 
-		if (!lastItem) return;
-
-		if (
-			lastItem.index >= gridRowCount - 1 &&
-			hasNextPage &&
-			!isFetchingNextPage
-		) {
-			fetchNextPage();
-		}
-	}, [
-		hasNextPage,
-		fetchNextPage,
-		isFetchingNextPage,
-		gridRowCount,
-		gridVirtualizer,
-	]);
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting && !isFetchingNextPageRef.current) {
+					fetchNextPage();
+				}
+			},
+			{ rootMargin: "400px 0px" },
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [hasNextPage, fetchNextPage, isSearchActive]);
 
 	// Show loading state during hydration or auth check (only if auth is required)
 	if (checkAuth && (!mounted || authLoading)) {
@@ -794,7 +805,6 @@ function VideoLibraryContent({
 						}}
 					>
 						{gridVirtualizer.getVirtualItems().map((virtualRow) => {
-							const isLoaderRow = virtualRow.index >= gridRowCount;
 							const startIndex = virtualRow.index * columnCount;
 							const rowVideos = filteredVideos.slice(
 								startIndex,
@@ -814,85 +824,81 @@ function VideoLibraryContent({
 										transform: `translateY(${virtualRow.start - gridVirtualizer.options.scrollMargin}px)`,
 									}}
 								>
-									{isLoaderRow ? (
-										<div className="flex justify-center py-4">
-											{isFetchingNextPage ? (
-												<div className="text-muted-foreground flex items-center">
-													<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-													Loading more videos...
-												</div>
-											) : (
-												<p className="text-muted-foreground text-xs">
-													End of videos
-												</p>
-											)}
-										</div>
-									) : (
-										<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4">
-											{rowVideos.map((video) => (
-												<Card
-													key={video.id}
-													className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
-												>
-													<a href={buildVideoUrl(video.id, video.title)}>
-														<div className="relative">
-															<VideoThumbnail
-																playbackId={video.playbackId}
-																alt={video.title}
-																className="aspect-video w-full object-cover"
-																aspectVideo
-																policy={video.policy ?? undefined}
-																libraryId={libraryId}
-																videoId={video.id}
-																prefetchedThumbnail={thumbnailMap.get(video.id)}
-																batchThumbnailPending={isThumbnailBatchLoading}
-																prefetchedSignedTokens={
-																	video.playbackId
-																		? tokenMap.get(video.playbackId)
-																		: undefined
-																}
-																batchTokensPending={isSignedTokensBatchLoading}
-															/>
-															<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-																<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-																	<Play className="size-6" />
-																</div>
-															</div>
-															<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
-																{formatDuration(video.duration)}
+									<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4">
+										{rowVideos.map((video) => (
+											<Card
+												key={video.id}
+												className="hover:bg-background transition-colors gap-1 overflow-hidden p-0"
+											>
+												<a href={buildVideoUrl(video.id, video.title)}>
+													<div className="relative">
+														<VideoThumbnail
+															playbackId={video.playbackId}
+															alt={video.title}
+															className="aspect-video w-full object-cover"
+															aspectVideo
+															policy={video.policy ?? undefined}
+															libraryId={libraryId}
+															videoId={video.id}
+															prefetchedThumbnail={thumbnailMap.get(video.id)}
+															batchThumbnailPending={isThumbnailBatchLoading}
+															prefetchedSignedTokens={
+																video.playbackId
+																	? tokenMap.get(video.playbackId)
+																	: undefined
+															}
+															batchTokensPending={isSignedTokensBatchLoading}
+														/>
+														<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+															<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+																<Play className="size-6" />
 															</div>
 														</div>
+														<div className="absolute right-2 bottom-2 rounded bg-black/70 p-1 text-xs text-white">
+															{formatDuration(video.duration)}
+														</div>
+													</div>
+												</a>
+												<CardHeader className="p-4 flex items-center justify-between">
+													<a
+														href={buildVideoUrl(video.id, video.title)}
+														className="text-left hover:text-accent-foreground"
+													>
+														<h3 className="font-semibold line-clamp-2">
+															{video.title}
+														</h3>
 													</a>
-													<CardHeader className="p-4 flex items-center justify-between">
-														<a
-															href={buildVideoUrl(video.id, video.title)}
-															className="text-left hover:text-accent-foreground"
-														>
-															<h3 className="font-semibold line-clamp-2">
-																{video.title}
-															</h3>
-														</a>
-														<CardDescription>
-															<Badge>
-																{video.views?.toLocaleString() ?? 0} views
-															</Badge>
-														</CardDescription>
-													</CardHeader>
-													<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-														{video.publishedAt
-															? `Released ${formatTimeAgo(video.publishedAt)}`
-															: `Uploaded ${formatTimeAgo(video.createdAt)}`}
-													</CardFooter>
-												</Card>
-											))}
-										</div>
-									)}
+													<CardDescription>
+														<Badge>
+															{video.views?.toLocaleString() ?? 0} views
+														</Badge>
+													</CardDescription>
+												</CardHeader>
+												<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
+													{video.publishedAt
+														? `Released ${formatTimeAgo(video.publishedAt)}`
+														: `Uploaded ${formatTimeAgo(video.createdAt)}`}
+												</CardFooter>
+											</Card>
+										))}
+									</div>
 								</div>
 							);
 						})}
 					</div>
+					{/* Infinite scroll sentinel - fetches the next page when scrolled into view */}
+					{!isSearchActive && hasNextPage && (
+						<div ref={endSentinelRef} className="flex justify-center py-4">
+							{isFetchingNextPage && (
+								<div className="text-muted-foreground flex items-center">
+									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									Loading more videos...
+								</div>
+							)}
+						</div>
+					)}
 					{/* End of videos message when no more pages */}
-					{!hasNextPage && filteredVideos.length > 0 && (
+					{!isSearchActive && !hasNextPage && filteredVideos.length > 0 && (
 						<div className="flex justify-center py-4">
 							<p className="text-muted-foreground text-xs">End of videos</p>
 						</div>
