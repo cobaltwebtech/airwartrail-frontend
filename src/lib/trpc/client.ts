@@ -6,7 +6,12 @@
  */
 
 import { QueryClient } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
+import {
+	createTRPCClient,
+	httpBatchLink,
+	splitLink,
+	TRPCClientError,
+} from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
 import type { AppRouter } from "./types";
@@ -43,23 +48,48 @@ export const queryClient = new QueryClient({
 	},
 });
 
+// Procedures that can carry large payloads -> force POST (input in request body).
+// tRPC sends queries as GET requests with the serialized input in the URL; when many
+// are batched together the URL can exceed Cloudflare's ~8KB limit and return HTTP 431.
+const POST_ONLY_PATHS = new Set([
+	"mux.getThumbnailBatch",
+	"mux.generateSignedTokensBatch",
+	"mux.generateSignedTokens",
+]);
+
+// Requests go through the Astro API proxy at /api/trpc
+const proxyFetch = (input: RequestInfo | URL, options?: RequestInit) =>
+	fetch(input, {
+		...options,
+		// Include credentials for session authentication
+		credentials: "include",
+	});
+
 /**
  * Raw tRPC client for direct API calls
  * Requests go through the Astro API proxy at /api/trpc
  */
 export const trpcClient = createTRPCClient<AppRouter>({
 	links: [
-		httpBatchLink({
-			// Proxy endpoint on the Astro server
-			url: "/api/trpc",
-			transformer: superjson,
-			fetch(url, options) {
-				return fetch(url, {
-					...options,
-					// Include credentials for session authentication
-					credentials: "include",
-				});
-			},
+		splitLink({
+			// Send the heavy procedures over POST so the input goes in the body,
+			// not the URL (avoids HTTP 431 from oversized GET batches)
+			condition: (op) => POST_ONLY_PATHS.has(op.path),
+			true: httpBatchLink({
+				// Proxy endpoint on the Astro server
+				url: "/api/trpc",
+				transformer: superjson,
+				methodOverride: "POST",
+				fetch: proxyFetch,
+			}),
+			false: httpBatchLink({
+				// Proxy endpoint on the Astro server
+				url: "/api/trpc",
+				transformer: superjson,
+				// Safety net: auto-split any oversized GET batch
+				maxURLLength: 6000,
+				fetch: proxyFetch,
+			}),
 		}),
 	],
 });

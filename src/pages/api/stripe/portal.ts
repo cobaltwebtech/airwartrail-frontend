@@ -1,10 +1,9 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
-import { createAuth, createStripeClient } from "@/lib/auth";
+import { auth, createStripeClient } from "@/lib/auth";
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		const auth = createAuth(env as Env);
 		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
 
 		// Require authentication

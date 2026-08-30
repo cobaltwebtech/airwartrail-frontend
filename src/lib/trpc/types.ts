@@ -558,6 +558,9 @@ export interface ListVideosInput {
 	libraryId: string;
 	limit?: number;
 	offset?: number;
+	/** Pagination cursor (SQL offset). Takes precedence over `offset` when set. */
+	cursor?: number;
+	includeTags?: boolean;
 	status?: VideoStatus;
 	isPublished?: boolean;
 }

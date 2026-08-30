@@ -8,7 +8,7 @@
  * Can optionally require a subscription to view the library.
  */
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import {
 	ArrowDown,
@@ -77,6 +77,17 @@ interface VideoLibraryProps {
 
 const STORAGE_KEY = "videoLibrary-settings";
 const DEFAULT_PAGE_SIZE = 20;
+// Keep chunk sizes comfortably under the backend's 100-item batch limit
+// and well below the 8KB URL limit (batch requests go over POST).
+const BATCH_CHUNK_SIZE = 50;
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+	const chunks: T[][] = [];
+	for (let i = 0; i < items.length; i += size) {
+		chunks.push(items.slice(i, i + size));
+	}
+	return chunks;
+}
 
 interface VideoLibrarySettings {
 	sortCriteria: string;
@@ -304,6 +315,7 @@ function VideoLibraryContent({
 							libraryId: string;
 							limit?: number;
 							offset?: number;
+							cursor?: number;
 						}) => Promise<Video[]>;
 					};
 				};
@@ -312,13 +324,15 @@ function VideoLibraryContent({
 			return client.mux.listVideosFromDatabase.query({
 				libraryId,
 				limit: pageSize,
-				offset: pageParam,
+				cursor: pageParam,
 			});
 		},
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, allPages) => {
 			if (lastPage.length < pageSize) return undefined;
-			return allPages.length * pageSize;
+			// Cursor is the SQL offset; use the actual accumulated length so it stays
+			// accurate even if a page returns fewer items than requested.
+			return allPages.reduce((sum, page) => sum + page.length, 0);
 		},
 	});
 
@@ -346,41 +360,53 @@ function VideoLibraryContent({
 				return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
 			});
 	}, [allVideos, searchTerm, sortCriteria, sortDirection]);
-	// Batch fetch thumbnails for all loaded videos
+	// Batch fetch thumbnails for all loaded videos (chunked to stay under the
+	// backend's 100-item batch limit)
 	const videoIdsForThumbnails = useMemo(() => {
 		return allVideos.map((v) => v.id);
 	}, [allVideos]);
 
-	const { data: thumbnailBatchData } = useQuery({
-		queryKey: ["mux", "getThumbnailBatch", libraryId, videoIdsForThumbnails],
-		queryFn: async () => {
-			if (videoIdsForThumbnails.length === 0) return [];
-
-			type GetThumbnailBatchClient = {
-				mux: {
-					getThumbnailBatch: {
-						query: (input: {
-							videoIds: string[];
-							libraryId: string;
-						}) => Promise<
-							{
-								videoId: string;
-								customThumbnailUrl: string | null;
-								customThumbnailTime: number | null;
-								hasCustomThumbnail: boolean;
-							}[]
-						>;
+	const {
+		data: thumbnailBatchData,
+		isLoading: isThumbnailBatchLoading,
+		isError: isThumbnailBatchError,
+	} = useQueries({
+		queries: chunkArray(videoIdsForThumbnails, BATCH_CHUNK_SIZE).map(
+			(chunk) => ({
+				queryKey: ["mux", "getThumbnailBatch", libraryId, chunk],
+				queryFn: async () => {
+					type GetThumbnailBatchClient = {
+						mux: {
+							getThumbnailBatch: {
+								query: (input: {
+									videoIds: string[];
+									libraryId: string;
+								}) => Promise<
+									{
+										videoId: string;
+										customThumbnailUrl: string | null;
+										customThumbnailTime: number | null;
+										hasCustomThumbnail: boolean;
+									}[]
+								>;
+							};
+						};
 					};
-				};
-			};
-			const client = trpcClient as unknown as GetThumbnailBatchClient;
-			return client.mux.getThumbnailBatch.query({
-				videoIds: videoIdsForThumbnails,
-				libraryId,
-			});
-		},
-		enabled: videoIdsForThumbnails.length > 0,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+					const client = trpcClient as unknown as GetThumbnailBatchClient;
+					return client.mux.getThumbnailBatch.query({
+						videoIds: chunk,
+						libraryId,
+					});
+				},
+				enabled: chunk.length > 0,
+				staleTime: 5 * 60 * 1000, // 5 minutes
+			}),
+		),
+		combine: (results) => ({
+			data: results.flatMap((r) => r.data ?? []),
+			isLoading: results.some((r) => r.isLoading),
+			isError: results.some((r) => r.isError),
+		}),
 	});
 
 	// Create a map for O(1) thumbnail lookup
@@ -427,54 +453,67 @@ function VideoLibraryContent({
 			});
 	}, [allVideos, thumbnailMap]);
 
-	// Batch fetch signed tokens for all signed videos
-	const { data: tokenBatchData } = useQuery({
-		queryKey: [
-			"mux",
-			"generateSignedTokensBatch",
-			libraryId,
-			signedVideoItems.map((i) => i.playbackId),
-		],
-		queryFn: async () => {
-			if (signedVideoItems.length === 0) return [];
-
-			type GenerateSignedTokensBatchClient = {
-				mux: {
-					generateSignedTokensBatch: {
-						query: (input: {
-							items: Array<{
-								playbackId: string;
-								expiresIn?: number;
-								thumbnailParams?: {
-									time?: number;
-									width?: number;
-									height?: number;
-									fit_mode?: string;
-								};
-							}>;
-							libraryId?: string;
-						}) => Promise<
-							Array<{
-								playbackId: string;
-								playback: string;
-								thumbnail: string;
-								storyboard: string;
-							}>
-						>;
+	// Batch fetch signed tokens for all signed videos (chunked to stay under the
+	// backend's 100-item batch limit)
+	const { data: tokenBatchData, isLoading: isSignedTokensBatchLoading } =
+		useQueries({
+			queries: chunkArray(signedVideoItems, BATCH_CHUNK_SIZE).map((chunk) => ({
+				queryKey: [
+					"mux",
+					"generateSignedTokensBatch",
+					libraryId,
+					chunk.map((i) => i.playbackId),
+				],
+				queryFn: async () => {
+					type GenerateSignedTokensBatchClient = {
+						mux: {
+							generateSignedTokensBatch: {
+								query: (input: {
+									items: Array<{
+										playbackId: string;
+										expiresIn?: number;
+										thumbnailParams?: {
+											time?: number;
+											width?: number;
+											height?: number;
+											fit_mode?: string;
+										};
+									}>;
+									libraryId?: string;
+								}) => Promise<
+									Array<{
+										playbackId: string;
+										playback: string;
+										thumbnail: string;
+										storyboard: string;
+									}>
+								>;
+							};
+						};
 					};
-				};
-			};
-			const client = trpcClient as unknown as GenerateSignedTokensBatchClient;
-			return client.mux.generateSignedTokensBatch.query({
-				items: signedVideoItems,
-				libraryId,
-			});
-		},
-		// Wait for thumbnail data before fetching tokens to ensure correct filtering
-		// (videos with custom URLs don't need tokens, and we need customThumbnailTime for token params)
-		enabled: signedVideoItems.length > 0 && !!thumbnailBatchData,
-		staleTime: 55 * 60 * 1000, // 55 minutes (tokens expire in 60)
-	});
+					const client =
+						trpcClient as unknown as GenerateSignedTokensBatchClient;
+					return client.mux.generateSignedTokensBatch.query({
+						items: chunk,
+						libraryId,
+					});
+				},
+				// Wait for thumbnail data before fetching tokens to ensure correct filtering
+				// (videos with custom URLs don't need tokens, and we need customThumbnailTime for token params).
+				// Gate on the batch loading/error flags rather than data truthiness: while the
+				// thumbnail batch is in flight the lookup map is incomplete, so token requests
+				// would be built from incorrect items.
+				enabled:
+					chunk.length > 0 &&
+					!isThumbnailBatchLoading &&
+					!isThumbnailBatchError,
+				staleTime: 55 * 60 * 1000, // 55 minutes (tokens expire in 60)
+			})),
+			combine: (results) => ({
+				data: results.flatMap((r) => r.data ?? []),
+				isLoading: results.some((r) => r.isLoading),
+			}),
+		});
 
 	// Create a map for O(1) token lookup by playbackId
 	const tokenMap = useMemo(() => {
@@ -806,11 +845,13 @@ function VideoLibraryContent({
 																libraryId={libraryId}
 																videoId={video.id}
 																prefetchedThumbnail={thumbnailMap.get(video.id)}
+																batchThumbnailPending={isThumbnailBatchLoading}
 																prefetchedSignedTokens={
 																	video.playbackId
 																		? tokenMap.get(video.playbackId)
 																		: undefined
 																}
+																batchTokensPending={isSignedTokensBatchLoading}
 															/>
 															<div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
 																<div className="inline-flex size-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground">

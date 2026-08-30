@@ -52,6 +52,10 @@ export interface VideoThumbnailProps {
 	prefetchedThumbnail?: PrefetchedThumbnailData;
 	/** Pre-fetched signed tokens from batch API (skips individual token fetch if provided) */
 	prefetchedSignedTokens?: PrefetchedSignedTokens;
+	/** While a thumbnail batch is loading, suppress the individual getThumbnail fallback query */
+	batchThumbnailPending?: boolean;
+	/** While a signed-token batch is loading, suppress the individual generateSignedTokens fallback query */
+	batchTokensPending?: boolean;
 }
 
 type TypedTrpcClient = {
@@ -86,6 +90,8 @@ export function VideoThumbnail({
 	fallbackIcon,
 	prefetchedThumbnail,
 	prefetchedSignedTokens,
+	batchThumbnailPending,
+	batchTokensPending,
 }: VideoThumbnailProps) {
 	const client = trpcClient as unknown as TypedTrpcClient;
 	const [isLoaded, setIsLoaded] = useState(false);
@@ -121,8 +127,12 @@ export function VideoThumbnail({
 					libraryId: libraryId || "",
 				});
 			},
-			// Skip individual fetch if prefetched data is available
-			enabled: !!videoId && !!libraryId && !prefetchedThumbnail,
+			// Skip individual fetch if prefetched data is available or a batch is in progress
+			enabled:
+				!!videoId &&
+				!!libraryId &&
+				!prefetchedThumbnail &&
+				!batchThumbnailPending,
 		});
 
 	// Use prefetched data if available, otherwise use fetched data
@@ -176,7 +186,9 @@ export function VideoThumbnail({
 			!!playbackId &&
 			!!libraryId &&
 			!customThumbnailUrl &&
-			!prefetchedSignedTokens, // Skip if prefetched tokens provided
+			!prefetchedSignedTokens && // Skip if prefetched tokens provided
+			!batchTokensPending && // Skip while a signed-token batch is loading
+			!batchThumbnailPending, // Thumbnail data (e.g. custom time) may still be loading
 		staleTime: 60 * 60 * 1000,
 	});
 
@@ -212,17 +224,17 @@ export function VideoThumbnail({
 		);
 	}
 
-	// Show skeleton while loading custom thumbnail data (only if not using prefetched data)
-	if (!prefetchedThumbnail && isLoadingThumbnail) {
+	// Show skeleton while custom thumbnail data is loading (batch or individual fetch)
+	if (!prefetchedThumbnail && (isLoadingThumbnail || batchThumbnailPending)) {
 		return <Skeleton className={skeletonClass} />;
 	}
 
-	// Show skeleton while loading token for signed videos (only if not using custom URL or prefetched tokens)
+	// Show skeleton while token is loading for signed videos (unless custom URL or prefetched tokens)
 	if (
 		!customThumbnailUrl &&
 		!prefetchedSignedTokens &&
 		policy === "signed" &&
-		(isLoadingToken || !signedTokens?.thumbnail)
+		(isLoadingToken || batchTokensPending || !signedTokens?.thumbnail)
 	) {
 		return <Skeleton className={skeletonClass} />;
 	}

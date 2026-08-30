@@ -1,10 +1,8 @@
-import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
-import { createAuth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 export const ALL: APIRoute = async (ctx) => {
 	try {
-		const auth = createAuth(env as Env);
 		const response = await auth.handler(ctx.request);
 
 		// If the auth is good then set the session data using Astro Sessions

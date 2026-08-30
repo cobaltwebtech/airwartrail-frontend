@@ -3,7 +3,7 @@ import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import type Stripe from "stripe";
-import { createAuth, createDrizzle, createStripeClient } from "@/lib/auth";
+import { auth, createDrizzle, createStripeClient } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
 // Price ID for the premium plan - should match auth.ts config
@@ -11,7 +11,6 @@ const PREMIUM_PRICE_ID = env.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		const auth = createAuth(env as Env);
 		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
 		const db = createDrizzle(env.DB_AUTH);
 

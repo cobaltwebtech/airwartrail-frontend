@@ -36,10 +36,6 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 	},
 	experimental: {
-		rustCompiler: true,
-		queuedRendering: {
-			enabled: true,
-		},
 		clientPrerender: true,
 	},
 	markdown: {
