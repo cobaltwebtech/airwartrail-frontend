@@ -5,11 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "dev:cf": "astro build && pnpx wrangler dev",
+    "dev:cf": "astro build && pnpm exec wrangler dev",
     "format": "biome format --write",
     "lint": "biome lint",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 astro build",
-    "deploy:cf": "astro build && pnpx wrangler deploy",
+    "deploy:cf": "astro build && pnpm exec wrangler deploy",
     "preview": "astro build && astro preview",
     "up:astro": "pnpx @astrojs/upgrade",
     "up:biome": "pnpm up @biomejs/biome@latest && pnpm biome migrate --write",
