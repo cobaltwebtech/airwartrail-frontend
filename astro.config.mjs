@@ -50,9 +50,7 @@ export default defineConfig({
 	}),
 	integrations: [
 		react({
-			babel: {
-				plugins: ["babel-plugin-react-compiler"],
-			},
+			compiler: true,
 		}),
 		sitemap({
 			filter: (page) => {
