@@ -62,8 +62,9 @@ import { trpcClient } from "@/lib/trpc";
 import { useSubStatus } from "@/lib/useSubStatus";
 import {
 	formatDuration,
-	formatTimeAgo,
+	formatVideoReleaseDate,
 	getDefaultThumbnailDimensions,
+	getVideoReleaseDate,
 } from "@/lib/video-helpers";
 
 interface VideoLibraryProps {
@@ -302,6 +303,7 @@ function VideoLibraryContent({
 						policy: result.playbackPolicy,
 						isPublished: result.isPublished ?? true,
 						publishedAt: result.publishedAt ?? null,
+						scheduledReleaseDate: result.scheduledReleaseDate ?? null,
 						views: result.views ?? 0,
 						viewCountSyncedAt: null,
 						customThumbnailUrl: null,
@@ -360,8 +362,12 @@ function VideoLibraryContent({
 						? a.title.localeCompare(b.title)
 						: b.title.localeCompare(a.title);
 				}
-				const aDate = new Date(a.publishedAt || a.createdAt || 0).getTime();
-				const bDate = new Date(b.publishedAt || b.createdAt || 0).getTime();
+				const aDate = new Date(
+					getVideoReleaseDate(a) || a.createdAt || 0,
+				).getTime();
+				const bDate = new Date(
+					getVideoReleaseDate(b) || b.createdAt || 0,
+				).getTime();
 				return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
 			});
 	}, [allVideos, searchTerm, sortCriteria, sortDirection]);
@@ -875,9 +881,7 @@ function VideoLibraryContent({
 													</CardDescription>
 												</CardHeader>
 												<CardFooter className="text-muted-foreground p-4 pt-0 text-xs">
-													{video.publishedAt
-														? `Released ${formatTimeAgo(video.publishedAt)}`
-														: `Uploaded ${formatTimeAgo(video.createdAt)}`}
+													{formatVideoReleaseDate(video)}
 												</CardFooter>
 											</Card>
 										))}

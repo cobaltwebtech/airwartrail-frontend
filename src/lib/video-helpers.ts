@@ -168,6 +168,35 @@ export function formatTimeAgo(
 }
 
 /**
+ * Resolves the effective release date for a video.
+ * Prefers an admin-set `scheduledReleaseDate`, then falls back to `publishedAt`.
+ * @returns The release date, or null if neither is set
+ */
+export function getVideoReleaseDate(video: {
+	scheduledReleaseDate?: string | number | Date | null;
+	publishedAt?: string | number | Date | null;
+}): string | number | Date | null {
+	return video.scheduledReleaseDate ?? video.publishedAt ?? null;
+}
+
+/**
+ * Builds the human-friendly release label for a video.
+ * Uses `scheduledReleaseDate` first, then `publishedAt`, and finally falls back
+ * to the upload date (`createdAt`).
+ * @returns e.g. "Released 3 days ago" or "Uploaded 3 days ago"
+ */
+export function formatVideoReleaseDate(video: {
+	scheduledReleaseDate?: string | number | Date | null;
+	publishedAt?: string | number | Date | null;
+	createdAt?: string | number | Date | null;
+}): string {
+	const releaseDate = getVideoReleaseDate(video);
+	return releaseDate
+		? `Released ${formatTimeAgo(releaseDate)}`
+		: `Uploaded ${formatTimeAgo(video.createdAt ?? undefined)}`;
+}
+
+/**
  * Splits description into paragraph strings for JSX rendering.
  * React automatically escapes text content, so no manual HTML escaping is needed.
  * @param description - Raw description string
