@@ -16,7 +16,7 @@ export const createDrizzle = (db: D1Database) => drizzle(db, { schema });
 // Factory function to create a Stripe client with the configured API version
 export const createStripeClient = (stripeSecretKey: string) =>
 	new Stripe(stripeSecretKey, {
-		apiVersion: "2026-07-29.dahlia",
+		apiVersion: "2026-09-30.endive",
 	});
 
 // Initialize Resend for email service
@@ -29,7 +29,6 @@ export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL,
 	appName: "Air War Trail",
-	experimental: { joins: true },
 	database: drizzleAdapter(createDrizzle(env.DB_AUTH), {
 		provider: "sqlite",
 		schema,
@@ -42,6 +41,9 @@ export const auth = betterAuth({
 		enabled: true,
 	},
 	advanced: {
+		database: { 
+			joins: true, // Enable joins for advanced queries
+		},
 		ipAddress: {
 			ipAddressHeaders: ["cf-connecting-ip"], // Cloudflare specific header for rate limiting
 		},

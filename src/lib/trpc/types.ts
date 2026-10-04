@@ -29,6 +29,7 @@ export interface Video {
 	policy: PlaybackPolicy;
 	isPublished: boolean;
 	publishedAt: string | null;
+	scheduledReleaseDate: string | null;
 	views: number;
 	viewCountSyncedAt: string | null;
 	customThumbnailUrl: string | null;
@@ -147,6 +148,7 @@ export interface PlaylistVideo {
 	status: string;
 	isPublished: boolean;
 	publishedAt: string | null; // Date when video was published
+	scheduledReleaseDate: string | null; // Admin-set release date (takes precedence over publishedAt)
 	createdAt: Date | string; // Date when video was uploaded to library
 }
 
@@ -642,6 +644,7 @@ export interface SearchVideoResult {
 	duration: number;
 	createdAt: string;
 	publishedAt?: string | null;
+	scheduledReleaseDate?: string | null;
 	tagCount?: number;
 	views?: number;
 	isPublished?: boolean;

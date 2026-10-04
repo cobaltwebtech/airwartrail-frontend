@@ -31,7 +31,7 @@ import type { Playlist, PlaylistVideo, SignedTokens } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
 import { useSubStatus } from "@/lib/useSubStatus";
 import { cn } from "@/lib/utils";
-import { formatTimeAgo } from "@/lib/video-helpers";
+import { formatVideoReleaseDate } from "@/lib/video-helpers";
 
 interface PlaylistVideoPlayerProps {
 	/** The playlist slug to fetch */
@@ -401,9 +401,7 @@ function PlaylistVideoPlayerContent({
 								{formatDuration(currentVideo.duration ?? 0)}
 							</div>
 							<p>
-								{currentVideo.publishedAt
-									? `Released ${formatTimeAgo(currentVideo.publishedAt)}`
-									: `Uploaded ${formatTimeAgo(currentVideo.createdAt)}`}
+								{formatVideoReleaseDate(currentVideo)}
 							</p>
 						</CardDescription>
 						<CardAction>

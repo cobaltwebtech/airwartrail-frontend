@@ -2,6 +2,7 @@
 dist/
 .astro
 .wrangler
+tsconfig.tsbuildinfo
 
 # dependencies
 node_modules/
