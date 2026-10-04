@@ -37,7 +37,7 @@ import { VideoThumbnail } from "@/components/video/VideoThumbnail";
 import type { Playlist, PlaylistVideo } from "@/lib/trpc";
 import { trpcClient } from "@/lib/trpc";
 import { useSubStatus } from "@/lib/useSubStatus";
-import { formatDuration, formatTimeAgo } from "@/lib/video-helpers";
+import { formatDuration, formatVideoReleaseDate } from "@/lib/video-helpers";
 
 interface PlaylistDetailProps {
 	/** The playlist slug to fetch */
@@ -282,7 +282,7 @@ function PlaylistDetailContent({
 										)}
 									</CardHeader>
 									<CardFooter className="flex justify-between p-4 pt-0 text-xs text-muted-foreground">
-										<span>Uploaded {formatTimeAgo(video.createdAt)}</span>
+										<span>{formatVideoReleaseDate(video)}</span>
 									</CardFooter>
 								</Card>
 							))}

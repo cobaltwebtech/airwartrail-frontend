@@ -36,7 +36,7 @@ import { useSubStatus } from "@/lib/useSubStatus";
 import {
 	formatDescription,
 	formatDuration,
-	formatTimeAgo,
+	formatVideoReleaseDate,
 } from "@/lib/video-helpers";
 
 interface VideoPlayerDetailProps {
@@ -55,6 +55,7 @@ type FullVideo = {
 	description?: string;
 	createdAt: string;
 	publishedAt: string | null;
+	scheduledReleaseDate?: string | null;
 	views?: number;
 	policy: "public" | "signed";
 	aspectRatio?: string;
@@ -551,9 +552,7 @@ function VideoPlayerDetailContent({
 							{formatDuration(video.duration)}
 						</div>
 						<p>
-							{video.publishedAt
-								? `Released ${formatTimeAgo(video.publishedAt)}`
-								: `Uploaded ${formatTimeAgo(video.createdAt)}`}
+							{formatVideoReleaseDate(video)}
 						</p>
 					</CardDescription>
 					<CardAction>
