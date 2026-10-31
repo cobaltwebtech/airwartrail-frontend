@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Resend } from "resend";
 import Stripe from "stripe";
+import { ENV } from "varlock/env";
 import * as schema from "@/lib/db-auth-schema";
 
 // Initialize Drizzle with the Cloudflare D1 database
@@ -20,14 +21,14 @@ export const createStripeClient = (stripeSecretKey: string) =>
 	});
 
 // Initialize Resend for email service
-const resend = new Resend(env.RESEND_API_KEY);
+const resend = new Resend(ENV.RESEND_API_KEY);
 
 // Initialize Stripe client for subscription management
-const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
+const stripeClient = createStripeClient(ENV.STRIPE_SECRET_KEY);
 
 export const auth = betterAuth({
-	secret: env.BETTER_AUTH_SECRET,
-	baseURL: env.BETTER_AUTH_URL,
+	secret: ENV.BETTER_AUTH_SECRET,
+	baseURL: ENV.BETTER_AUTH_URL,
 	appName: "Air War Trail",
 	database: drizzleAdapter(createDrizzle(env.DB_AUTH), {
 		provider: "sqlite",
@@ -41,7 +42,7 @@ export const auth = betterAuth({
 		enabled: true,
 	},
 	advanced: {
-		database: { 
+		database: {
 			joins: true, // Enable joins for advanced queries
 		},
 		ipAddress: {
@@ -111,7 +112,7 @@ export const auth = betterAuth({
 	plugins: [
 		admin(),
 		dash({
-			apiKey: env.BETTER_AUTH_INFRA_API_KEY,
+			apiKey: ENV.BETTER_AUTH_INFRA_API_KEY,
 			activityTracking: {
 				enabled: true,
 				// How often lastActiveAt is written to the DB per user.
@@ -139,14 +140,14 @@ export const auth = betterAuth({
 		}),
 		stripe({
 			stripeClient,
-			stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+			stripeWebhookSecret: ENV.STRIPE_WEBHOOK_SECRET,
 			createCustomerOnSignUp: true,
 			subscription: {
 				enabled: true,
 				plans: [
 					{
 						name: "premium", // This must match the plan name in the React components
-						priceId: env.STRIPE_PRICE_ID, // The price id from Stripe
+						priceId: ENV.STRIPE_PRICE_ID, // The price id from Stripe
 					},
 				],
 				getCheckoutSessionParams: async () => {

@@ -3,15 +3,16 @@ import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import type Stripe from "stripe";
+import { ENV } from "varlock/env";
 import { auth, createDrizzle, createStripeClient } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = env.STRIPE_PRICE_ID;
+const PREMIUM_PRICE_ID = ENV.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
+		const stripeClient = createStripeClient(ENV.STRIPE_SECRET_KEY);
 		const db = createDrizzle(env.DB_AUTH);
 
 		// Get the session from Better Auth
@@ -94,8 +95,10 @@ export const POST: APIRoute = async ({ request }) => {
 		const subscriptionParams: Stripe.SubscriptionCreateParams = {
 			customer: customerId,
 			items: [{ price: PREMIUM_PRICE_ID }],
-			payment_behavior: "error_if_incomplete",
-			expand: ["latest_invoice.payment_intent"],
+			// Create the subscription even if the first payment needs 3D Secure,
+			// so the client can complete authentication with the invoice's secret
+			payment_behavior: "allow_incomplete",
+			expand: ["latest_invoice.confirmation_secret"],
 			metadata: {
 				userId: user.id,
 			},
@@ -113,26 +116,6 @@ export const POST: APIRoute = async ({ request }) => {
 		// Create the subscription
 		const subscription =
 			await stripeClient.subscriptions.create(subscriptionParams);
-
-		// Check if the subscription requires additional action (e.g., 3D Secure)
-		const invoice = subscription.latest_invoice as
-			| { payment_intent?: { status: string; client_secret: string } }
-			| undefined;
-		const paymentIntent = invoice?.payment_intent;
-
-		if (paymentIntent?.status === "requires_action") {
-			return new Response(
-				JSON.stringify({
-					status: "requires_action",
-					clientSecret: paymentIntent.client_secret,
-					subscriptionId: subscription.id,
-				}),
-				{
-					status: 200,
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-		}
 
 		// Create subscription record in database
 		// Note: The webhook will also handle this, but we create it here for immediate feedback
@@ -166,9 +149,32 @@ export const POST: APIRoute = async ({ request }) => {
 				},
 			});
 
+		// The first payment needs further action (e.g., 3D Secure). The client confirms
+		// it with this secret; the Stripe webhook then updates the subscription status.
+		if (subscription.status === "incomplete") {
+			const invoice = subscription.latest_invoice as Stripe.Invoice | null;
+			const clientSecret = invoice?.confirmation_secret?.client_secret;
+
+			if (!clientSecret) {
+				throw new Error("Subscription payment could not be completed");
+			}
+
+			return new Response(
+				JSON.stringify({
+					status: "requires_action",
+					clientSecret,
+					subscriptionId: subscription.id,
+				}),
+				{
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+		}
+
 		// Send welcome email after successful subscription
 		try {
-			const resend = new Resend(env.RESEND_API_KEY);
+			const resend = new Resend(ENV.RESEND_API_KEY);
 			const { default: WelcomeEmail } = await import(
 				"@/components/email/WelcomeEmail"
 			);

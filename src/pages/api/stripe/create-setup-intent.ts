@@ -1,10 +1,11 @@
-import { env } from "cloudflare:workers";
+
 import type { APIRoute } from "astro";
+import { ENV } from "varlock/env";
 import { auth, createStripeClient } from "@/lib/auth";
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
+		const stripeClient = createStripeClient(ENV.STRIPE_SECRET_KEY);
 
 		// Get the session from Better Auth
 		const session = await auth.api.getSession({
@@ -41,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
 		// Create a SetupIntent for collecting payment method
 		const setupIntent = await stripeClient.setupIntents.create({
 			customer: customerId,
-			payment_method_types: ["card"],
+			allowed_payment_method_types: ["card"],
 			metadata: {
 				userId: user.id,
 			},

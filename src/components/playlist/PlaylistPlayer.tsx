@@ -400,9 +400,7 @@ function PlaylistVideoPlayerContent({
 								<Hourglass className="size-4" />
 								{formatDuration(currentVideo.duration ?? 0)}
 							</div>
-							<p>
-								{formatVideoReleaseDate(currentVideo)}
-							</p>
+							<p>{formatVideoReleaseDate(currentVideo)}</p>
 						</CardDescription>
 						<CardAction>
 							<Badge>

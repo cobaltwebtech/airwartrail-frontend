@@ -37,10 +37,16 @@ export function ForgotPasswordComponent({
 		setErrorMessage("");
 
 		try {
-			await requestPasswordReset({
+			const { error } = await requestPasswordReset({
 				email,
 				redirectTo: "/auth/reset-password",
 			});
+			if (error) {
+				throw new Error(
+					error.message ||
+						"Failed to process password reset request. Please try again.",
+				);
+			}
 			setIsSuccess(true);
 			toast.success("Password reset link sent to your email!");
 		} catch (error) {

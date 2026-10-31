@@ -112,11 +112,14 @@ function UserCredentialsContent() {
 
 		setIsChangingPassword(true);
 		try {
-			await changePassword({
+			const { error } = await changePassword({
 				currentPassword: passwordData.currentPassword,
 				newPassword: passwordData.newPassword,
 				revokeOtherSessions: true,
 			});
+			if (error) {
+				throw new Error(error.message || "Failed to change password");
+			}
 
 			// Invalidate cache to reflect any changes in credential status
 			await queryClient.invalidateQueries({
@@ -132,7 +135,11 @@ function UserCredentialsContent() {
 			});
 		} catch (error) {
 			console.error("Failed to change password:", error);
-			toast.error("Failed to change password. Please try again.");
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to change password. Please try again.",
+			);
 		} finally {
 			setIsChangingPassword(false);
 		}
@@ -142,10 +149,13 @@ function UserCredentialsContent() {
 		if (!user?.email) return;
 
 		try {
-			await requestPasswordReset({
+			const { error } = await requestPasswordReset({
 				email: user.email,
 				redirectTo: "/auth/reset-password",
 			});
+			if (error) {
+				throw new Error(error.message || "Failed to send email");
+			}
 			setIsSuccess(true);
 			toast.success("Check your email for a link to set your password");
 		} catch (error) {

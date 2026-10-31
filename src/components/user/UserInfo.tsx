@@ -48,7 +48,10 @@ function UserInfoContent() {
 
 		try {
 			if (nameInput && nameInput !== user?.name) {
-				await updateUser({ name: nameInput });
+				const { error } = await updateUser({ name: nameInput });
+				if (error) {
+					throw new Error(error.message || "Failed to update name");
+				}
 				toast.success("Name updated successfully");
 			}
 			setIsNameDialogOpen(false);
@@ -60,29 +63,6 @@ function UserInfoContent() {
 		}
 	};
 
-	// Function to update email in Stripe
-	const updateStripeEmail = async (customerId: string, email: string) => {
-		try {
-			const response = await fetch("/api/stripe/update-email", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ customerId, email }),
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to update email in Stripe");
-			}
-			console.log("Email updated in Stripe successfully", response);
-
-			return await response.json();
-		} catch (error) {
-			console.error("Error updating email in Stripe:", error);
-			throw error;
-		}
-	};
-
 	// Logic for updating the email
 	const handleEmailSubmit = async (e: React.SubmitEvent) => {
 		e.preventDefault();
@@ -90,15 +70,13 @@ function UserInfoContent() {
 
 		try {
 			if (emailInput && emailInput !== user?.email) {
-				// First, update the email with Better Auth
-				await changeEmail({
+				// The Stripe plugin syncs the customer email once the change is verified
+				const { error } = await changeEmail({
 					newEmail: emailInput,
 					callbackURL: "/account",
 				});
-
-				// Then update the email in Stripe if the user has a stripeCustomerId
-				if (user?.stripeCustomerId) {
-					await updateStripeEmail(user.stripeCustomerId, emailInput);
+				if (error) {
+					throw new Error(error.message || "Failed to update email");
 				}
 
 				toast.success(
@@ -120,10 +98,13 @@ function UserInfoContent() {
 
 		setIsSendingVerification(true);
 		try {
-			await sendVerificationEmail({
+			const { error } = await sendVerificationEmail({
 				email: user.email,
 				callbackURL: "/account",
 			});
+			if (error) {
+				throw new Error(error.message || "Failed to send verification email");
+			}
 			toast.success("Verification email sent. Please check your inbox.");
 		} catch (error) {
 			console.error("Failed to send verification email:", error);

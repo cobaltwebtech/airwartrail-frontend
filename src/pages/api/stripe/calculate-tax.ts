@@ -1,14 +1,15 @@
-import { env } from "cloudflare:workers";
+
 import type { APIRoute } from "astro";
 import type Stripe from "stripe";
+import { ENV } from "varlock/env";
 import { auth, createStripeClient } from "@/lib/auth";
 
 // Price ID for the premium plan - should match auth.ts config
-const PREMIUM_PRICE_ID = env.STRIPE_PRICE_ID;
+const PREMIUM_PRICE_ID = ENV.STRIPE_PRICE_ID;
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		const stripeClient = createStripeClient(env.STRIPE_SECRET_KEY);
+		const stripeClient = createStripeClient(ENV.STRIPE_SECRET_KEY);
 
 		// Get the session from Better Auth
 		const session = await auth.api.getSession({

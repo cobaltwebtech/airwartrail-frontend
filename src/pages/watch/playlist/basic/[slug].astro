@@ -1,4 +1,5 @@
 ---
+import { ENV } from "varlock/env";
 import { PlaylistPlayer } from "@/components/playlist/PlaylistPlayer";
 import {
 	Breadcrumb,
@@ -19,7 +20,7 @@ if (!slug) {
 const videoParam = Astro.url.searchParams.get("video");
 const startIndex = videoParam ? parseInt(videoParam, 10) : 0;
 
-const videoLibraryId = import.meta.env.AWT_BASIC_LIBRARY_ID;
+const videoLibraryId = ENV.AWT_BASIC_LIBRARY_ID;
 
 // Format the page title from the slug
 const formatTitle = (slug: string) => {

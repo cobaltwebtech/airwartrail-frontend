@@ -219,7 +219,7 @@ export function CheckoutForm({
 			const { error: setupError, setupIntent } = await stripe.confirmSetup({
 				elements,
 				confirmParams: {
-					return_url: `${window.location.origin}/subscribe/success`,
+					return_url: `${window.location.origin}/subscribe/checkout/success`,
 				},
 				redirect: "if_required",
 			});
@@ -278,6 +278,7 @@ export function CheckoutForm({
 			if (result.status === "requires_action" && result.clientSecret) {
 				const { error: confirmError } = await stripe.confirmCardPayment(
 					result.clientSecret,
+					{ payment_method: paymentMethodId },
 				);
 
 				if (confirmError) {
@@ -511,6 +512,7 @@ export function CheckoutForm({
 			{/* Action Buttons */}
 			<div className="flex gap-4">
 				<Button
+					type="button"
 					variant="outline"
 					onClick={onCancel}
 					disabled={isProcessing}

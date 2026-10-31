@@ -1,9 +1,11 @@
 ---
+
 title: "Terms of Service"
 date: 2026-01-22
 ---
 
 # TERMS OF SERVICE
+
 **Last Revised: January 22, 2026**
 
 ---

@@ -1,3 +1,4 @@
+import type * as React from "react";
 import {
 	Body,
 	Column,
@@ -9,7 +10,6 @@ import {
 	Section,
 	Text,
 } from "react-email";
-import type * as React from "react";
 
 interface ContactFormProps {
 	fullName: string;

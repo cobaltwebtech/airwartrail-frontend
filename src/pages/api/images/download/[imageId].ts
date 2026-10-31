@@ -1,3 +1,4 @@
+import { ENV } from "varlock/env";
 /**
  * Image Download API Endpoint
  *
@@ -13,8 +14,16 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 
-export const GET: APIRoute = async ({ params, request }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
 	const { imageId } = params;
+
+	// Downloads come from bonus content photo albums, which are subscriber-only
+	if (!locals.auth.hasActiveSubscription) {
+		return new Response(
+			JSON.stringify({ error: "An active subscription is required" }),
+			{ status: 403, headers: { "Content-Type": "application/json" } },
+		);
+	}
 
 	if (!imageId) {
 		return new Response(JSON.stringify({ error: "Missing imageId" }), {
@@ -29,7 +38,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		const cmsUrl = `https://awt-cms-worker/api/cf-images/download/${imageId}`;
 
 		const headers = new Headers();
-		headers.set("x-api-key", env.AWT_CMS_API_KEY);
+		headers.set("x-api-key", ENV.AWT_CMS_API_KEY);
 
 		// Forward cookies so the CMS can validate session auth if needed
 		const cookie = request.headers.get("Cookie");

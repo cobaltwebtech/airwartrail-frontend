@@ -10,3 +10,5 @@ minimumReleaseAgeExclude:
   - wrangler
   - miniflare
   - '@cloudflare/*'
+overrides:
+  '@better-fetch/fetch': 1.3.3 # @better-auth/infra pins 1.3.2, which breaks better-auth client types

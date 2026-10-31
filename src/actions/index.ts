@@ -1,7 +1,7 @@
 import { ActionError, defineAction } from "astro:actions";
-import { env } from "cloudflare:workers";
 import { z } from "astro/zod";
 import { Resend } from "resend";
+import { ENV } from "varlock/env";
 import { ContactForm } from "@/components/email/ContactForm";
 
 // Validate form inputs with Zod
@@ -17,7 +17,7 @@ const contactFormSchema = z.object({
 
 // Verify Cloudflare Turnstile token
 async function verifyTurnstileToken(token: string): Promise<boolean> {
-	const secretKey = env.TURNSTILE_SECRET_KEY;
+	const secretKey = ENV.TURNSTILE_SECRET_KEY;
 
 	const formData = new FormData();
 	formData.append("secret", secretKey);
@@ -46,7 +46,7 @@ export const server = {
 		input: contactFormSchema,
 		handler: async (input) => {
 			// Instantiate Resend at runtime when env is available
-			const resend = new Resend(env.RESEND_API_KEY);
+			const resend = new Resend(ENV.RESEND_API_KEY);
 
 			// Verify Turnstile token server-side
 			const isValidToken = await verifyTurnstileToken(

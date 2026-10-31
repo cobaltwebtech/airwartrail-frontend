@@ -74,8 +74,9 @@ const {
       // Optimize Preline initialization only for elements that need it
       document.addEventListener("astro:page-load", async () => {
         if (document.querySelector("[data-hs-collapse]")) {
+          // Preline 5 only exports the plugin from the non-auto build
           const { default: HSCollapse } = await import(
-            "preline/plugins/collapse"
+            "preline/plugins/collapse-non-auto"
           );
           HSCollapse.autoInit();
         }

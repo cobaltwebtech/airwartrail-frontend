@@ -1,4 +1,5 @@
 ---
+import { ENV } from "varlock/env";
 
 import HomepageHero from "@/components/partials/HomepageHero";
 import PlaylistDetail from "@/components/playlist/PlaylistDetail";
@@ -8,8 +9,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
 // Library IDs from envs
 // Use Vite's env since we SSG this route
-const basicLibrary = import.meta.env.AWT_BASIC_LIBRARY_ID;
-const premiumLibrary = import.meta.env.AWT_PREMIUM_LIBRARY_ID;
+const basicLibrary = ENV.AWT_BASIC_LIBRARY_ID;
+const premiumLibrary = ENV.AWT_PREMIUM_LIBRARY_ID;
 
 const pageTitle = "Air War Trail";
 const structuredData = {

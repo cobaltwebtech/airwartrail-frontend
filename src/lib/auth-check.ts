@@ -7,7 +7,7 @@
 
 import { env } from "cloudflare:workers";
 import type { AstroGlobal } from "astro";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { createDrizzle } from "@/lib/auth";
 import * as schema from "@/lib/db-auth-schema";
 
@@ -87,7 +87,9 @@ export async function getAuthState(
 
 		const db = createDrizzle(d1);
 
-		// Fetch user from database
+		// Fetch the user for this session. Joining on the Better Auth session table
+		// means revoked or expired sessions (sign out everywhere, password change,
+		// admin revoke) are no longer treated as authenticated.
 		const [userData] = await db
 			.select({
 				id: schema.user.id,
@@ -98,11 +100,18 @@ export async function getAuthState(
 				emailVerified: schema.user.emailVerified,
 				banned: schema.user.banned,
 			})
-			.from(schema.user)
-			.where(eq(schema.user.id, sessionData.userId))
+			.from(schema.session)
+			.innerJoin(schema.user, eq(schema.session.userId, schema.user.id))
+			.where(
+				and(
+					eq(schema.session.token, sessionData.token),
+					eq(schema.session.userId, sessionData.userId),
+					gt(schema.session.expiresAt, new Date()),
+				),
+			)
 			.limit(1);
 
-		// If user not found, session is invalid
+		// If no matching session or user, the session is invalid
 		if (!userData) {
 			return noAuthResult;
 		}

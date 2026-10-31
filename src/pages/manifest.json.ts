@@ -1,4 +1,3 @@
-
 import type { APIRoute } from "astro";
 
 interface Favicon {

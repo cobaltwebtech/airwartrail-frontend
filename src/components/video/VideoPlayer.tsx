@@ -551,9 +551,7 @@ function VideoPlayerDetailContent({
 							<Hourglass className="size-4" />
 							{formatDuration(video.duration)}
 						</div>
-						<p>
-							{formatVideoReleaseDate(video)}
-						</p>
+						<p>{formatVideoReleaseDate(video)}</p>
 					</CardDescription>
 					<CardAction>
 						<Badge>{video.views} views</Badge>

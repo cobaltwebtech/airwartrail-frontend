@@ -2,6 +2,7 @@ import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import varlockAstroIntegration from "@varlock/astro-integration";
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
@@ -49,6 +50,7 @@ export default defineConfig({
 		imageService: "cloudflare-binding",
 	}),
 	integrations: [
+		varlockAstroIntegration(),
 		react({
 			compiler: true,
 		}),

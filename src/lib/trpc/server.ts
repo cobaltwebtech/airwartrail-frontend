@@ -1,3 +1,4 @@
+import { ENV } from "varlock/env";
 /**
  * Server-side tRPC client using Cloudflare Service Bindings
  *
@@ -43,7 +44,7 @@ export function createServerTRPCClient(env: Env, request?: Request) {
 				// Forward original headers to preserve session cookies, add API key for auth
 				headers: {
 					...(request ? Object.fromEntries(request.headers) : {}),
-					"x-api-key": env.AWT_CMS_API_KEY,
+					"x-api-key": ENV.AWT_CMS_API_KEY,
 				},
 				fetch: async (input, options) => {
 					// Service binding fetch - handle both Request objects and URL strings
@@ -64,7 +65,7 @@ export function createServerTRPCClient(env: Env, request?: Request) {
  * Use this when you need to make authenticated calls without a user session.
  *
  * @param env - The Cloudflare environment from Astro.locals.runtime
- * @param apiKey - The API key for authentication (use env.AWT_CMS_API_KEY)
+ * @param apiKey - The API key for authentication (use ENV.AWT_CMS_API_KEY)
  *
  * @example
  * ```typescript
@@ -72,7 +73,7 @@ export function createServerTRPCClient(env: Env, request?: Request) {
  * import { env } from 'cloudflare:workers';
  *
  * export const GET: APIRoute = async ({ locals }) => {
- *   const trpc = createApiKeyTRPCClient(env, env.AWT_CMS_API_KEY);
+ *   const trpc = createApiKeyTRPCClient(env, ENV.AWT_CMS_API_KEY);
  *
  *   const libraries = await trpc.mux.listLibraries.query();
  *   return new Response(JSON.stringify(libraries));

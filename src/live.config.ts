@@ -1,3 +1,4 @@
+import { ENV } from "varlock/env";
 /**
  * Live Content Collections Configuration
  *
@@ -131,7 +132,7 @@ const pageSchema = z.object({
 async function getCMSBinding(): Promise<{ binding: Fetcher; apiKey?: string }> {
 	const { env } = await import("cloudflare:workers");
 	const binding = env.AWT_CMS;
-	const apiKey = env.AWT_CMS_API_KEY;
+	const apiKey = ENV.AWT_CMS_API_KEY;
 
 	if (!binding) {
 		throw new Error(

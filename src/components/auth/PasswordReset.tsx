@@ -69,10 +69,16 @@ export function PasswordReset({
 				toast.error("Invalid or missing token");
 				return;
 			}
-			await resetPassword({
+			const { error } = await resetPassword({
 				newPassword,
 				token,
 			});
+			if (error) {
+				throw new Error(
+					error.message ||
+						"Failed to reset password. Please try again or request a new reset link.",
+				);
+			}
 			setIsSuccess(true);
 			toast.success("Password has been reset successfully!");
 		} catch (error) {
