@@ -1,10 +1,32 @@
 ---
 
 import { Image } from "astro:assets";
+import { getLiveEntry } from "astro:content";
+import { env } from "cloudflare:workers";
 import OldSegundoLogo from "@/assets/static/old-segundo-logo.png";
 import { Button } from "@/components/ui/button";
 import { VideoEmbed } from "@/components/video/VideoEmbed";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { signTiptapImages } from "@/lib/sign-blog-images";
+import { splitAtHorizontalRule, tiptapToHtml } from "@/lib/tiptap";
+
+// Fetch the About page content managed in the CMS
+// This calls loadEntry in the siteContent loader, which fetches content via siteContent.get
+const result = await getLiveEntry("siteContent", { key: "about" });
+
+if (result.error) {
+  console.error("Failed to load About page content:", result.error.message);
+}
+
+const content = result.entry?.data.content ?? null;
+
+// Sign any images in the content
+const signedImageMap = await signTiptapImages(content, env, Astro.request);
+
+// Content above the first horizontal rule sits beside the video; the rest runs below it
+const { before, after } = splitAtHorizontalRule(content);
+const introHtml = tiptapToHtml(before, { signedImageMap });
+const bodyHtml = tiptapToHtml(after, { signedImageMap });
 ---
 
 <BaseLayout
@@ -30,33 +52,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
   <div class="container mx-auto px-4 py-8">
     <h1 class="mb-8 text-center text-3xl font-bold">About the Air War Trail</h1>
     <div class="mx-auto mb-10 grid gap-8 text-justify md:grid-cols-2">
-      <div class="space-y-4">
-        <p>
-          The documentaries, interviews, and images bring the voices
-          alive from those who experienced World War II in an up close and
-          personal way. These are their stories, when freedom stood in the
-          balance and a generation of the free made a difference in the world.
-        </p>
-        <p>
-          In 2002 Military Historian and Producer/Director Vernon L. Williams
-          established the East Anglia Air War Project with a mission to document
-          the American air war against the German empire in the ETO. For
-          twenty-three years, Dr. Williams has traveled across the United States
-          interviewing ground and air crews who served in wartime England during
-          the Second World War.
-        </p>
-        <p>
-          Meanwhile, Williams made countless trips to England and searched out
-          British family members who lived in the villages around the airfields
-          across East Anglia. The net result of more than two decades of
-          research, oral history interviews, and an extensive document archive,
-          Williams has produced over a dozen full length broadcast quality
-          documentaries on the air war, with more on the way, recorded hundreds
-          of comprehensive oral history interviews, and collected more than
-          fifty thousand World War Two photographs. Now the East Anglia Air War
-          Collection is available on a new streaming service through
-          the Air War Trail.
-        </p>
+      <div class="prose dark:prose-invert max-w-none">
+        <Fragment set:html={introHtml} />
       </div>
       <div
         class="from-primary via-card/40 to-primary aspect-video rounded-lg bg-linear-to-tr p-4"
@@ -69,90 +66,11 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       />
       </div>
     </div>
-    <div class="space-y-4">
-      <h3 class="text-xl font-bold">About the Historian</h3>
-      <p>
-        Dr. Vernon L. Williams is a military and naval historian. He received
-        his doctorate from Texas A&M University in 1985. He is currently serving
-        as President of the Old Primero Historical Foundation and Director of
-        the East Anglia Air War Project. Before 2018 he spent thirty years as
-        professor of history in the Department of History at Abilene Christian
-        University. Since 2001 Dr. Williams has been working to document the
-        wartime experiences of American and British citizens alike. Planned
-        outcomes from this project include several books over the next few years
-        and a continuing series of documentary films.
-      </p>
-      <p>Recently, Dr. Williams has completed two books:</p>
-      <p>
-        Flight Surgeon: A War Diary, 1941-1945, Edited by Vernon L. Williams,
-        TCU University Press, 2021
-      </p>
-      <p>
-        Empire Marine: Major General Littleton W.T. Waller and the Growth of
-        American Imperialism, 1856-1926, TCU University Press, 2024
-      </p>
-      <p>
-        Currently, Dr. Williams is writing a volume about the sense of community that developed between the Americans and British families living in villages around the American bases in wartime England. The working title for the book is: Little America: The Anglo/American Cultural Exchange in World War II England, 1942-1945, in progress with an expected completion and submission date at the end of 2026. Little America will be organized into ten chapters:
-      </p>
-      <ul class="ml-8 list-disc md:ml-16">
-        <li>Preface</li>
-        <li>Chapter 1.  Setting the Stage</li>
-        <li>Chapter 2.  Little America, A Sense of Place</li>
-        <li>Chapter 3.  The Red Cross and the Aero Clubs</li>
-        <li>Chapter 4.  Race: The Shifting Landscape</li>
-        <li>Chapter 5.  Big Bands and the Jitterbug</li>
-        <li>Chapter 6.  The Moral Dilemma</li>
-        <li>Chapter 7.  Glamour and Hollywood</li>
-        <li>Chapter 8.  War Brides</li>
-        <li>Chapter 9.  Bonds that are Never Broken</li>
-        <li>Chapter 10. Epilogue</li>
-      </ul>
-      <p>
-        Six new documentaries have been released by Dr. Williams for Old Segundo
-        Productions in recent years. Three of these films appear in the Air War
-        Series and three in the History of the American West Series. During the
-        last twenty years, Dr. Williams has produced over twenty-one documentary
-        films on military and American history subjects.
-      </p>
-      <p>
-        Cokedale, Colorado, 1907-1947: A Model Company Town and the Promise of
-        Hope and Community, released 2024
-      </p>
-      <p>
-        Wethersfield at War: From World War II to the Cold War, An Essex Story
-        of Service, Determination, and the Anglo-American Spirit, released 2023
-      </p>
-      <p>
-        Primero, Colorado, 1901-1928: John D. Rockefeller, Jr., Company Towns,
-        and the Quest for a Better World, released 2018
-      </p>
-      <p>
-        Rendezvous Over Berlin, A Texas Cowboy Finds His Destiny Over the Skies
-        of Nazi Germany, 1942-1943, released 2020
-      </p>
-      <p>
-        Willard, Colorado: The Burlington Railroad, Community, and Life on the
-        Twentieth Century’s Colorado High Plains, released in 2020
-      </p>
-      <p>
-        From Ozark to Fortress Europe: Flight Surgeon Thurman Shuller, War,
-        Medicine, and a Life of Service, released 2021
-      </p>
-      <p>
-        Williams’ first documentary film, Deopham Green, appeared in 2004 and
-        since that time, he has produced and directed twenty documentaries on
-        various subjects. You can visit oldsegundo.com to find information on
-        the films that are currently available and learn about others that are
-        now in the production and pre-production stages.
-      </p>
-      <p>
-        Academic Background<br />
-        Ph.D., 1985<br />
-        Texas A&M University, College Station, Texas<br />
-        Major: American Military and Naval History<br />
-        Minors: American West and Nautical Archaeology
-      </p>
-    </div>
+    {bodyHtml && (
+      <div class="prose dark:prose-invert mb-10 max-w-none">
+        <Fragment set:html={bodyHtml} />
+      </div>
+    )}
     <div class="flex flex-col items-center space-y-4">
       <a href="https://www.oldsegundo.com/" target="_blank" rel="noopener">
         <Image

@@ -301,6 +301,20 @@ export interface ListPagesOutput {
 }
 
 // ============================================================================
+// Site Content Types
+// ============================================================================
+
+/** Fixed keys for single-route pages whose content is managed in the CMS */
+export type SiteContentKey = "about";
+
+export interface SiteContent {
+	key: SiteContentKey;
+	content: unknown;
+	updatedBy: string | null;
+	updatedAt: string | null;
+}
+
+// ============================================================================
 // Upload Types
 // ============================================================================
 

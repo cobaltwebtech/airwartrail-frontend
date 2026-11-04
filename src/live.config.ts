@@ -18,6 +18,8 @@ import type {
 	ListPagesOutput,
 	Page,
 	PagePublishStatus,
+	SiteContent,
+	SiteContentKey,
 } from "./lib/trpc/types";
 
 // ============================================================================
@@ -55,6 +57,11 @@ interface PageCollectionFilter {
 interface PageEntryFilter {
 	id?: string;
 	slug?: string;
+}
+
+/** Filter for fetching single-route page content */
+interface SiteContentEntryFilter {
+	key: SiteContentKey;
 }
 
 // ============================================================================
@@ -117,6 +124,18 @@ const pageSchema = z.object({
 	author: z.string(),
 	authorId: z.string().nullable(),
 	createdAt: z.string().nullable(),
+	updatedAt: z.string().nullable(),
+});
+
+// ============================================================================
+// Site Content Schemas
+// ============================================================================
+
+/** Schema for single-route page content from siteContent.get procedure */
+const siteContentSchema = z.object({
+	key: z.enum(["about"]),
+	content: z.unknown(),
+	updatedBy: z.string().nullable(),
 	updatedAt: z.string().nullable(),
 });
 
@@ -511,6 +530,60 @@ function pageLoader(): LiveLoader<
 }
 
 // ============================================================================
+// Site Content Loader
+// ============================================================================
+
+/**
+ * Live loader for single-route page content (e.g. the About page) from the
+ * siteContent.get procedure
+ */
+function siteContentLoader(): LiveLoader<
+	Record<string, unknown>,
+	SiteContentEntryFilter,
+	never,
+	Error
+> {
+	return {
+		name: "site-content-loader",
+
+		/**
+		 * Not used - site content is always loaded by key
+		 */
+		loadCollection: async () => {
+			throw new Error("Use getLiveEntry with a key for site content");
+		},
+
+		/**
+		 * Load the content for a single-route page by key
+		 */
+		loadEntry: async ({ filter }) => {
+			try {
+				const result = await fetchFromCMS<SiteContent>("siteContent.get", {
+					key: filter.key,
+				});
+
+				return {
+					id: result.key,
+					data: {
+						...result,
+						updatedAt: result.updatedAt
+							? new Date(result.updatedAt).toISOString()
+							: null,
+					},
+				};
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "Unknown error";
+				console.error("Error loading site content from CMS:", error);
+				return {
+					error: new Error(`Failed to load site content: ${message}`),
+				};
+			}
+		},
+	};
+}
+
+// ============================================================================
 // Blog Collections
 // ============================================================================
 
@@ -530,5 +603,9 @@ export const collections = {
 	page: defineLiveCollection({
 		loader: pageLoader(),
 		schema: pageSchema,
+	}),
+	siteContent: defineLiveCollection({
+		loader: siteContentLoader(),
+		schema: siteContentSchema,
 	}),
 };

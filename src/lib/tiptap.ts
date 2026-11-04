@@ -506,6 +506,43 @@ export function tiptapToHtml(
 }
 
 /**
+ * Split Tiptap content at the first top-level horizontal rule. The rule itself
+ * is dropped. Used to place part of a page's content in a separate layout area
+ * (e.g. beside a video) while editors manage it as a single document.
+ *
+ * @param content - The Tiptap JSON content
+ * @returns `before` holds everything above the rule (or the whole document when
+ * there is no rule); `after` holds everything below it, or null.
+ */
+export function splitAtHorizontalRule(content: unknown): {
+	before: TiptapContent | null;
+	after: TiptapContent | null;
+} {
+	if (!content || typeof content !== "object") {
+		return { before: null, after: null };
+	}
+
+	const doc = content as TiptapContent;
+
+	if (doc.type !== "doc" || !Array.isArray(doc.content)) {
+		return { before: null, after: null };
+	}
+
+	const ruleIndex = doc.content.findIndex(
+		(node) => node.type === "horizontalRule",
+	);
+
+	if (ruleIndex === -1) {
+		return { before: doc, after: null };
+	}
+
+	return {
+		before: { type: "doc", content: doc.content.slice(0, ruleIndex) },
+		after: { type: "doc", content: doc.content.slice(ruleIndex + 1) },
+	};
+}
+
+/**
  * Extract plain text from Tiptap content (useful for excerpts, meta descriptions)
  *
  * @param content - The Tiptap JSON content
